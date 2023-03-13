@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+</head>
+
+
+<body style="background-color: #e7e7e7;">
+  <!-- Navbar -->
+  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+      <!-- Toggle button -->
+      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
+        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Brand -->
+      <a class="navbar-brand" href="#">
+        <img src="static/images/b-lease_main.png"
+             height="30"
+             alt="b-lease logo"
+             loading="lazy" />
+      </a>
+    
+
+      <!-- Right links -->
+      <ul class="navbar-nav ms-auto d-flex flex-row">
+
+        <!-- Avatar -->
+        <li class="nav-item dropdown">
+          <a href ="{{ url_for('logout') }}" class="link-success">Logout</a>
+          <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
+            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
+              height="22" alt="Avatar" loading="lazy" />
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+            <li>
+              <a class="dropdown-item" href="#">My profile</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Settings</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Logout</a>
+            </li>
+          </ul> -->
+        </li>
+      </ul>
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+    
+</header>
+
+  <!-- form -->
+  <section class="vh-100" style="background-color: #eee;">
+    <div class="container h-100">
+        
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-lg-12 col-xl-11">
+          <div class="card text-black" style="border-radius: 25px;">
+            <div class="card-body p-md-5">
+              <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+                    <a href="{{url_for('admin_panel')}}" >
+                        Go back
+                    </a>
+                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4" style="color: #40a047">Add New Admin</p>
+                  
+                  {% if message %}
+                  <div class="alert alert-success">{{ message }}</div>
+                   {% endif %}
+                  <form class="mx-1 mx-md-4" method="POST" action="/addAdmin">
+                
+                    <!-- <div class="d-flex flex-row align-items-center mb-4">
+                      <div class="form-outline flex-fill mb-0">
+                        <input type="text" id="adminID" name="adminID" class="form-control" />
+                        <label class= "form-label" for="form3Example1c">Admin ID</label>
+                      </div>
+                    </div> -->
+
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="adminID" name="adminID" aria-describedby="emailHelp" placeholder="Admin ID" required>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="admin_fname" name="admin_fname" aria-describedby="emailHelp" placeholder="First Name" required>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="admin_mname" name="admin_mname" aria-describedby="emailHelp" placeholder="Middle Name" required>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="admin_lname" name="admin_lname" aria-describedby="emailHelp" placeholder="Last Name" required>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="admin_username" name="admin_username" aria-describedby="emailHelp" placeholder="Username" required>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="admin_password" name="admin_password" aria-describedby="emailHelp" placeholder="Password" required>
+                    </div>
+                    <br>
+
+
+                    
+  
+  
+                    <div class="form-check d-flex justify-content-center mb-5">
+                      <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c" />
+                      <label class="form-check-label" for="form2Example3">
+                        I agree all statements in <a href="#!" class="link-success">Terms of service</a>
+                      </label>
+                    </div>
+  
+                    <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                      <button type="submit" class="btn btn-success btn-lg">Register</button>
+                    </div>
+  
+                  </form>
+  
+                </div>
+                <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+  
+                    <img src="static/images/b-lease-icon-main.png"
+                    class="bg img-fluid" alt="Sample image"/>
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+       
+
+
+
+
+
+  <!-- End of Body -->
+
+
+
+  </div>
+</body>
+</html>

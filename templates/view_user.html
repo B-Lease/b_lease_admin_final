@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    
+</head>
+
+
+
+<body style="background-color: #e7e7e7;">
+    <!--Main Navigation-->
+<header>
+  <!-- Sidebar -->
+  <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+    <div class="position-sticky">
+      <div class="list-group list-group-flush mx-7 mt-5">
+        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
+          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+        </a>
+        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple text-success active">
+          <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+          <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+        <a href="#{{url_for('admin_panel')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+        
+      </div>
+    </div>
+  </nav>
+  <!-- Sidebar -->
+
+  <!-- Navbar -->
+  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+      <!-- Toggle button -->
+      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
+        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Brand -->
+      <a class="navbar-brand" href="#">
+        <img src="static/images/b-lease_main.png"
+             height="30"
+             alt="b-lease logo"
+             loading="lazy" />
+      </a>
+    
+
+      <!-- Right links -->
+      <ul class="navbar-nav ms-auto d-flex flex-row">
+
+        <!-- Avatar -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
+            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
+              height="22" alt="Avatar" loading="lazy" />
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+            <li>
+              <a class="dropdown-item" href="#">My profile</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Settings</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Logout</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+</header>
+<!--Main Navigation-->
+
+<!--Main layout-->
+<main style="margin-top: 58px;">
+  <div class="container pt-3 align-items-center">
+    <a href="{{url_for('user_report')}}" >
+        Go back
+    </a>
+      <br>
+    <!-- Dashboard -->
+    <section style="background-color: #eee;">
+       <br>
+        <div class="row">
+           
+            <div class="col-lg-4">
+              <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% for users in user%}
+                    {% if users.userID == users.userID%}
+                  <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar"
+                    class="rounded-circle img-fluid" style="width: 150px;">
+                  <h5 class="my-3">John Smith</h5>
+                  <p class="text-muted mb-1">Lessor</p>
+                  <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
+                  <!-- <div class="d-flex justify-content-center mb-2">
+                    <button type="button" class="btn btn-primary">Follow</button>
+                    <button type="button" class="btn btn-outline-primary ms-1">Message</button>
+                  </div> -->
+                </div>
+              </div>
+             
+            </div>
+            <div class="col-lg-8">
+              <div class="card mb-4">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Full Name</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">Johnatan Smith</p>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Email</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">example@example.com</p>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Phone</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">(097) 234-5678</p>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Mobile</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">(098) 765-4321</p>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Address</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+              </div>
+            
+               
+                  
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+    </section>
+        
+  </div>
+</main>
+<!--Main layout-->
+
+
+ 
+  
+
+    <!-- footer -->
+    <footer class="text-center p-3  fixed-bottom">
+        <p>B-Lease © 2023</p>
+    </footer>
+</body>
+</html>

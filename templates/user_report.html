@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename='/js/user_report.js')}}"></script>
+    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>{{title}}</title>
+    
+</head>
+<body style="background-color: #e7e7e7;">
+    <!--Main Navigation-->
+
+  <!-- Sidebar -->
+  <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+    <div class="position-sticky">
+      <div class="list-group list-group-flush mx-7 mt-5">
+        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
+          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+        </a>
+        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple text-success active">
+          <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+          <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+        <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+        
+      </div>
+    </div>
+  </nav>
+  <!-- Sidebar -->
+
+  <!-- Navbar -->
+  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+      <!-- Toggle button -->
+      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
+        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Brand -->
+      <a class="navbar-brand" href="#">
+        <img src="static/images/b-lease_main.png"
+             height="30"
+             alt="b-lease logo"
+             loading="lazy" />
+      </a>
+    
+
+      <!-- Right links -->
+      <ul class="navbar-nav ms-auto d-flex flex-row">
+
+        <!-- Avatar -->
+        <li class="nav-item dropdown">
+          <a href ="{{ url_for('logout') }}" class="link-success">Logout</a>
+          <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
+            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
+              height="22" alt="Avatar" loading="lazy" />
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+            <li>
+              <a class="dropdown-item" href="#">My profile</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Settings</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Logout</a>
+            </li>
+          </ul> -->
+        </li>
+      </ul>
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+</header>
+<!--Main Navigation-->
+
+<!--Main layout-->
+<main style="margin-top: 58px;">
+  <div class="container pt-3 align-items-center">
+        <!-- Dashboard -->
+        <br>
+        <h3>Accounts</h3>
+         <!-- search -->
+         <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
+            <!-- <div class="input-group" style="outline-color: black;">
+              <div class="form-outline" >
+                <input type="search" id="searcg" class="form-control" />
+                <label class="form-label" for="search">Search</label>
+              </div>
+              <button type="button" class="btn btn-success">
+                <i class="fas fa-search"></i>
+              </button>
+            </div> -->
+            <div class="input-group">
+              <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+              <button type="button" class="btn btn-success">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+        </div>
+        <!-- Table -->
+        <table class="table align-middle mb-0 bg-white">
+            <thead class="bg-light text-success">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>User Type</th>
+                <th>Last Login</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                {% for user in user%}
+                <td>
+                    {{user.userID}}
+                </td>
+                <td>
+                      <p class="fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {{user.user_mname |first}}</p>
+                      <p class="text-muted mb-0">{{user.user_email}}</p>
+                      
+                    </div>
+                  </div>
+                </td>
+                <td>{{user.user_type}}</td>
+                <td>{{user.created_at}} </td>
+                <td>
+                    <span class="badge badge-success rounded-pill d-inline">{{user.user_status}}</span>
+                </td>
+                <td>
+                  <a onclick="setViewModalUser('{{user.userID}}', '{{user.user_type}}','{{user.user_fname}}', '{{user.user_mname}}','{{user.user_lname}}','{{user.user_birthdate}}','{{user.user_email}}' 
+                  ,'{{user.address}}','{{user.phone_number}}')" class="view-btn"  data-id="456">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                  &nbsp;
+                  <a onclick="setDeleteModalUser('{{user.userID}}')" class="delete-btn" data-id="123">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+              <!-- delete -->
+              <div
+              class="modal"
+              id="delete-modal"
+              data-mdb-backdrop="static"
+              data-mdb-keyboard="false"
+              tabindex="-1"
+              aria-labelledby="staticBackdropLabel"
+              aria-hidden="true"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdropLabel">Delete User?</h5>
+                      <button type="button" class="delete-cancel-btn btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">Are you sure you want to delete this user? This process can't be undone.<input type="text" id="deleteuserID" hidden></div>
+                    <div class="modal-footer">
+                      <button onclick="deleteButtonUser()" type="button" class="btn btn-danger delete-confirm-btn">Confirm Delete</button>
+                      <button type="button" class="btn btn-success delete-cancel-btn">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- view user modal -->
+              <div class="col-md-4">
+                <div class="modal" id="view-modal" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-form" role="document">
+                    <div class="modal-content">
+                      <div class="modal-body p-0">
+                        <div class="card card-plain">
+                          <div class="card-header">
+                            <h5 class="float-left" id="staticBackdropLabel">View User<span style="margin-right:315px;"></span><button type="button" class="view-cancel-btn btn-close align-self-right" data-mdb-dismiss="modal" aria-label="Close"></button></h5>
+                            
+                            <p class="mb-0"></p>
+                          </div>
+                          <div class="card-body">
+                            <form role="form text-left" method="POST" action="">
+                              
+                              <div class="d-flex px-2 py-1" style="align-self: center; color:#40A047;">
+                                
+                              <h5><span id="view_lastname"></span>, <span id="view_firstname"></span> <span id="view_middlename"></span></h5>
+                              <br/>
+                            
+                              
+                            </div>
+        
+                            <div>
+
+                            </div>
+                            
+                              <div class="flexer"></div>
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">ID Number</label>
+                                <input type="number" class="form-control"  name="userID" id="view_userID" readonly>
+                              </div>
+                             
+                              <div class="input-group input-group-static my-3" style="color:#40A047;">
+                                <label class="label">User Type</label>
+                                <input type="text" class="form-control" name="user_type" id="view_user_type" readonly>
+                              </div>
+
+                              <div class="input-group input-group-static my-3" style="color:#40A047;">
+                                <label class="label">Email</label>
+                                <input type="text" class="form-control" name="user_email" id="view_email" readonly>
+                              </div>
+              
+                              <div class="input-group input-group-static my-3"style="color:#40A047;">
+                                <label class="label">Birthdate</label>
+                                <input type="text" class="form-control" name="user_birthdate" id="view_birthdate" readonly>
+                              </div>
+
+                              <div class="input-group input-group-static my-3"style="color:#40A047;">
+                                <label class="label">Address</label>
+                                <input type="text" class="form-control" name="address" id="view_address" readonly>
+                              </div>
+              
+                              <div class="input-group input-group-static my-3"style="color:#40A047;">
+                                <label class="label">Contact Number</label>
+                                <input type="text" class="form-control" name="phone_number" id="view_phone_number" readonly>
+                              </div>
+                            </form>
+                          </div>
+                 
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  </div>
+</main>
+<!--Main layout-->
+
+
+ 
+  
+
+    <!-- footer -->
+    <footer class="text-center p-3  fixed-bottom">
+        <p>B-Lease © 2023</p>
+    </footer>
+</body>
+</html>

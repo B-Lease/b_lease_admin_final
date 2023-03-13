@@ -1,0 +1,319 @@
+* {
+    font-family: 'Inter';
+}
+
+body {
+    font-size: 22px;
+}
+
+.bgpos {
+    position: fixed;
+    bottom: -80px;
+    left: -200px;
+}
+
+
+.bg {
+    opacity: 0.4;
+}
+
+.bgpos img {
+    width: 800px;
+}
+
+.flx {
+    display: flex;
+}
+
+.content {
+    margin: auto;
+    margin-top: 75px;
+}
+
+.loginbtn {
+    margin: auto;
+    margin-top: 50px;
+    padding-left: 75px;
+}
+
+
+input[type=text] {
+    font-family: 'Inter';
+}
+
+input[type=password] {
+    font-family: 'Inter';
+}
+
+
+
+
+.logo {
+    margin-top: 50px;
+    text-align: center;
+}
+
+.logo p {
+    color: #40A047;
+    font-weight: 600;
+    margin-top: 10px;
+    font-family: 'Inter';
+}
+
+.logo img {
+    width: 400px;
+}
+
+footer p {
+    color: #787878;
+    font-size: small;
+}
+
+.header {
+  width: 100%;
+}
+/* dashboard */
+.card-text {
+    font-size:50px;
+}
+
+.navbar-profile img {
+    margin-right: 0;
+}
+
+.btn-group {
+    margin-right:60px;
+}
+.dash-content{
+    margin-left: 300px;
+    margin-top:35px ;
+}
+
+/* dropdown */
+.dropbtn {
+    background-color:#ffffff;
+    color: #40A047;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdown-content a:hover {background-color: #f1f1f1}
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  .dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+  }
+
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 59px;
+    bottom: 0;
+    left: 0;
+    padding: 10px 10px ; /* Height of navbar */
+    box-shadow: #40A047;
+    width: 250px;
+    z-index: 900;
+  }
+  
+ 
+  .sidebar .active {
+    border-radius: 5px;
+    box-shadow: #40A047;
+  }
+  
+  .sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    padding: 10px;
+  }
+
+  /* search */
+
+.form-outline {
+    width:100px;
+    margin-left: 100px;
+    margin-top:0;
+    outline-color: black;
+}
+
+.form-outline input[type=search] {
+    background-color: white;
+}
+
+
+ h3, h9 {
+  color:#40A047;
+ }
+
+ .card-title , .card-text1, .card-text , .card-footer{
+  text-align: center;
+ }
+
+.text-bg-success {
+    height:200px;
+    width: 130px;
+    margin-left:-30px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.card-text i{
+    margin-top: 70px;
+    margin-left: 15px;
+}
+
+.space{
+    margin-right: -250px;
+}
+
+/* admin panel */
+
+.addButton {
+
+    float:right;
+    margin-top: 10px;
+    margin-right: 50px;
+}
+
+.button {
+    width:100px;
+}
+
+.table{
+   margin-top: 10px;
+   border-radius: 10px;
+}
+
+/* add admin */
+.form-outline input[type=text]{
+    background-color:white;
+}
+
+.form-outline input[type=password]{
+    background-color:white;
+}
+
+
+.accCreation {
+    margin-top: 10px;
+    font-weight: 700;
+    font-family: 'Inter';
+    color: #40A047;
+    text-align: center;
+}
+
+
+main {
+    margin-left: 300px;
+}
+
+/* property listings */
+/* .propertylist {
+    width: 60%;
+    display:block;
+    margin-left:400px;
+    margin-top:80px;
+} */
+
+.propertylist a {
+    color:#14a44d;
+}
+
+.propertylist a:hover {
+    color:#135e31;
+    transition: ease-in 0.2s;
+}
+
+/* btn group view contracts */
+.btn-group {
+    margin-left: 600px;
+}
+
+.fa-eye {
+    color:#40a047;
+}
+
+.fa-trash-can {
+    color:#40a047;
+}
+
+/* add admin */
+.add {
+   align-items: right;
+}
+
+.fa-pen-to-square {
+    color: #40a047;
+}
+
+.d-flex label a {
+    color: #40A047;
+}
+
+
+.row a {
+    color: #40A047;
+}
+
+.row a:hover {
+    color: #135e31;
+}
+
+/* modals */
+
+.modal-header {
+    background-color: #40A047;
+}
+
+.modal-title {
+    color: white;
+}
+
+.card .card-header {
+    background-color: #40A047;
+    color: white;
+}
+
+
+.label {
+    width: 100px;
+}
+
+
+
+
+
+
+

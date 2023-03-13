@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+
+    
+</head>
+
+  
+
+<body>
+    <!-- b-lease logo -->
+    <div class="logo">
+        <img src="static/images/b-lease_main.png" alt="b-lease">
+            <p>Welcome!</p>
+    </div>
+
+    <!-- login form -->
+    <form action="{{ url_for('login_user') }}" method="POST">
+        <div class="flx">
+            <div class="content">
+                <div class="flx">
+                    <input type="text" class="form-control" id="admin_username" placeholder="Username" name="admin_username">
+                </div>
+                <br>
+                <div class="flx">
+                    <input type="password" class="form-control" id="admin_password" placeholder="Password" name="admin_password">
+                </div>
+                <div class="loginbtn">
+                    <button type="submit" class="btn btn-success" name="login">Login</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- b-lease background image  -->
+    <div class="bgpos">
+        <img class="bg" src="static/images/b-lease-icon-main.png" alt="b-lease icon">
+    </div>
+
+
+  <!-- footer -->
+  <footer class="text-center p-3  fixed-bottom">
+    <p>B-Lease © 2023</p>
+</footer>
+</body>
+</html>

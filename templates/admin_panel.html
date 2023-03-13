@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename='/js/admin_panel.js')}}"></script>
+    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"
+></script>
+    <title>{{title}}</title>
+</head>
+<body style="background-color: #e7e7e7;">
+    <!--Main Navigation-->
+
+  <!-- Sidebar -->
+  <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+    <div class="position-sticky">
+      <div class="list-group list-group-flush mx-7 mt-5">
+        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
+          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+        </a>
+        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple ">
+          <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+          <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+        <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple text-success active"><i
+            class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+        
+      </div>
+    </div>
+  </nav>
+  <!-- Sidebar -->
+
+  <!-- Navbar -->
+  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+      <!-- Toggle button -->
+      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
+        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Brand -->
+      <a class="navbar-brand" href="#">
+        <img src="static/images/b-lease_main.png"
+             height="30"
+             alt="b-lease logo"
+             loading="lazy" />
+      </a>
+    
+
+      <!-- Right links -->
+      <ul class="navbar-nav ms-auto d-flex flex-row">
+
+        <!-- Avatar -->
+        <li class="nav-item dropdown">
+          <a href ="{{ url_for('logout') }}" class="link-success">Logout</a>
+          <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
+            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
+              height="22" alt="Avatar" loading="lazy" />
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+            <li>
+              <a class="dropdown-item" href="#">My profile</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Settings</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Logout</a>
+            </li>
+          </ul>
+        </li>
+      </ul> -->
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+</header>
+<!--Main Navigation-->
+
+<!--Main layout-->
+<main style="margin-top: 58px;">
+  <div class="container pt-3 align-items-center">
+        <!-- Table -->
+        <div class="add">
+          <a href="{{url_for('add_admin')}}" class="btn btn-success">
+            <i class="fa-sharp fa-solid fa-plus"></i>Add new admin
+          </a>
+        </div>
+        <table class="table align-middle mb-0 bg-white">
+            <thead class="bg-light text-success">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>User Type</th>
+                <th>Last Login</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for admins in admin%}
+              <tr>   
+                <td>
+                    {{admins.adminID}}
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <div class="ms-0">
+                      <p class="fw-bold mb-1">{{admins.admin_lname}}, {{admins.admin_fname}} {{admins.admin_mname |first}}</p>
+                      <p class="text-muted mb-0">{{admins.admin_email}}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>Admin</td>
+                <td>{{admins.created_at}}</td>
+                <td>
+                    <span class="badge badge-success rounded-pill d-inline">Active</span>
+                </td>
+                <td>
+                 
+                
+                  <a onclick="setViewModalAdmin('{{admins.adminID}}','{{admins.admin_fname}}', '{{admins.admin_mname}}','{{admins.admin_lname}}','{{admins.admin_username}}','{{admins.admin_password}}' )" class="view-btn"  data-id="456">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                  &nbsp;
+                  <a onclick="setDeleteModal('{{admins.adminID}}')" class="delete-btn" data-id="123">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </a>
+                  
+                </td> 
+                
+              </tr>
+             
+              {% endfor %}
+             
+              <div
+                class="modal"
+                id="delete-modal"
+                tabindex="-1"
+                aria-labelledby="staticBackdropLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdropLabel">Delete Admin?</h5>
+                      <button type="button" class="delete-cancel-btn btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">Are you sure you want to delete this admin? This process can't be undone.<input type="text" id="deleteadminID" hidden></div>
+                    <div class="modal-footer">
+                      <button onclick="deleteButton()" type="button" class="btn btn-danger delete-confirm-btn">Confirm Delete</button>
+                      <button type="button" class="btn btn-success delete-cancel-btn">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- View Profile Modal -->
+            
+                 <!-- view user modal -->
+              <div class="col-md-4">
+                <div class="modal" id="view-modal" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-form" role="document">
+                    <div class="modal-content">
+                      <div class="modal-body p-0">
+                        <div class="card card-plain">
+                          <div class="card-header">
+                            <h5 class="float-left" id="staticBackdropLabel">Admin<span style="margin-right:350px;"></span><button type="button" class="view-cancel-btn btn-close align-self-right" data-mdb-dismiss="modal" aria-label="Close"></button></h5>
+                            
+                            <p class="mb-0"></p>
+                          </div>
+                          <div class="card-body">
+                           
+                            <form role="form text-left" method="POST" action="/updateadmin">
+                            
+                                <button type="button" id="edit_profile" style="border:none; outline:none; background-color:transparent;" onclick="editProfile()">
+                                  <i class=" fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip"
+                                      data-bs-placement="top" title="Edit Profile"></i>
+                                </button>
+                                <button type="button" id="cancel_edit_profile" style="border:none; outline:none; background-color:transparent;"  onclick="cancelEdit()" hidden>
+                                  <i class="fa-solid fa-xmark text-danger text-sm" data-bs-toggle="tooltip"
+                                      data-bs-placement="top" title="Cancel Edit Profile"></i>
+                              </button>
+                              <button type="submit" onclick="return emptyEdit()" href="javascript:;" id="confirm_edit_profile" style="border:none; outline:none; background-color:transparent;" hidden>
+                                        
+                                <i class="fa-solid fa-check text-success text-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Confirm Edit Profile"></i>
+                              </button>
+                             
+                         
+                            <input type="text" id="adminID" name="adminID" hidden>
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Admin ID</label>
+                                <input type="number" class="form-control"  name="adminIDlabel" id="adminIDlabel" disabled>
+                              </div>
+
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Firstname</label>
+                                <input type="text" class="form-control" name="admin_fname" id="admin_fname" disabled>
+                              </div>
+
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Middle Name</label>
+                                <input type="text" class="form-control"  name="admin_mname" id="admin_mname"   disabled>
+                              </div>
+
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Lastname</label>
+                                <input type="text" class="form-control"  name="admin_lname" id="admin_lname"  disabled>
+                              </div>
+                             
+                              <div class="input-group input-group-static my-3" style="color:#40A047;">
+                                <label class="label">Username</label>
+                                <input type="text" class="form-control" name="admin_username" id="admin_username"  disabled>
+                              </div>
+              
+                              <div class="input-group input-group-static my-3"style="color:#40A047;">
+                                <label class="label">Password</label>
+                                <input type="text" class="form-control" name="admin_password" id="admin_password"  disabled>
+                              </div>
+
+                             
+                            </form>
+                          </div>
+                          
+                 
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </tbody>
+          </table>
+          
+  </div>
+</main>
+<!--Main layout-->
+
+
+
+
+    <!-- footer -->
+    <footer class="text-center p-3 fixed-bottom">
+        <p>B-Lease © 2023</p>
+    </footer>
+</body>
+</html>
