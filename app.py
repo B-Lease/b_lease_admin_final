@@ -42,7 +42,6 @@ api.add_resource(restapi.properties,"/properties")
 
 api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<string:image>")
 
-api.add_resource(restapi.Message,"/message")
 #-----------------------------------------------------
 
 #Database Connection Setup 
