@@ -45,7 +45,8 @@ api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<st
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+# app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+app.config['MYSQL_PASSWORD'] = 'allain19851047!'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
