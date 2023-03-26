@@ -1,3 +1,5 @@
+from datetime import datetime
+import hashlib
 from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
 from flask_mysqldb import MySQL
 from flask_restful import Api,Resource
@@ -25,6 +27,7 @@ api = Api(app)
 #----------------------------------------------------
 
 api.add_resource(restapi.user,"/user")
+api.add_resource(restapi.delete_user,"/delete_user")
 api.add_resource(restapi.session,"/session")
 api.add_resource(restapi.complaint,"/complaint")
 api.add_resource(restapi.user_payment_method,"/user_payment_method")
@@ -33,6 +36,11 @@ api.add_resource(restapi.login,"/login")
 
 api.add_resource(restapi.Leasing,"/leasing")
 api.add_resource(restapi.Leasing_Documents,"/leasingdocs")
+api.add_resource(restapi.Message,"/messages")
+api.add_resource(restapi.property,"/property")
+api.add_resource(restapi.properties,"/properties")
+
+api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<string:image>")
 
 api.add_resource(restapi.Message,"/message")
 #-----------------------------------------------------
