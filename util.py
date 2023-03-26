@@ -53,7 +53,7 @@ def createPDF(leasingID:str):
     #one line is cell, multi-line is multi_cell
     #width = 0 (sets the width to the entire page)
     #width 40, length 10, content of cell
-    pdf.cell(40,10,'Hello World!')
+    pdf.cell(40,10,'This is a contract')
 
     directory = f"static\\{leasingID}"
 

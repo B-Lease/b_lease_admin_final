@@ -391,7 +391,6 @@ class Leasing(Resource):
             
     def put(self):
         leasingInfo = leasing_args_post.parse_args()
-
         fields = []
         data = []  
 
@@ -410,9 +409,19 @@ class Leasing(Resource):
                 leasingID = leasingInfo['leasingID']
                 leasing_docID = util.createPDF(leasingID)
                 leasing_doc_name = str(leasing_docID + "_contract.pdf") 
-                insert_docs = db.insert_data('leasing_documents',['leasing_docID','leasingID','leasing_doc_name'],[leasing_docID,leasingID,leasing_doc_name])
-                if insert_docs:
-                    return {'message':'Successfully confirmed lease request'}, 204
+
+                check_existing = db.check_existing_data('leasing_documents', 'leasingID', leasingID)
+                
+                if check_existing:
+                    
+                    insert_docs = db.update_data('leasing_documents',['leasing_docID','leasingID','leasing_doc_name'],[leasing_docID,leasingID,leasing_doc_name])
+                    if insert_docs: 
+                        return {'message':'Successfully confirmed lease request'},204
+                else:
+                    print('very okay')
+                    insert_docs = db.insert_data('leasing_documents',['leasing_docID','leasingID','leasing_doc_name'],[leasing_docID,leasingID,leasing_doc_name])
+                    if insert_docs:
+                        return {'message':'Successfully confirmed lease request'},204
 
             else:
                 return {'message':'Unable to lease request'},400
