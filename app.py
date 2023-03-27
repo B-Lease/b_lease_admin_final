@@ -34,12 +34,14 @@ api.add_resource(restapi.register,"/register")
 api.add_resource(restapi.login,"/login")
 
 api.add_resource(restapi.Leasing,"/leasing")
-api.add_resource(restapi.Leasing_Documents,"/leasingdocs")
+api.add_resource(restapi.LeasingContracts,"/leasingcontracts")
+# api.add_resource(restapi.Leasing_Documents,"/leasingdocs")
 api.add_resource(restapi.Message,"/messages")
 api.add_resource(restapi.property,"/property")
 api.add_resource(restapi.properties,"/properties")
 
 api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<string:image>")
+api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
 
 
 

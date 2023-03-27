@@ -152,6 +152,38 @@ def join_tables(userID:str):
 
 
 
+def get_leasing_contracts(table:str, fields, values):
+    cur = mysql.connection.cursor()
+    flds = []
+    
+    if len(fields) == len(values):
+        for i in range(len(fields)):
+            if type(values[i]) == str:
+                flds.append(f'''`{fields[i]}` = "{values[i]}"''')
+            else:
+                flds.append(f'''`{fields[i]}` = {values[i]}''')
+            
+        flds_final = " OR ".join(flds)
+        cur.execute(f'''SELECT * FROM {table} WHERE {flds_final}''')
+        data:dict = cur.fetchall()
+        mysql.connection.commit()
+        cur.close()
+        return data
 
 
 
+def get_name_of_user(userID):
+    cur = mysql.connection.cursor() 
+    cur.execute(f'''SELECT `user_fname`,`user_lname` FROM `user` WHERE `userID` = "{userID}" ''')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def get_address_of_property(propertyID):
+    cur = mysql.connection.cursor() 
+    cur.execute(f'''SELECT `address` FROM `property` WHERE `propertyID` = "{propertyID}" ''')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return str(data['address'])
