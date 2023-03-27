@@ -457,26 +457,37 @@ leasing_args_post.add_argument(
 
 class Leasing(Resource):
     def get(self):
-        # get specific data
-        userID = request.args.get('userID')
-        # as a lessee
-        leasingInfo = db.join_tables(userID)
-        if leasingInfo is not None:
-            leasing_encoded = json.dumps(leasingInfo, default=str)
-            return leasing_encoded, 200
-        else:
-            return abort(400, 'No conversations found')
+        check_existing = request.args.get('check_existing')
+        
+        if check_existing == 'yes':
+            lesseeID = request.args.get('lesseeID')
+            lessorID = request.args.get('lessorID')
+            propertyID = request.args.get('propertyID')
+            
+            fields = ['lesseeID', 'lessorID', 'propertyID']
+            values = [lesseeID, lessorID, propertyID]
 
-    # def get(self):
-    #     #get specific data
-    #     leasingID = request.args.get('leasingID')
-    #     leasingInfo = db.get_data('leasing', 'leasingID', leasingID)
-    #     if leasingInfo is not None:
-    #         leasing_encoded = json.dumps(leasingInfo,default=str)
-    #         print(leasing_encoded)
-    #         return leasing_encoded, 200
-    #     else:
-    #         return abort(400,'User not found')
+            leasingInfo = db.get_all_specific_data('leasing', fields, values)
+            #remove dictionaries in the list if it is equal to finished
+            leasingInfoFiltered = [item for item in leasingInfo if item['leasing_status'] != 'finished']
+
+            if len(leasingInfoFiltered) != 0:
+                leasing_encoded = json.dumps(leasingInfoFiltered, default=str)
+                return leasing_encoded, 200
+            else:
+                return {'message': 'No pending/ongoing leasing records'}, 209
+        
+        else:
+            # get specific data
+            userID = request.args.get('userID')
+            # as a lessee
+            leasingInfo = db.join_tables(userID)
+            if leasingInfo is not None:
+                leasing_encoded = json.dumps(leasingInfo, default=str)
+                return leasing_encoded, 200
+            else:
+                return abort(400, 'No conversations found')
+
 
     def post(self):
         lessorID = str(request.json['lessorID'])
@@ -484,12 +495,12 @@ class Leasing(Resource):
         propertyID = str(request.json['propertyID'])
         leasing_status = str(request.json['leasing_status'])
 
+
         param = str(lessorID + lesseeID + propertyID +
                     leasing_status + str(datetime.now()))
         leasingID = util.generateUUID(param)
 
-        fields = ['leasingID', 'lessorID', 'lesseeID',
-                  'propertyID', 'leasing_status']
+        fields = ['leasingID', 'lessorID', 'lesseeID', 'propertyID', 'leasing_status']        
         data = [leasingID, lessorID, lesseeID, propertyID, leasing_status]
 
         check_existing = db.check_existing_data(
@@ -564,6 +575,7 @@ class Leasing(Resource):
 # =======================================================================================
 
 
+
 # LEASING CONTRACTS API CLASS
 # =======================================================================================
 
@@ -600,6 +612,14 @@ class leasingdocs(Resource):
         filename = f'static/contracts/{leasingID}/{file}'
         return send_file(filename, mimetype='application/pdf')
     
+=======
+# LEASING API - CHECK ONGOING RECORDS BEFORE CREATING A NEW LEASING RECORD
+# =======================================================================================
+
+# =======================================================================================
+
+
+
 # LEASING DOCUMENTS API CLASS
 # =======================================================================================
 leasing_docs = reqparse.RequestParser()
@@ -639,37 +659,37 @@ class Leasing_Documents(Resource):
 # =======================================================================================
 
 
-# for messages
-message_post = reqparse.RequestParser()
-message_post.add_argument('msg_senderID', type=str,
-                          help='Missing Sender ID', required=True)
-message_post.add_argument('msg_receiverID', type=str,
-                          help='Missing Receiver ID', required=True)
-message_post.add_argument('msg_content', type=str,
-                          help='Missing Message Content', required=False)
-
-
 class Message(Resource):
     def get(self):
-        leasingID = 'fasdfsdfdsfds'
+        leasingID = request.args.get('leasingID')
         messages = db.get_items('message', 'leasingID', leasingID)
+        sorted_messages = sorted(messages, key=lambda x: x['sent_at'])
         if messages is not None:
-            messages_encoded = json.dumps(messages, default=str)
+            messages_encoded = json.dumps(sorted_messages, default=str)
+            print('messages_encoded')
+            print(messages_encoded)
             return messages_encoded, 200
         else:
             return abort(400, 'No conversations found')
 
     def post(self):
-        messageInfo = message_post.parse_args()
-
+        print(str('hello: '+request.json['leasingID']))
+        leasingID = request.json['leasingID']
+        msg_senderID = request.json['msg_senderID']
+        msg_receiverID = request.json['msg_receiverID']
+        msg_content = request.json['msg_content']
+        sent_at = request.json['sent_at']
+        
         fields = ['msgID', 'leasingID', 'msg_senderID',
                   'msg_receiverID', 'msg_content', 'sent_at']
-        msgID = util.generateUUID(json.dumps(messageInfo))
+        
+        param = str(leasingID + msg_senderID + msg_receiverID + msg_content + sent_at)
+        msgID = util.generateUUID(param)
 
-        # values = [msgID, ]
+        values = [msgID, leasingID, msg_senderID, msg_receiverID, msg_content, sent_at]
 
-        message = db.insert_data('messages', [''])
-        app.socketio.emit('new-message', message.content, broadcast=True)
+        message = db.insert_data('message', fields, values)
+        #app.socketio.emit('add-message', msg_content, broadcast=True)
         return jsonify({'success': True})
 
 

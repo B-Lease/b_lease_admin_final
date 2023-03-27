@@ -53,6 +53,7 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+#app.config['MYSQL_PASSWORD'] = 'allain19851047!'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
@@ -315,8 +316,8 @@ def updateadmin():
         return redirect(url_for('admin_panel', error=message))
     
 if __name__ == "__main__":
-    # server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
-    # server.serve_forever()
+#     # server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
+#     # server.serve_forever()
     from geventwebsocket.handler import WebSocketHandler
     from gevent.pywsgi import WSGIServer
     
