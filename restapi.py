@@ -612,7 +612,7 @@ class leasingdocs(Resource):
         filename = f'static/contracts/{leasingID}/{file}'
         return send_file(filename, mimetype='application/pdf')
     
-=======
+
 # LEASING API - CHECK ONGOING RECORDS BEFORE CREATING A NEW LEASING RECORD
 # =======================================================================================
 
