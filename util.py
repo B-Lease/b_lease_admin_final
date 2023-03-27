@@ -55,14 +55,14 @@ def createPDF(leasingID:str):
     #width 40, length 10, content of cell
     pdf.cell(40,10,'Hello World!')
 
-    directory = f"static\\{leasingID}"
+    directory = f"static\\contracts\\{leasingID}"
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     filename = generateUUID(leasingID)
-    pdf.output(f"static\\{leasingID}\{filename}_contract.pdf")
+    pdf.output(f"static\\contracts\\{leasingID}\{filename}_contract.pdf")
     return filename
 
 def convertPDFasBlob(file_path:str, leasing_doc_name:str):
