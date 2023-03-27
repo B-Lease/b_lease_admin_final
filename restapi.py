@@ -189,6 +189,8 @@ class user(Resource):
                 if k == 'user_password':
                     fields.append('user_password_hashed')
                     data.append(hashMD5(v))
+                if k == 'user_fname' or k == 'user_mname' or k == 'user_lname':
+                    v = v.title()
                 fields.append(k)
                 data.append(v)
 
@@ -562,6 +564,42 @@ class Leasing(Resource):
 # =======================================================================================
 
 
+# LEASING CONTRACTS API CLASS
+# =======================================================================================
+
+class LeasingContracts(Resource):
+    def get(self):
+        # get specific data
+        userID = request.args.get('userID')
+        
+        if userID:
+            check_existing_user = db.check_existing_data('user','userID',userID)
+            if check_existing_user:
+                leasingInfo = db.get_leasing_contracts('leasing',['lessorID','lesseeID'],[userID,userID])
+                if leasingInfo is not None:
+                    for each in leasingInfo:
+                        each['address'] = db.get_address_of_property(each['propertyID'])
+                        if each['lessorID'] == userID:
+                            lessee = db.get_name_of_user(each['lesseeID'])
+                            each['name'] = f"{lessee['user_fname'].title()} {lessee['user_lname'].title()}"
+                        if each['lesseeID'] == userID:
+                            lessor = db.get_name_of_user(each['lessorID'])
+                            each['name'] = f"{lessor['user_fname'].title()} {lessor['user_lname'].title()}"
+                    leasing_encoded = json.dumps(leasingInfo, default=str)
+                    return leasing_encoded, 200
+                else:
+                    return {'message':'No contracts found'},200
+            else:
+                return abort(400,'User not found')
+        else:
+            return abort(400,'No userID present')
+# =======================================================================================
+
+class leasingdocs(Resource):
+    def get(self, leasingID, file):
+        filename = f'static/contracts/{leasingID}/{file}'
+        return send_file(filename, mimetype='application/pdf')
+    
 # LEASING DOCUMENTS API CLASS
 # =======================================================================================
 leasing_docs = reqparse.RequestParser()
@@ -572,13 +610,28 @@ leasing_docs.add_argument('leasingID', type=str,
 class Leasing_Documents(Resource):
     def get(self):
         leasingID = request.args.get('leasingID')
-        leasingDocs = db.get_data('leasing_documents', 'leasingID', leasingID)
+        # leasingDocs = db.get_data('leasing_documents', 'leasingID', leasingID)
 
-        if leasingDocs is not None:
-            file_path = f"static\{leasingID}\{leasingDocs['leasing_doc_name']}"
-            return send_file(file_path)
+        # if leasingDocs is not None:
+        #     file_path = f"static\{leasingID}\{leasingDocs['leasing_doc_name']}"
+        #     return send_file(file_path)
+        # else:
+        #     return abort(400, 'Contract not found')
+        check_leasing = db.check_existing_data('leasing','leasingID',leasingID)
+        if check_leasing:
+            pdfs=[]
+            for filename in os.listdir(f'static/contracts/{leasingID}/'):
+                if filename.endswith('.pdf'):
+                    # data['images'].append(str(filename))
+                    pdfs.append(filename)        
+                if pdfs:
+                    file_path = f"static\contracts\{leasingID}\{pdfs[0]}"
+                    return send_file(file_path)
+                else:
+                    return abort(400, 'No contract found')
+
         else:
-            return abort(400, 'Contract not found')
+            return abort(400, 'No propertyID')
 
     def delete(self):
         return None
