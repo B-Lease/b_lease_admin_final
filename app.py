@@ -11,6 +11,8 @@ from flask_socketio import SocketIO, send, emit
 import requests
 import flask
 
+import socketmessage
+
 
 
 app = Flask(__name__)
@@ -20,7 +22,7 @@ api = Api(app)
 CORS(app)
 
 
-socketio = SocketIO(app, async_mode='gevent', engineio_logger=True, cors_allowed_origins='*')
+# socketio = SocketIO(app, async_mode='gevent', engineio_logger=True, cors_allowed_origins='*')
 
 #----------------------------------------------------
 
@@ -52,27 +54,26 @@ api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:fi
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
-#app.config['MYSQL_PASSWORD'] = 'allain19851047!'
+app.config['MYSQL_PASSWORD'] = 'blease2023!'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
 #-----------------------------------------------------
 
 
-@socketio.on('disconnect')
-def handle_disconnect():
-    emit('users-changed', {'user': 'allain', 'event': 'left'})
+# @socketio.on('disconnect')
+# def handle_disconnect():
+#     emit('users-changed', {'user': 'allain', 'event': 'left'})
 
-@socketio.on('set-nickname')
-def handle_set_nickname(data):
-    nickname = 'allain'
-    emit('users-changed', {'user': nickname, 'event': 'joined'}, broadcast=True)
-    flask.session['nickname'] = nickname
+# @socketio.on('set-nickname')
+# def handle_set_nickname(data):
+#     nickname = 'allain'
+#     emit('users-changed', {'user': nickname, 'event': 'joined'}, broadcast=True)
+#     flask.session['nickname'] = nickname
 
-@socketio.on('add-message')
-def handle_add_message(data):
-    emit('message', {'leasingID': data['leasingID'], 'msg_senderID': data['msg_senderID'],'msg_receiverID': data['msg_receiverID'], 'msg_content': data['msg_content'], 'sent_at': data['sent_at']}, broadcast=True)
+# @socketio.on('add-message')
+# def handle_add_message(data):
+#     emit('message', {'leasingID': data['leasingID'], 'msg_senderID': data['msg_senderID'],'msg_receiverID': data['msg_receiverID'], 'msg_content': data['msg_content'], 'sent_at': data['sent_at']}, broadcast=True)
 
 
 @app.route('/')
@@ -315,17 +316,17 @@ def updateadmin():
         message = "Error updating profile info"
         return redirect(url_for('admin_panel', error=message))
     
-if __name__ == "__main__":
-#     # server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
-#     # server.serve_forever()
-    from geventwebsocket.handler import WebSocketHandler
-    from gevent.pywsgi import WSGIServer
-    
-    http_server = WSGIServer(('0.0.0.0', 5000,), app, handler_class=WebSocketHandler)
-    http_server.serve_forever()
-
 # if __name__ == "__main__":
-#     app.run(debug=True, host="0.0.0.0")
+# #     # server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
+# #     # server.serve_forever()
+#     from geventwebsocket.handler import WebSocketHandler
+#     from gevent.pywsgi import WSGIServer
+    
+#     http_server = WSGIServer(('0.0.0.0', 5000,), app, handler_class=WebSocketHandler)
+#     http_server.serve_forever()
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0")
 
 
 
