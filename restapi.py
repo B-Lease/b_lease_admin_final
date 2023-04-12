@@ -12,6 +12,7 @@ import app
 import db
 import util
 import json
+import pdf
 
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
@@ -26,8 +27,10 @@ PROPERTY_PATH = 'static/property_listings/'
 #         return { id:args}
 
 
+# =======================================================================================
 # REGISTER API CLASS
 # =======================================================================================
+
 register_args = reqparse.RequestParser()
 register_args.add_argument(
     'email', type=str, help='Missing Email', required=True)
@@ -88,11 +91,13 @@ class register(Resource):
                 return abort(404, "OTP not found")
         else:
             return abort(404, "OTP not found")
+        
+
+
 # =======================================================================================
-
-
 # USER API CLASS
 # =======================================================================================
+
 user_args = reqparse.RequestParser()
 user_args.add_argument('phone_number', type=str,
                        help='Missing Phone number', required=True)
@@ -109,11 +114,9 @@ user_args.add_argument('user_email', type=str,
                        help='Missing User email', required=True)
 
 
-
-
 user_args_put = reqparse.RequestParser()
-user_args_put.add_argument(
-    'userID', type=str, help='Missing User ID', required=True)
+user_args_put.add_argument('userID', type=str, 
+                           help='Missing User ID', required=True)
 user_args_put.add_argument('user_fname', type=str,
                            help='Missing User firstname', required=True)
 user_args_put.add_argument('user_mname', type=str,
@@ -135,9 +138,7 @@ user_args_patch.add_argument(
 user_args_patch.add_argument(
     'user_password', type=str, help='Missing User Password', required=True)
 
-# USER API CLASS
-# =======================================================================================
-
+#=====================
 
 class user(Resource):
     def get(self):
@@ -316,7 +317,9 @@ class user(Resource):
 
 
 # =======================================================================================
-# DELETE USER API
+# DELETE USER API CLASS
+# =======================================================================================
+
 delete_user_args = reqparse.RequestParser()
 delete_user_args.add_argument(
     'sessionID', type=str, help='Missing Session ID', required=True)
@@ -376,6 +379,7 @@ class delete_user(Resource):
 # =======================================================================================
 # CHANGE PASSWORD API CLASS
 # =======================================================================================
+
 changepassword_args = reqparse.RequestParser()
 changepassword_args.add_argument(
     'sessionID', type=str, help='Missing Session ID', required=True)
@@ -423,42 +427,39 @@ class changepassword(Resource):
 
 
 # =======================================================================================
-
 # LEASING API CLASS
 # =======================================================================================
-# for leasing
-leasing_args_post = reqparse.RequestParser()
-leasing_addargs_post = reqparse.RequestParser()
-# leasing_addargs_post.add_argument('security_deposit', type=str, help='Missing Lessor ID', required=True)
-# leasing_addargs_post.add_argument('improvements', type=str, help='Missing Lessee ID', required=True)
-# leasing_addargs_post.add_argument('erect_signage', type=str, help='Missing Lessee ID', required=True)
 
-# leasing_args_post.add_argument('lessorID', type=str, help='Missing Lessor ID', required=True)
-# leasing_args_post.add_argument('lesseeID', type=str, help='Missing Lessee ID', required=True)
-# leasing_args_post.add_argument('propertyID', type=str, help='Missing Property ID', required=True)
 
-# for updating
-leasing_args_post.add_argument(
-    'leasingID', type=str, help='Missing LeasingID', required=True)
+
+leasing_args_put = reqparse.RequestParser()
+# for updating lease record
+leasing_args_put.add_argument('leasingID', type=str, help='Missing LeasingID', required=True)
 # the details that would be updated
-leasing_args_post.add_argument(
-    'leasing_status', type=str, help='Missing Leasing Status', required=True)
-leasing_args_post.add_argument(
-    'leasing_start', type=str, help='Missing Leasing Start', required=True)
-leasing_args_post.add_argument(
-    'leasing_end', type=str, help='Missing Leasing End', required=True)
-leasing_args_post.add_argument(
-    'leasing_payment_frequency', type=str, help='Missing Payment Frequency', required=True)
-leasing_args_post.add_argument(
-    'leasing_total_fee', type=str, help='Missing Total Fee', required=True)
+leasing_args_put.add_argument('leasing_status', type=str, help='Missing Leasing Status', required=True)
+leasing_args_put.add_argument('leasing_start', type=str, help='Missing Leasing Start', required=True)
+leasing_args_put.add_argument('leasing_end', type=str, help='Missing Leasing End', required=True)
+leasing_args_put.add_argument('leasing_payment_frequency', type=str, help='Missing Payment Frequency', required=True)
+leasing_args_put.add_argument('leasing_total_fee', type=str, help='Missing Total Fee', required=True)
+#leasing_args_put.add_argument('leasing_remarks', type=str, help='Missing Leasing Remarks', required=False)
 
-# leasing_args_post.add_argument('leasing_remarks', type=str, help='Missing Leasing Remarks', required=False)
-
+leasing_contracts = reqparse.RequestParser()
+# for creating lease contract
+leasing_contracts.add_argument('lessor_name', type=str, help='Missing Lessor Name', required=True)
+leasing_contracts.add_argument('lessee_name', type=str, help='Missing Lessee Name', required=True)
+leasing_contracts.add_argument('address', type=str, help='Missing Address', required=True)
+leasing_contracts.add_argument('land_description', type=str, help='Missing Land Description', required=True)
+leasing_contracts.add_argument('purpose', type=str, help='Missing Purpose', required=True)
+leasing_contracts.add_argument('security_deposit', type=bool, help='Missing Security Deposit', required=True)
+leasing_contracts.add_argument('improvements', type=bool, help='Missing Improvements', required=True)
+leasing_contracts.add_argument('erect_signage', type=bool, help='Missing Improvements', required=True)
+leasing_contracts.add_argument('signature', type=str, help='Missing Signature', required=True)
 
 class Leasing(Resource):
     def get(self):
         check_existing = request.args.get('check_existing')
         
+        #FOR CHECKING EXISTING ONGOING LEASE RECORDS BEFORE CREATING A NEW LEASE RECORD
         if check_existing == 'yes':
             lesseeID = request.args.get('lesseeID')
             lessorID = request.args.get('lessorID')
@@ -478,7 +479,7 @@ class Leasing(Resource):
                 return {'message': 'No pending/ongoing leasing records'}, 209
         
         else:
-            # get specific data
+            #USING LEASE RECORDS FOR LIST OF MESSAGES
             userID = request.args.get('userID')
             # as a lessee
             leasingInfo = db.join_tables(userID)
@@ -503,8 +504,8 @@ class Leasing(Resource):
         fields = ['leasingID', 'lessorID', 'lesseeID', 'propertyID', 'leasing_status']        
         data = [leasingID, lessorID, lesseeID, propertyID, leasing_status]
 
-        check_existing = db.check_existing_data(
-            'leasing', 'leasingID', data[0])
+        check_existing = db.check_existing_data('leasing', 'leasingID', data[0])
+
         if check_existing:
             return {'message': f'User with userID: {leasingID} already exist'}, 409
 
@@ -512,8 +513,6 @@ class Leasing(Resource):
             insert_data_bool = db.insert_data('leasing', fields, data)
 
             if insert_data_bool:
-                # after inserting important leasing data, render the pdf(contract) and
-                # save the contract details to leasing_documents
                 return {'message': 'Successfully initiated lease request',
                         'leasingID': leasingID
                         }, 201
@@ -522,7 +521,7 @@ class Leasing(Resource):
                 return {'message': 'Unable to lease request'}, 400
 
     def put(self):
-        leasingInfo = leasing_args_post.parse_args()
+        leasingInfo = leasing_args_put.parse_args()
 
         fields = []
         data = []
@@ -531,28 +530,31 @@ class Leasing(Resource):
             fields.append(k)
             data.append(v)
 
-        check_existing = db.check_existing_data(
-            'leasing', 'leasingID', data[0])
+        check_existing = db.check_existing_data('leasing', 'leasingID', data[0])
 
         if check_existing:
             update_data_bool = db.update_data('leasing', fields, data)
 
             if update_data_bool:
-                # after inserting important leasing data, render the pdf(contract) and
+                # after inserting important leasing data, create the pdf(contract) and
                 # save the contract details to leasing_documents
-                leasingID = leasingInfo['leasingID']
-                leasing_docID = util.createPDF(leasingID)
-                leasing_doc_name = str(leasing_docID + "_contract.pdf")
-                insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [
-                                             leasing_docID, leasingID, leasing_doc_name])
+
+                contractInfo = leasing_contracts.parse_args()
+                insert_docs = pdf.createPDF(leasingInfo,contractInfo)
+
+                # leasing_doc_name = str(leasing_docID + "_contract.pdf")
+                # insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [
+                #                              leasing_docID, leasingID, leasing_doc_name])
                 if insert_docs:
                     return {'message': 'Successfully confirmed lease request'}, 204
+                else:
+                    db.delete_data('leasing', 'leasingID', data[0])
 
             else:
                 return {'message': 'Unable to lease request'}, 400
-
         else:
             return abort(400, 'Leasing info not found')
+        
 
     def delete(self):
         leasingID = request.args.get('leasingID')
@@ -571,11 +573,9 @@ class Leasing(Resource):
                 }, 400
         else:
             return abort(400, 'Cannot delete. Contract not found')
+        
 
 # =======================================================================================
-
-
-
 # LEASING CONTRACTS API CLASS
 # =======================================================================================
 
@@ -613,15 +613,11 @@ class leasingdocs(Resource):
         return send_file(filename, mimetype='application/pdf')
     
 
-# LEASING API - CHECK ONGOING RECORDS BEFORE CREATING A NEW LEASING RECORD
-# =======================================================================================
 
 # =======================================================================================
-
-
-
 # LEASING DOCUMENTS API CLASS
 # =======================================================================================
+
 leasing_docs = reqparse.RequestParser()
 leasing_docs.add_argument('leasingID', type=str,
                           help='Missing Leasing ID', required=True)
@@ -630,34 +626,27 @@ leasing_docs.add_argument('leasingID', type=str,
 class Leasing_Documents(Resource):
     def get(self):
         leasingID = request.args.get('leasingID')
-        # leasingDocs = db.get_data('leasing_documents', 'leasingID', leasingID)
-
-        # if leasingDocs is not None:
-        #     file_path = f"static\{leasingID}\{leasingDocs['leasing_doc_name']}"
-        #     return send_file(file_path)
-        # else:
-        #     return abort(400, 'Contract not found')
-        check_leasing = db.check_existing_data('leasing','leasingID',leasingID)
-        if check_leasing:
+        contract = db.check_existing_data('leasing','leasingID',leasingID)
+        if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
                 if filename.endswith('.pdf'):
-                    # data['images'].append(str(filename))
                     pdfs.append(filename)        
                 if pdfs:
                     file_path = f"static\contracts\{leasingID}\{pdfs[0]}"
                     return send_file(file_path)
                 else:
                     return abort(400, 'No contract found')
-
         else:
-            return abort(400, 'No propertyID')
+            return abort(400, 'No leasing record found')
 
     def delete(self):
         return None
 
-# =======================================================================================
 
+# =======================================================================================
+# MESSAGE API CLASS
+# =======================================================================================
 
 class Message(Resource):
     def get(self):
@@ -702,14 +691,14 @@ class Message_Images(Resource):
 
 
 # =======================================================================================
-#  LOGIN API CLASS | C
+# LOGIN API CLASS
+# =======================================================================================
+
 login_args = reqparse.RequestParser()
 login_args.add_argument('user_email', type=str,
                         help='Missing Email', required=True)
 login_args.add_argument('user_ip', type=str,
                         help='Missing IP Address', required=True)
-
-
 
 class login(Resource):
 
@@ -814,10 +803,12 @@ class login(Resource):
         #         return {'message':'Success user creation'},201
         #     else:
         #         return {'message':'Error user creation'},400
+
+
+# =======================================================================================
+# SESSION API CLASS
 # =======================================================================================
 
-
-# SESSION API CLASS | CRU
 session_args = reqparse.RequestParser()
 session_args.add_argument('sessionID', type=str,
                           help='Missing Session ID', required=True)
