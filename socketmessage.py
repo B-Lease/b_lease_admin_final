@@ -15,7 +15,7 @@ socketio = SocketIO(app, async_mode='gevent', engineio_logger=True, cors_allowed
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    emit('users-changed', {'user': 'allain', 'event': 'left'})
+    emit('disconnected', {'Disconnected'})
 
 @socketio.on('set-nickname')
 def handle_set_nickname(data):
