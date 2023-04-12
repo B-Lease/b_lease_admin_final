@@ -127,30 +127,58 @@ def get_all_specific_data(table:str, fields, values):
         cur.close()
         return data
 
+
 #not a database abstraction
 #only used temporarily for getting the conversations per inquired property
 def join_tables(userID:str):
     cur = mysql.connection.cursor() 
     cur.execute(f'''
-        SELECT L.LEASINGID, L.LESSEEID, L.LESSORID, U.USERID, U.USER_FNAME, P.ADDRESS, M.MSG_CONTENT
-        FROM USER U, PROPERTY P, LEASING L
-        JOIN (
-        SELECT leasingID, MAX(sent_at) AS latest_sent_at
-        FROM message
-        GROUP BY leasingID
-        ) latest_msg
-        ON l.leasingID = latest_msg.leasingID
-        JOIN message m
-        ON m.leasingID = l.leasingID AND m.sent_at = latest_msg.latest_sent_at
-        WHERE U.USERID = L.LESSORID
-        AND P.PROPERTYID = L.PROPERTYID
+        SELECT 
+            l.leasingID,
+            u1.userID as lessorID,
+            u1.user_fname as lessor_fname,
+            u1.user_mname as lessor_mname,
+            u1.user_lname as lessor_lname,
+            u2.userID as lesseeID,
+            u2.user_fname as lessee_fname,
+            u2.user_mname as lessee_mname,
+            u2.user_lname as lessee_lname,
+            p.address,
+            p.land_description,
+            m.msg_content,
+            m.sent_at
+        FROM 
+            user u
+        JOIN
+            leasing l ON 
+                u.userID = l.lessorID || u.userID = l.lesseeID
+        JOIN 
+            user u1 ON l.lessorID = u1.userID
+        JOIN 
+            user u2 ON l.lesseeID = u2.userID
+        JOIN
+            property p ON l.propertyID = p.propertyID
+        LEFT JOIN
+            (SELECT 
+                leasingID, 
+                MAX(sent_at) AS latest_sent_at 
+            FROM 
+                message 
+            GROUP BY 
+                leasingID) AS latest_msg
+        ON 
+            l.leasingID = latest_msg.leasingID
+        JOIN 
+            message m
+        ON 
+            latest_msg.leasingID = m.leasingID AND latest_msg.latest_sent_at = m.sent_at
+        WHERE 
+        u.userID = '{userID}';
     ''')
     data:dict = cur.fetchall()
     mysql.connection.commit()
     cur.close()
     return data
-
-
 
 def get_leasing_contracts(table:str, fields, values):
     cur = mysql.connection.cursor()
@@ -169,8 +197,6 @@ def get_leasing_contracts(table:str, fields, values):
         mysql.connection.commit()
         cur.close()
         return data
-
-
 
 def get_name_of_user(userID):
     cur = mysql.connection.cursor() 
