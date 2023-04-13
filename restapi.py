@@ -1224,6 +1224,24 @@ class propertyimages(Resource):
     def get(self, propertyID, image):
         filename = f'static/property_listings/{propertyID}/images/{image}'
         return send_file(filename, mimetype='image/jpeg')
+    
+class propertydocuments(Resource):
+    def get(self,propertyID,docName):
+        filename = f'static/property_listings/{propertyID}/documents/{docName}'
+
+        if '.pdf' in filename:
+            return send_file(filename, mimetype='application/pdf')
+        if '.doc' or '.docx' in filename:
+            return send_file(filename, mimetype='application/msword')
+
+class leasingdocuments(Resource):
+    def get(self,leasingID,contractDocument):
+        filename = f'static/leasing/{leasingID}/documents/{contractDocument}'
+
+        if '.pdf' in filename:
+            return send_file(filename, mimetype='application/pdf')
+        if '.doc' or '.docx' in filename:
+            return send_file(filename, mimetype='application/msword')        
 
 
 # =======================================================================================

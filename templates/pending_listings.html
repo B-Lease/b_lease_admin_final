@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename='/js/user_report.js')}}"></script>
+    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>{{title}}</title>
+    
+</head>
+<body style="background-color: #e7e7e7;">
+    <!--Main Navigation-->
+
+  <!-- Sidebar -->
+  <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+    <div class="position-sticky">
+      <div class="list-group list-group-flush mx-7 mt-5">
+        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
+          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+        </a>
+        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple ">
+          <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+        </a>
+        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple text-success active"><i
+            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+        <a href="{{url_for('contracts')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+          <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
+        </a>
+        <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+        <a href="{{url_for('admin_panel')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+        
+      </div>
+    </div>
+  </nav>
+  <!-- Sidebar -->
+
+  <!-- Navbar -->
+  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+      <!-- Toggle button -->
+      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
+        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Brand -->
+      <a class="navbar-brand" href="#">
+        <img src="static/images/b-lease_main.png"
+             height="30"
+             alt="b-lease logo"
+             loading="lazy" />
+      </a>
+    
+
+      <!-- Right links -->
+      <ul class="navbar-nav ms-auto d-flex flex-row">
+
+        <!-- Avatar -->
+        <li class="nav-item dropdown">
+          <a href ="{{ url_for('logout') }}" class="link-success"><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>
+          <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
+            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
+              height="22" alt="Avatar" loading="lazy" />
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+            <li>
+              <a class="dropdown-item" href="#">My profile</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Settings</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">Logout</a>
+            </li>
+          </ul> -->
+        </li>
+      </ul>
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+</header>
+<!--Main layout-->
+<main style="margin-top: 58px;">
+    <div class="container pt-3 align-items-center">
+        <!-- Dashboard -->
+        <br>
+        <h3>List of Property</h3>
+        <div id="myBtnContainer">
+          <a class="btn btn-outline-success "  href="{{url_for('property_listings')}}"> Show all</a>
+          <a class="btn btn-outline-success "  href="{{url_for('approved_listings')}}"> Approved</a>
+          <a class="btn btn-success active" href="{{url_for('pending_listings')}}"> Pending</a>
+          <a class="btn btn-outline-success" href="{{url_for('declined_listings')}}"> Declined</a>
+        </div>
+         <!-- search -->
+         <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
+          
+
+          <div class="input-group">
+            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+            <button type="button" class="btn btn-success">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+      </div>
+        <!-- end search -->
+     
+          <table class="table align-middle mb-0 bg-white">
+            <!-- <thead class="bg-light text-success">
+              <tr>
+                <th>Name</th>            
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead> -->
+            <tbody>
+              <tr>
+                {% for property in property%}
+                {% if property.property_status == 'pending' %}
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img
+                        src="{{url_for('static',filename='property_listings/{}/images/{}'.format(property.propertyID,property.images[0]))}}"
+                        alt=""
+                        style="width: 150px; height: 150px"
+                        class="square"
+                        />
+                    <div class="ms-3">
+                      {% for user in user%}
+                      {% if user.userID == property.userID%}  
+                      <h4 class="text-success fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {{user.user_mname |first}}</h4>
+                      {% endif %}
+                      {% endfor %}
+                      <h5 class="text-muted mb-0"><img src="static/images/size.png" alt="" style="width: 40px; height: 40px; "/>
+                        {{property.size}} {{property.unit_type}}<span style="margin-right: 30px;"> </span> 
+                        <i class="fa-solid fa-location-dot"></i> {{property.address}}</h5>    
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge badge-warning rounded-pill d-inline" >{{property.property_status}}</span>
+                </td>
+                <td>
+                  
+                  <a href="{{url_for('view_property',propertyID=property.propertyID)}}" class="view-btn"  data-id="456">
+                    <i class="fa-solid fa-eye"></i>
+                </a>
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+              
+            </tbody>
+          </table>
+     
+      
+        <!-- Modal for View -->
+
+        
+    </div>
+</main>
+<!--Main layout-->
+
+
+ 
+  
+
+    <!-- footer -->
+    <footer class="text-center p-3  fixed-bottom">
+        <p>B-Lease © 2023</p>
+    </footer>
+</body>
+</html>

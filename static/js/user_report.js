@@ -45,12 +45,12 @@ $(document).ready(function() {
     // });
   });
 
-  function setViewModalUser(userID, user_type,user_fname, user_mname, user_lname, user_birthdate, user_email, address, phone_number){
+  function setViewModalUser(userID,user_fname, user_mname, user_lname, user_birthdate, user_email, address, phone_number){
     var id = userID;
 
     document.getElementById("view_userID").value = userID;
     userID.value = id;
-    document.getElementById("view_user_type").value = user_type;
+    // document.getElementById("view_user_type").value = user_type;
     document.getElementById("view_firstname").innerHTML = user_fname;
     document.getElementById("view_middlename").innerHTML = user_mname;
     document.getElementById("view_lastname").innerHTML = user_lname;

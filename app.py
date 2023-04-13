@@ -22,6 +22,13 @@ CORS(app)
 #
 #----------------------------------------------------
 
+import os
+import flask
+import mysql.connector
+from dateutil.relativedelta import relativedelta
+import util
+
+
 api.add_resource(restapi.user,"/user")
 api.add_resource(restapi.delete_user,"/delete_user")
 api.add_resource(restapi.changepassword,"/changepassword")
@@ -39,6 +46,8 @@ api.add_resource(restapi.property,"/property")
 api.add_resource(restapi.properties,"/properties")
 
 api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<string:image>")
+api.add_resource(restapi.propertydocuments,"/propertydocuments/<string:propertyID>/<string:docName>")
+api.add_resource(restapi.leasingdocuments,"/leasingdocuments/<string:leasingID>/<string:contractDocument>")
 api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
 
 
@@ -50,7 +59,8 @@ api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:fi
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'project2023!'
+# app.config['MYSQL_PASSWORD'] = 'project2023!'
+app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
@@ -310,7 +320,297 @@ def updateadmin():
     else:
         message = "Error updating profile info"
         return redirect(url_for('admin_panel', error=message))
+
+@app.route("/property_listings")
+def property_listings():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
     
+    title = "B-Lease | Verify Property Listings"  
+    property = db.get_all_data('property')
+    user = db.get_all_data('user')
+    property_images = db.get_all_data('property_images')
+    
+    for each in property:
+        each['images'] = []
+        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                # data['images'].append(str(filename))
+                    
+                each['images'].append(filename)
+
+    
+    # im = Image.open(property_images)
+    return render_template("property_listings.html", title=title, property=property, user=user,property_images=property_images)
+
+@app.route("/approved_listings")
+def approved_listings():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | Verify Property Listings"  
+    property = db.get_all_data('property')
+    user = db.get_all_data('user')
+    for each in property:
+        each['images'] = []
+        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                # data['images'].append(str(filename))
+                    
+                each['images'].append(filename)
+   
+    return render_template("approved_listings.html", title=title, property=property, user=user)
+
+@app.route("/pending_listings")
+def pending_listings():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | Verify Property Listings"  
+    property = db.get_all_data('property')
+    user = db.get_all_data('user')
+    for each in property:
+        each['images'] = []
+        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                # data['images'].append(str(filename))
+                    
+                each['images'].append(filename)
+  
+    return render_template("pending_listings.html", title=title, property=property, user=user)
+
+@app.route("/declined_listings")
+def declined_listings():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | Verify Property Listings"  
+    property = db.get_all_data('property')
+    user = db.get_all_data('user')
+    for each in property:
+        each['images'] = []
+        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                # data['images'].append(str(filename))
+                    
+                each['images'].append(filename)
+
+    return render_template("declined_listings.html", title=title, property=property, user=user)
+
+
+
+@app.route("/view_property", methods=['GET'])
+def view_property():
+    
+     if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+     propertyID = request.args.get('propertyID')
+     userID = request.args.get('userID')
+     user = db.get_all_data('user')
+     title = "B-Lease | View Property Listings"  
+     property = db.get_specific_data('property',['propertyID'],[propertyID])
+
+     property['images'] = []
+     
+     for filename in os.listdir(f'static/property_listings/{property["propertyID"]}/images/'):
+        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            # data['images'].append(str(filename))
+                
+            property['images'].append(filename)
+     property['documents'] = []
+     for filename in os.listdir(f'static/property_listings/{property["propertyID"]}/documents/'):
+        if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
+            # data['images'].append(str(filename))
+
+            property['documents'].append(filename)
+
+     return render_template("view_property.html", title=title, property=property,user=user)
+
+    
+@app.route("/approveStatus")
+def approveStatus():
+
+    propertyID = request.args.get('propertyID')
+    property_status = "open"
+
+    db.update_data('property', ['propertyID', 'property_status'],[propertyID, property_status])
+    message = "You have successfully approve the listing."
+    return redirect(url_for('property_listings', success = message))
+
+@app.route("/declineStatus")
+def declineStatus():
+
+    propertyID = request.args.get('propertyID')
+    property_status = "declined"
+
+    db.update_data('property', ['propertyID', 'property_status'],[propertyID, property_status])
+    message = "Failed to approve the listing."
+    return redirect(url_for('property_listings', success = message))
+
+@app.route("/contracts")
+def contracts():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | List of Contracts"  
+
+    leasing = db.get_all_data('leasing')
+   
+    user = db.get_all_data('user')
+
+    # im = Image.open(property_images)
+    return render_template("contracts.html", title=title, property=property, user=user,leasing=leasing)
+
+@app.route("/view_contract", methods=['GET'])
+def view_contract():
+    
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    leasingID = request.args.get('leasingID')
+    user = db.get_all_data('user')
+    title = "B-Lease | View Contracts" 
+    leasing = db.get_all_data('leasing')
+
+    leasing = db.get_specific_data('leasing',['leasingID'],[leasingID])
+     
+
+    leasing['documents'] = []
+    for filename in os.listdir(f'static/leasing/{leasing["leasingID"]}/documents/'):
+        if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
+            # data['images'].append(str(filename))
+
+            leasing['documents'].append(filename)
+
+    return render_template("view_contract.html", title=title, leasing=leasing, user=user)
+
+
+@app.route("/approveContract")
+def approveContract():
+
+    leasingID = request.args.get('leasingID')
+    leasing_status = "pending"
+    leasing = db.get_all_data('leasing')
+    
+    # day = datetime.strptime('leasing_start', '%Y-%m-%d').strftime('%d')
+
+    # print(str(day))
+    # define your leasing start and end dates
+    leasingID = request.args.get('leasingID')
+    leasing_payment_frequency = request.args.get('leasing_payment_frequency')
+    pay_lessorID = request.args.get('lessorID')
+    pay_lesseeID = request.args.get('lesseeID')
+    pay_fee = request.args.get('leasing_total_fee')
+
+    # define your leasing start and end dates
+    leasing_start_str = request.args.get('leasing_start')
+    leasing_end_str = request.args.get('leasing_end')
+    leasing_start = datetime.strptime(leasing_start_str, '%Y-%m-%d').date()
+    leasing_end = datetime.strptime(leasing_end_str, '%Y-%m-%d').date()
+
+    val = None
+    
+
+    fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+    # loop over the range of dates and insert records
+    current_date = leasing_start
+    while current_date <= leasing_end:
+        # check if the current date occurs within the leasing period
+        if current_date < leasing_start or current_date >= leasing_end:
+            current_date += relativedelta(months=1)
+            continue
+        
+        paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
+        val = (current_date).strftime("%Y-%m-%d")
+        data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+        db.insert_data('payment',fields,data)
+        
+        # increment the current date by one month
+        current_date += relativedelta(months=1)
+    db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, leasing_status])
+    message = "You have successfully approve the contract."
+    return redirect(url_for('contracts', success = message))
+
+@app.route("/declineContract")
+def declineContract():
+
+    leasingID = request.args.get('leasingID')
+    leasing_status = "for review"
+
+    db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, leasing_status])
+    message = "Failed to approve the contract."
+    return redirect(url_for('contracts', success = message))
+
+@app.route("/pending_contracts")
+def pending_contracts():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | List of Contracts"  
+    leasing = db.get_all_data('leasing')
+   
+    user = db.get_all_data('user')
+
+    # im = Image.open(property_images)
+    return render_template("pending_contracts.html", title=title, property=property, user=user,leasing=leasing)
+
+@app.route("/ongoing_contracts")
+def ongoing_contracts():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | List of Contracts"  
+    leasing = db.get_all_data('leasing')
+   
+    user = db.get_all_data('user')
+
+    # im = Image.open(property_images)
+    return render_template("ongoing_contracts.html", title=title, property=property, user=user,leasing=leasing)
+
+@app.route("/finished_contracts")
+def finished_contracts():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | List of Contracts"  
+    leasing = db.get_all_data('leasing')
+   
+    user = db.get_all_data('user')
+
+    # im = Image.open(property_images)
+    return render_template("finished_contracts.html", title=title, property=property, user=user,leasing=leasing)
+
+@app.route("/payment_reports")
+def payment_reports():
+    if 'sessionID' not in session:
+            return redirect(url_for('index'))
+    title = "B-Lease | Payment Reports"   
+
+    payment = db.get_all_data('payment')
+    user = db.get_all_data('user')
+
+    return render_template("payment_reports.html", title=title, payment=payment,user=user)
+
+@app.route("/deletepaymentaccount", methods=['GET'])
+def deletepaymentaccount():
+    
+    paymentID = request.args.get('paymentID')
+    
+    payment = db.get_specific_data('payment', ['paymentID'], [paymentID])
+    
+    if payment:
+        okey = db.delete_data('payment', 'paymentID', paymentID)
+        if okey:
+            print ('Payment Successfully Deleted')
+            return redirect(url_for('payment_reports'))
+        else:
+            print('Payment was not deleted')
+            return redirect(url_for('payment_reports'))
+    else:
+        print('Payment not found')
+        return redirect(url_for('payment_reports'))
+
+
+
 # if __name__ == "__main__":
 # #     # server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
 # #     # server.serve_forever()

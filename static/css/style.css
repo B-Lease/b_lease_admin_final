@@ -1,3 +1,9 @@
+@media only screen and (max-width: 1000px) {
+    body {
+      width:80%;
+    }
+}
+
 * {
     font-family: 'Inter';
 }
@@ -236,7 +242,7 @@ footer p {
 
 
 main {
-    margin-left: 300px;
+    margin-left: 250px;
 }
 
 /* property listings */
@@ -311,9 +317,247 @@ main {
     width: 100px;
 }
 
+/* View Property */
+.container-fluid1{
+    background-color: #f9f9f9;
+    box-shadow: #787878;
+    margin:auto;
+    padding:10px 10px;
+    height: 700px;
+   
+}
+/* 
+.mySlides1 {display: none}
 
 
+/* Slideshow container */
+/* .slideshow-container {
+  max-width: 500px;
+  position: left;
+  margin: auto;
+}
 
+/* Next & previous buttons */
+/* .prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -12px;
+  color: #40A047;
+  background-color: #dfdada;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.4s ease;
+  border-radius: 3 3px 3px 0;
+  user-select: none;
+} */
+
+/* Position the "next button" to the right */
+/* .next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+} */
+/* Position the "prev button" to the right */
+/* .prev {
+    left: 0;
+    border-radius: 3px 0 0 3px;
+  } */
+
+/* On hover, add a grey background color */
+/* .prev:hover, .next:hover {
+  color: #dfdada;
+  background-color: #40A047;
+} */
+
+/* .mySlides1 img {
+    max-width: 500px;
+    max-height: 500px;
+} */
+
+ #gallerywrapper {
+     width:640px;
+     height:450px;
+     margin:0 auto;
+     position:relative;
+     
+   
+ } 
+
+ #gallerywrapper #gallery {
+     position:absolute;
+     left:0;
+     top:0;
+     height:450px;
+     width:640px;
+     overflow:hidden;
+     text-align:center;
+     
+ } 
+
+ #gallerywrapper #gallery div {
+     width:400px; height:600px; 
+     padding-top:10px; 
+     position:relative;
+    
+ } 
+
+ #gallerywrapper #gallery div img {
+     clear:both; 
+     display:block; 
+     margin:0 auto; 
+     border:0;
+     /* box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset; */
+    
+ } 
+
+ #gallerywrapper #gallery div h3 {
+     padding:10px 0 0 0; 
+     margin:0; 
+     font-size:18px;
+ } 
+
+ #gallerywrapper #gallery div p {
+     padding:5px 0; 
+     margin:0; 
+     font-size:12px; 
+     line-height:18px;
+ } 
+
+ #gallery .previous{ 
+     display:inline;
+     float:left;
+     margin-left:50px;
+     text-decoration:none;
+ } 
+
+ #gallery .next{ 
+     display:inline;
+     float:right;
+     margin-right:50px;
+     text-decoration:none;
+ }
+
+ #pic1 img {
+    width: 350px;
+    height: 350px;
+    box-shadow: rgba(115, 151, 121, 0.932) -2px 5px 10px -2px;
+ }
+
+ #pic2 img {
+    width: 350px;
+    height: 350px;
+    box-shadow: rgba(115, 151, 121, 0.932) -2px 5px 10px -2px;
+
+ }
+
+ #pic3 img {
+    width: 350px;
+    height: 350px;
+    box-shadow: rgba(115, 151, 121, 0.932) -2px 5px 10px -2px;
+
+ }
+
+/* icons in viewing property details  */
+ .fa-location-dot, .bi-bounding-box-circles, 
+ .bi-house-door-fill, .fa-user {
+    color: #787878;
+ }
+
+ .fa-circle-info {
+    color:#40A047;
+ }
+
+ .ml-1 {
+    color: #787878;
+ }
+
+ /* approve or reject btn */
+ .approveOrDecline {
+    margin-top: 80px;
+    
+ }
+
+ .price{
+    color:#40A047;
+ }
+
+ .h2 {
+    font-size: 2.5rem;
+    color: #40A047;
+ }
+
+main a {
+    color:#40A047;
+}
+
+main a:hover {
+    color: #135e31;
+}
+
+.desc p {
+    font-size: smaller;
+}
+
+.card-body h5 {
+    color: #40A047;
+}
+
+/* checkbox  */
+.checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 3px;
+  }
+  
+  .checkbox-container:hover input ~ .checkmark {
+    background-color: #787878;
+  }
+  
+  .checkbox-container input:checked ~ .checkmark {
+    background-color: #40A047;
+  }
+  
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  .checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  .checkmark:after {
+    left: 7px;
+    top: 4px;
+    width: 4px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+  }
+  
 
 
 
