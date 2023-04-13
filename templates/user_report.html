@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-    
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
     <meta charset="UTF-8">
@@ -31,14 +31,15 @@
         <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple text-success active">
           <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
         </a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span>
+        </a>
+        <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
         <a href="#" class="list-group-item list-group-item-action py-2 ripple">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
         </a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+        <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
         <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
@@ -72,7 +73,7 @@
 
         <!-- Avatar -->
         <li class="nav-item dropdown">
-          <a href ="{{ url_for('logout') }}" class="link-success">Logout</a>
+          <a href ="{{ url_for('logout') }}" class="link-success"><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>
           <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
             id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
             <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
@@ -116,7 +117,7 @@
               </button>
             </div> -->
             <div class="input-group">
-              <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+              <input type="search"  name="q" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
               <button type="button" class="btn btn-success">
                 <i class="fas fa-search"></i>
               </button>
@@ -128,7 +129,7 @@
               <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>User Type</th>
+                <!-- <th>User Type</th> -->
                 <th>Last Login</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -142,20 +143,29 @@
                     {{user.userID}}
                 </td>
                 <td>
+                  <div class="d-flex align-items-center">
+                  <img
+                  src="{{url_for('static',filename='users/{}/images/{}'.format(user.userID,user.images[0]))}}"
+                    alt=""
+                    style="width: 50px; height: 50px; border-radius: 10px;"
+                    class="rounded-circle"
+                    />
+                
+                    <div class="ms-3">
                       <p class="fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {{user.user_mname |first}}</p>
                       <p class="text-muted mb-0">{{user.user_email}}</p>
-                      
                     </div>
-                  </div>
+                    </div>
+                  </td>   
+                
                 </td>
-                <td>{{user.user_type}}</td>
+                <!-- <td>{{user.user_type}}</td> -->
                 <td>{{user.created_at}} </td>
                 <td>
                     <span class="badge badge-success rounded-pill d-inline">{{user.user_status}}</span>
                 </td>
                 <td>
-                  <a onclick="setViewModalUser('{{user.userID}}', '{{user.user_type}}','{{user.user_fname}}', '{{user.user_mname}}','{{user.user_lname}}','{{user.user_birthdate}}','{{user.user_email}}' 
-                  ,'{{user.address}}','{{user.phone_number}}')" class="view-btn"  data-id="456">
+                  <a href="{{url_for('view_user',userID=user.userID)}}" class="view-btn"  data-id="456">
                     <i class="fa-solid fa-eye"></i>
                   </a>
                   &nbsp;
@@ -165,6 +175,7 @@
                 </td>
               </tr>
               {% endfor %}
+        </table>
               <!-- delete -->
               <div
               class="modal"
@@ -190,72 +201,7 @@
                 </div>
               </div>
               
-              <!-- view user modal -->
-              <div class="col-md-4">
-                <div class="modal" id="view-modal" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-form" role="document">
-                    <div class="modal-content">
-                      <div class="modal-body p-0">
-                        <div class="card card-plain">
-                          <div class="card-header">
-                            <h5 class="float-left" id="staticBackdropLabel">View User<span style="margin-right:315px;"></span><button type="button" class="view-cancel-btn btn-close align-self-right" data-mdb-dismiss="modal" aria-label="Close"></button></h5>
-                            
-                            <p class="mb-0"></p>
-                          </div>
-                          <div class="card-body">
-                            <form role="form text-left" method="POST" action="">
-                              
-                              <div class="d-flex px-2 py-1" style="align-self: center; color:#40A047;">
-                                
-                              <h5><span id="view_lastname"></span>, <span id="view_firstname"></span> <span id="view_middlename"></span></h5>
-                              <br/>
-                            
-                              
-                            </div>
-        
-                            <div>
-
-                            </div>
-                            
-                              <div class="flexer"></div>
-                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
-                                <label class="label">ID Number</label>
-                                <input type="number" class="form-control"  name="userID" id="view_userID" readonly>
-                              </div>
-                             
-                              <div class="input-group input-group-static my-3" style="color:#40A047;">
-                                <label class="label">User Type</label>
-                                <input type="text" class="form-control" name="user_type" id="view_user_type" readonly>
-                              </div>
-
-                              <div class="input-group input-group-static my-3" style="color:#40A047;">
-                                <label class="label">Email</label>
-                                <input type="text" class="form-control" name="user_email" id="view_email" readonly>
-                              </div>
-              
-                              <div class="input-group input-group-static my-3"style="color:#40A047;">
-                                <label class="label">Birthdate</label>
-                                <input type="text" class="form-control" name="user_birthdate" id="view_birthdate" readonly>
-                              </div>
-
-                              <div class="input-group input-group-static my-3"style="color:#40A047;">
-                                <label class="label">Address</label>
-                                <input type="text" class="form-control" name="address" id="view_address" readonly>
-                              </div>
-              
-                              <div class="input-group input-group-static my-3"style="color:#40A047;">
-                                <label class="label">Contact Number</label>
-                                <input type="text" class="form-control" name="phone_number" id="view_phone_number" readonly>
-                              </div>
-                            </form>
-                          </div>
-                 
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            
   </div>
 </main>
 <!--Main layout-->

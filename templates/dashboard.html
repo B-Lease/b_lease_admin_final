@@ -4,11 +4,13 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
     
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>{{title}}</title>
     
 </head>
@@ -28,14 +30,14 @@
         <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple ">
           <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
         </a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+        <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
         <a href="#" class="list-group-item list-group-item-action py-2 ripple">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
         </a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+        <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
         <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
@@ -69,7 +71,7 @@
 
         <!-- Avatar -->
         <li class="nav-item dropdown">
-          <a href ="{{ url_for('logout') }}" class="link-success">Logout</a>
+          <a href ="{{ url_for('logout') }}" class="link-success"><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>
           <!-- <a "class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
             id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
             <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
