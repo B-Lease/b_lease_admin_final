@@ -60,7 +60,7 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
 # app.config['MYSQL_PASSWORD'] = 'project2023!'
-app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
@@ -86,7 +86,9 @@ def index():
     if 'sessionID' in session:
             return redirect(url_for('dashboard'))
     
+
     title = "B-Lease | Login" 
+    
     return render_template('index.html', title=title)   
    
     
@@ -94,7 +96,7 @@ def index():
 def login_user():
     if 'sessionID' in session:
             return redirect(url_for('dashboard'))
-    
+
     if request.method == 'POST' and 'admin_username' in request.form and 'admin_password' in request.form: 
         admin_username = request.form['admin_username']
         admin_password = request.form['admin_password']
@@ -103,10 +105,15 @@ def login_user():
         
         okey = db.get_specific_data('admin',fields,data)
         if okey is not None:
-            session['sessionID'] = okey['adminID']
+            session['sessionID'] = okey['adminID']  
+            message = "Login Successfully"
+
         else:
-            print ('not okey')
-        return redirect(url_for('index'))
+            message = "Wrong credentials"
+    
+
+            return render_template('index.html', message=message)   
+   
      
 
     
@@ -114,7 +121,8 @@ def login_user():
 def dashboard():
     if 'sessionID' not in session:
             return redirect(url_for('index'))
-    title = "B-Lease | Dashboard"   
+    title = "B-Lease | Dashboard" 
+
     if 'sessionID' in session:
         return render_template('dashboard.html', okey=session['sessionID'], title=title)
     return redirect(url_for('index'))
@@ -139,7 +147,13 @@ def user_report():
     title = "B-Lease | User Report"
     user = db.get_all_data('user')
 
-
+    for each in user:
+        each['images'] = []
+        for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                # data['images'].append(str(filename))
+                    
+                each['images'].append(filename)
     return render_template(
         "user_report.html",
         title=title,
@@ -152,10 +166,21 @@ def view_user():
         return redirect(url_for('dashboard'))
     
     title = "B-Lease | User Info"   
-    user = db.get_all_data('user')
+    userID = request.args.get('userID')
+    
+    user = db.get_specific_data('user', ['userID'], [userID])
     error = request.args.get('error')
     success = request.args.get('success')
 
+
+    user['images'] = []
+    for filename in os.listdir(f'static/users/{user["userID"]}/images/'):
+        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            # data['images'].append(str(filename))
+                
+            user['images'].append(filename)
+                    
+                
     return render_template(
         "view_user.html",
         title=title,
@@ -455,7 +480,7 @@ def contracts():
     title = "B-Lease | List of Contracts"  
 
     leasing = db.get_all_data('leasing')
-   
+    
     user = db.get_all_data('user')
 
     # im = Image.open(property_images)
@@ -470,6 +495,7 @@ def view_contract():
     user = db.get_all_data('user')
     title = "B-Lease | View Contracts" 
     leasing = db.get_all_data('leasing')
+    payment = db.get_all_data('payment')
 
     leasing = db.get_specific_data('leasing',['leasingID'],[leasingID])
      
@@ -481,14 +507,14 @@ def view_contract():
 
             leasing['documents'].append(filename)
 
-    return render_template("view_contract.html", title=title, leasing=leasing, user=user)
+    return render_template("view_contract.html", title=title, leasing=leasing, user=user,payment=payment)
 
 
 @app.route("/approveContract")
 def approveContract():
 
     leasingID = request.args.get('leasingID')
-    leasing_status = "pending"
+    leasing_status = "ongoing"
     leasing = db.get_all_data('leasing')
     
     # day = datetime.strptime('leasing_start', '%Y-%m-%d').strftime('%d')
@@ -540,18 +566,6 @@ def declineContract():
     message = "Failed to approve the contract."
     return redirect(url_for('contracts', success = message))
 
-@app.route("/pending_contracts")
-def pending_contracts():
-    if 'sessionID' not in session:
-        return redirect(url_for('dashboard'))
-    
-    title = "B-Lease | List of Contracts"  
-    leasing = db.get_all_data('leasing')
-   
-    user = db.get_all_data('user')
-
-    # im = Image.open(property_images)
-    return render_template("pending_contracts.html", title=title, property=property, user=user,leasing=leasing)
 
 @app.route("/ongoing_contracts")
 def ongoing_contracts():
