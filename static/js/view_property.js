@@ -53,3 +53,16 @@ function setUpdateModal(updateStatus){
   var adminID = document.getElementById('deleteadminID');
   adminID.value = id;
 }
+
+function approveListing(propertyID){
+
+    window.location.href = "/approveStatus?propertyID="+propertyID;
+
+}
+
+function declineListing(propertyID){
+
+  
+  window.location.href = "/declineStatus?propertyID="+propertyID;
+
+}
