@@ -203,3 +203,11 @@ def get_address_of_property(propertyID):
     mysql.connection.commit()
     cur.close()
     return str(data['address'])
+
+
+def insert_json_data(table,field,data,id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"UPDATE `{table}` SET (`{field[1]}` = '{data}') WHERE `{field[0]}` = '{id}' ")
+    mysql.connection.commit()
+    cur.close()
+    return True

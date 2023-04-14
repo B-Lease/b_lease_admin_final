@@ -12,6 +12,7 @@ import requests
 import flask
 import socketmessage
 import pdf
+import json
 
 app = Flask(__name__)
 app.secret_key = "b-lease2022"
@@ -49,9 +50,12 @@ api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<st
 api.add_resource(restapi.propertydocuments,"/propertydocuments/<string:propertyID>/<string:docName>")
 api.add_resource(restapi.leasingdocuments,"/leasingdocuments/<string:leasingID>/<string:contractDocument>")
 api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
+
 api.add_resource(restapi.NextPay,"/getLinks")
 api.add_resource(restapi.Redirect, "/test")
 api.add_resource(restapi.Payment, "/pay")
+
+api.add_resource(restapi.notifications,"/notifications")
 
 
 
@@ -62,8 +66,9 @@ api.add_resource(restapi.Payment, "/pay")
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'project2023!'
-#app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+# app.config['MYSQL_PASSWORD'] = 'project2023!'
+# app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+app.config['MYSQL_PASSWORD'] = 'nathaniel'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
@@ -430,14 +435,59 @@ def view_property():
      return render_template("view_property.html", title=title, property=property,user=user)
 
     
-@app.route("/approveStatus")
+@app.route("/approveStatus", methods=['GET'])
 def approveStatus():
 
     propertyID = request.args.get('propertyID')
     property_status = "open"
+    userID = None
+    propertyAddress = None
+    message = None
+    now = None
+    read = None
+    notificationID = None
+    
+    
+    notification_desc = ''
+    
+    propertyInfo = db.get_data('property','propertyID',propertyID)
+    if propertyInfo:
+        userID = propertyInfo['userID']
+        propertyAddress = propertyInfo['address']
+        notification_desc = f'Your property at {propertyAddress} has been approved.'
+        now = str(datetime.now())
+        notification_categ = 'Property Listing Approval'
+
+        read = "unread"
+        # /propertyimages/<string:propertyID>/<string:image>"
+
+        image = []
+     
+        for filename in os.listdir(f'static/property_listings/{propertyInfo["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            # data['images'].append(str(filename))
+                image.append(filename)
+
+        image = image[0]
+        
+        data = {
+            "propertyID":propertyInfo['propertyID'],
+            "image":f"{image}",
+        }
+
+        data = f"{propertyInfo['propertyID']},{image}"
+        if userID and propertyAddress and notification_desc and now and read:
+            notificationID = util.generateUUID(f"{userID},{propertyAddress},{notification_categ},{notification_desc},{now},{read}")
+        
+    if notificationID:
+        make_notif = db.insert_data('notifications',
+                       ['notificationID','userID','notification_categ','notification_desc','notification_date','read','data'],
+                       [notificationID,userID,notification_categ, notification_desc,now,read,data])
+  
 
     db.update_data('property', ['propertyID', 'property_status'],[propertyID, property_status])
     message = "You have successfully approve the listing."
+
     return redirect(url_for('property_listings', success = message))
 
 @app.route("/declineStatus")

@@ -1,0 +1,1320 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 from http.client import HTTPResponse\par
+from flask_restful import Api, Resource, reqparse\par
+from flask import request, abort, jsonify, send_file\par
+from datetime import datetime, timedelta\par
+from util import generateUUID, hashMD5, JSONEncoder, generate_otp\par
+from emailverification import email_verification\par
+from apscheduler.schedulers.background import BlockingScheduler\par
+from flask_cors import CORS\par
+\par
+import os\par
+import app\par
+import db\par
+import util\par
+import json\par
+import pdf\par
+\par
+PROPERTY_PATH = 'static/property_listings/'\par
+# signup_put_args = reqparse.RequestParser()\par
+# signup_put_args.add_argument("contact_number", type=str, help="Phone number of the user")\par
+\par
+\par
+# class signup(Resource):\par
+#     def get(self):\par
+#         return \{'data':'hello'\}\par
+#     def put(self,id):\par
+#         args = signup_put_args.parse_args()\par
+#         return \{ id:args\}\par
+\par
+\par
+# =======================================================================================\par
+# REGISTER API CLASS\par
+# =======================================================================================\par
+\par
+register_args = reqparse.RequestParser()\par
+register_args.add_argument(\par
+    'email', type=str, help='Missing Email', required=True)\par
+otp_dict = \{\}\par
+\par
+\par
+class register(Resource):\par
+    def get(self):\par
+        email = str(request.args.get('email'))\par
+        otp = str(request.args.get('otp'))\par
+        isFound = False\par
+\par
+        # print(otp_dict)\par
+        for k, v in otp_dict.items():\par
+            if k == email and v == otp:\par
+                isFound = True\par
+\par
+        if isFound:\par
+            del otp_dict[email]\par
+            # print(otp_dict)\par
+            return \{'message': 'OTP found'\}, 200\par
+        else:\par
+            return \{'message': 'OTP not found'\}, 200\par
+\par
+    def post(self):\par
+        registerInfo = register_args.parse_args()\par
+\par
+        email = request.json\par
+        check_existing_user = db.check_existing_data('user','user_email', email['email'])\par
+\par
+        if check_existing_user:\par
+            return \{'message': 'email already used'\}, 200\par
+        else:\par
+            otp = generate_otp()\par
+            send_email = email_verification(email['email'], otp)\par
+\par
+            if send_email == True:\par
+                otp_dict[email['email']] = otp\par
+                # print(otp_dict)\par
+                return \{'message': 'success'\}, 200\par
+            else:\par
+                return \{'message': 'error'\}, 200\par
+\par
+    def put(self):\par
+        pass\par
+\par
+    def delete(self):\par
+        email = request.args.get('email')\par
+\par
+        if email:\par
+            if email in otp_dict:\par
+                otp = otp_dict[email]\par
+                otp_dict.pop(email, None)\par
+                # print(otp_dict)\par
+\par
+                return \{'message': f'OTP \{otp\} has expired '\}, 200\par
+            else:\par
+                return abort(404, "OTP not found")\par
+        else:\par
+            return abort(404, "OTP not found")\par
+        \par
+\par
+\par
+# =======================================================================================\par
+# USER API CLASS\par
+# =======================================================================================\par
+\par
+user_args = reqparse.RequestParser()\par
+user_args.add_argument('phone_number', type=str,\par
+                       help='Missing Phone number', required=True)\par
+user_args.add_argument('user_password', type=str,\par
+                       help='Missing User password', required=True)\par
+user_args.add_argument('user_fname', type=str,\par
+                       help='Missing User firstname', required=True)\par
+user_args.add_argument('user_mname', type=str, help='Missing User middlename')\par
+user_args.add_argument('user_lname', type=str,\par
+                       help='Missing User lastname', required=True)\par
+user_args.add_argument('user_birthdate', type=str,\par
+                       help='Missing User birthdate', required=True)\par
+user_args.add_argument('user_email', type=str,\par
+                       help='Missing User email', required=True)\par
+\par
+\par
+user_args_put = reqparse.RequestParser()\par
+user_args_put.add_argument('userID', type=str, \par
+                           help='Missing User ID', required=True)\par
+user_args_put.add_argument('user_fname', type=str,\par
+                           help='Missing User firstname', required=True)\par
+user_args_put.add_argument('user_mname', type=str,\par
+                           help='Missing User middlename')\par
+user_args_put.add_argument('user_lname', type=str,\par
+                           help='Missing User lastname', required=True)\par
+user_args_put.add_argument('user_birthdate', type=str,\par
+                           help='Missing User birthdate', required=True)\par
+\par
+user_args_put.add_argument('phone_number', type=str,\par
+                           help='Missing Phone number', required=True)\par
+\par
+\par
+user_args_patch = reqparse.RequestParser()\par
+user_args_patch.add_argument(\par
+    'sessionID', type=str, help='Missing Session ID', required=True)\par
+user_args_patch.add_argument(\par
+    'userID', type=str, help='Missing User ID', required=True)\par
+user_args_patch.add_argument(\par
+    'user_password', type=str, help='Missing User Password', required=True)\par
+\par
+#=====================\par
+\par
+class user(Resource):\par
+    def get(self):\par
+        userID = request.args.get('userID')\par
+        if userID is None:\par
+            userInfo = db.get_all_data('user')\par
+            userInfo.remove('user_password')\par
+            userInfo.remove('user_password_hashed')\par
+            userInfo.remove('user_status')\par
+            userInfo.remove('created_at')\par
+            userJson = json.dumps(userInfo, indent=2, cls=JSONEncoder)\par
+            return userJson, 200\par
+        else:\par
+            if userID is not None:\par
+                userInfo = db.get_data('user', 'userID', userID)\par
+                userInfo.pop('user_password')\par
+                userInfo.pop('user_password_hashed')\par
+                userInfo.pop('user_status')\par
+                userInfo.pop('created_at')\par
+                userJson = json.dumps(userInfo, default=str)\par
+\par
+                return jsonify(userJson)\par
+\par
+            else:\par
+                return abort(400, 'User not found')\par
+\par
+    def post(self):\par
+        userInfo = user_args.parse_args()\par
+\par
+        userJson = request.json\par
+        userID = None\par
+        fields = []\par
+        data = []\par
+\par
+        if 'userID' in userJson:\par
+            userID = userJson.pop('userID')\par
+        if 'imageUrl' in userJson:\par
+            imageUrl = userJson.pop('imageUrl')\par
+\par
+        for k, v in userJson.items():\par
+            if v is not None:\par
+                if k == 'phone_number':\par
+                    fields.append('userID')\par
+                    if userJson['auth_type'] == 'google':\par
+                        userID = userID\par
+                    else:\par
+                         userID = generateUUID(json.dumps(userJson))\par
+                    data.append(userID)\par
+                if k == 'user_password':\par
+                    fields.append('user_password_hashed')\par
+                    data.append(hashMD5(v))\par
+                if k == 'user_fname' or k == 'user_mname' or k == 'user_lname':\par
+                    v = v.title()\par
+                fields.append(k)\par
+                data.append(v)\par
+\par
+                if k == 'user_password':\par
+                    fields.append('user_status')\par
+                    data.append('active')\par
+        if userJson['auth_type'] == 'google':\par
+            fields.append('user_img')\par
+            data.append(imageUrl)\par
+\par
+        fields.append('created_at')\par
+        data.append(str(datetime.now()))\par
+        # print(fields)\par
+        # print(data)\par
+        check_existing = db.check_existing_data('user', 'userID', userID)\par
+        if check_existing:\par
+            return \{'message': f'User with userID: \{userID\} already exist'\}, 409\par
+        else:\par
+            insert_data_bool = db.insert_data('user', fields, data)\par
+            if insert_data_bool:\par
+                return \{'message': 'Success user creation'\}, 201\par
+            else:\par
+                return \{'message': 'Error user creation'\}, 400\par
+\par
+    # def delete(self):\par
+    #     sessionID = request.args.get('sessionID')\par
+    #     userID = request.args.get('userID')\par
+\par
+    #     check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])\par
+\par
+    #     if check_session:\par
+    #         check_existing = db.check_existing_data('user', 'userID', userID)\par
+    #         if check_existing:\par
+    #             delete_user = db.delete_data('user', 'userID', userID)\par
+    #             if delete_user:\par
+    #                 return \{\par
+    #                     'message': f'deleted'\par
+    #                 \}, 200\par
+    #             else:\par
+    #                 return\{\par
+    #                     'message':f'Error deleting user with UserID:\{userID\}'\par
+    #                 \}, 400\par
+    #         else:\par
+    #             return abort(400,'Cannot delete. User not found')\par
+    #     else:\par
+    #         return abort(400, 'Session expired')\par
+\par
+    def patch(self):\par
+        userInfo = user_args_patch.parse_args()\par
+\par
+        userJson = request.json\par
+\par
+        fields = []\par
+        data = []\par
+\par
+        for k, v in userJson.items():\par
+            if v is not None and k != 'user_password':\par
+                fields.append(k)\par
+                data.append(v)\par
+\par
+        check_session = db.get_specific_data('session', ['sessionID', 'userID', 'status'], [\par
+                                             userJson['sessionID'], userJson['userID'], 'valid'])\par
+\par
+        if check_session:\par
+            check_user_password = db.get_specific_data('user', ['userID', 'user_password_hashed', 'user_password'], [\par
+                                                       userJson['userID'], hashMD5(userJson['user_password']), userJson['user_password']])\par
+            if check_user_password:\par
+                check_existing = db.check_existing_data(\par
+                    'user', 'userID', userJson['userID'])\par
+                if check_existing:\par
+                    update_user = db.update_data('user', ['userID', 'user_status'], [\par
+                                                 userJson['userID'], 'deactivated'])\par
+\par
+                    if update_user:\par
+                        return \{\par
+                            'message': f"deactivated"\par
+                        \}, 200\par
+                    else:\par
+                        return \{\par
+                            'message': f"error deactivating"\par
+                        \}, 200\par
+                else:\par
+                    return \{\par
+                        'message': f"user not found"\par
+                    \}, 200\par
+            else:\par
+\par
+                return \{\par
+                    'message': f"incorrect password"\par
+                \}, 200\par
+        else:\par
+            return abort(400, 'Session expired')\par
+\par
+    def put(self):\par
+        userInfo = user_args_put.parse_args()\par
+\par
+        userJson = request.json\par
+\par
+        fields = []\par
+        data = []\par
+\par
+        for k, v in userJson.items():\par
+            if v is not None:\par
+                fields.append(k)\par
+                data.append(v)\par
+\par
+        check_existing = db.check_existing_data(\par
+            'user', 'userID', userJson['userID'])\par
+\par
+        if check_existing:\par
+            update_user = db.update_data('user', fields, data)\par
+\par
+            if update_user:\par
+                return \{\par
+                    'message': f"User with userID:\{userJson['userID']\} updated successfully"\par
+                \}, 200\par
+            else:\par
+                return \{\par
+                    'message': f"Error updating user with userID:\{userJson['userID']\}"\par
+                \}, 400\par
+        else:\par
+            return \{'message': f'User with userID: \{userJson["userID"]\} does not exist'\}, 400\par
+\par
+\par
+# =======================================================================================\par
+# DELETE USER API CLASS\par
+# =======================================================================================\par
+\par
+delete_user_args = reqparse.RequestParser()\par
+delete_user_args.add_argument(\par
+    'sessionID', type=str, help='Missing Session ID', required=True)\par
+delete_user_args.add_argument(\par
+    'userID', type=str, help='Missing User ID', required=True)\par
+delete_user_args.add_argument(\par
+    'user_password', type=str, help='Missing User Password', required=True)\par
+\par
+\par
+class delete_user(Resource):\par
+    def patch(self):\par
+        userInfo = delete_user_args.parse_args()\par
+\par
+        userJson = request.json\par
+\par
+        fields = []\par
+        data = []\par
+\par
+        for k, v in userJson.items():\par
+            if v is not None and k != 'user_password':\par
+                fields.append(k)\par
+                data.append(v)\par
+\par
+        check_session = db.get_specific_data('session', ['sessionID', 'userID', 'status'], [\par
+                                             userJson['sessionID'], userJson['userID'], 'valid'])\par
+\par
+        if check_session:\par
+            check_user_password = db.get_specific_data('user', ['userID', 'user_password_hashed', 'user_password'], [userJson['userID'], hashMD5(userJson['user_password']), userJson['user_password']])\par
+            if check_user_password:\par
+                check_existing = db.check_existing_data(\par
+                    'user', 'userID', userJson['userID'])\par
+                if check_existing:\par
+                    delete_user = db.delete_data(\par
+                        'user', 'userID', userJson['userID'])\par
+\par
+                    if delete_user:\par
+                        return \{\par
+                            'message': f"deleted"\par
+                        \}, 200\par
+                    else:\par
+                        return \{\par
+                            'message': f"error deleting"\par
+                        \}, 200\par
+                else:\par
+                    return \{\par
+                        'message': f"user not found"\par
+                    \}, 200\par
+            else:\par
+\par
+                return \{\par
+                    'message': f"incorrect password"\par
+                \}, 200\par
+        else:\par
+            return abort(400, 'Session expired')\par
+\par
+\par
+# =======================================================================================\par
+# CHANGE PASSWORD API CLASS\par
+# =======================================================================================\par
+\par
+changepassword_args = reqparse.RequestParser()\par
+changepassword_args.add_argument(\par
+    'sessionID', type=str, help='Missing Session ID', required=True)\par
+changepassword_args.add_argument(\par
+    'userID', type=str, help='Missing User ID', required=True)\par
+changepassword_args.add_argument(\par
+    'user_password', type=str, help='Missing Password', required=True)\par
+\par
+\par
+class changepassword(Resource):\par
+    def post(self):\par
+        passwordInfo = changepassword_args.parse_args()\par
+\par
+        passwordJson = request.json\par
+        userID = None\par
+        fields = []\par
+        data = []\par
+        for k, v in passwordJson.items():\par
+            if v is not None:\par
+\par
+                fields.append(k)\par
+                data.append(v)\par
+        check_session = db.get_specific_data('session', ['sessionID', 'userID', 'status'], [\par
+                                             passwordJson['sessionID'], passwordJson['userID'], 'valid'])\par
+\par
+        if check_session:\par
+            check_existing = db.check_existing_data(\par
+                'user', 'userID', passwordJson['userID'])\par
+            if check_existing:\par
+                update_user = db.update_data('user', ['userID', 'user_password', 'user_password_hashed'], [\par
+                                             passwordJson['userID'], passwordJson['user_password'], hashMD5(passwordJson['user_password'])])\par
+\par
+                if update_user:\par
+                    return \{\par
+                        'message': f"passwordchanged"\par
+                    \}, 200\par
+                else:\par
+                    return \{\par
+                        'message': f"Error updating user with userID:\{passwordJson['userID']\}"\par
+                    \}, 400\par
+            else:\par
+                return abort(400, 'Cannot delete. User not found')\par
+        else:\par
+            return abort(400, 'Session expired')\par
+\par
+\par
+# =======================================================================================\par
+# LEASING API CLASS\par
+# =======================================================================================\par
+\par
+\par
+\par
+leasing_args_put = reqparse.RequestParser()\par
+# for updating lease record\par
+leasing_args_put.add_argument('leasingID', type=str, help='Missing LeasingID', required=True)\par
+# the details that would be updated\par
+leasing_args_put.add_argument('leasing_status', type=str, help='Missing Leasing Status', required=True)\par
+leasing_args_put.add_argument('leasing_start', type=str, help='Missing Leasing Start', required=True)\par
+leasing_args_put.add_argument('leasing_end', type=str, help='Missing Leasing End', required=True)\par
+leasing_args_put.add_argument('leasing_payment_frequency', type=str, help='Missing Payment Frequency', required=True)\par
+leasing_args_put.add_argument('leasing_total_fee', type=str, help='Missing Total Fee', required=True)\par
+#leasing_args_put.add_argument('leasing_remarks', type=str, help='Missing Leasing Remarks', required=False)\par
+\par
+leasing_contracts = reqparse.RequestParser()\par
+# for creating lease contract\par
+leasing_contracts.add_argument('lessor_name', type=str, help='Missing Lessor Name', required=True)\par
+leasing_contracts.add_argument('lessee_name', type=str, help='Missing Lessee Name', required=True)\par
+leasing_contracts.add_argument('address', type=str, help='Missing Address', required=True)\par
+leasing_contracts.add_argument('land_description', type=str, help='Missing Land Description', required=True)\par
+leasing_contracts.add_argument('purpose', type=str, help='Missing Purpose', required=True)\par
+leasing_contracts.add_argument('security_deposit', type=bool, help='Missing Security Deposit', required=True)\par
+leasing_contracts.add_argument('improvements', type=bool, help='Missing Improvements', required=True)\par
+leasing_contracts.add_argument('erect_signage', type=bool, help='Missing Improvements', required=True)\par
+leasing_contracts.add_argument('signature', type=str, help='Missing Signature', required=True)\par
+\par
+class Leasing(Resource):\par
+    def get(self):\par
+        check_existing = request.args.get('check_existing')\par
+        \par
+        #FOR CHECKING EXISTING ONGOING LEASE RECORDS BEFORE CREATING A NEW LEASE RECORD\par
+        if check_existing == 'yes':\par
+            lesseeID = request.args.get('lesseeID')\par
+            lessorID = request.args.get('lessorID')\par
+            propertyID = request.args.get('propertyID')\par
+            \par
+            fields = ['lesseeID', 'lessorID', 'propertyID']\par
+            values = [lesseeID, lessorID, propertyID]\par
+\par
+            leasingInfo = db.get_all_specific_data('leasing', fields, values)\par
+            #remove dictionaries in the list if it is equal to finished\par
+            leasingInfoFiltered = [item for item in leasingInfo if item['leasing_status'] != 'finished']\par
+\par
+            if len(leasingInfoFiltered) != 0:\par
+                leasing_encoded = json.dumps(leasingInfoFiltered, default=str)\par
+                return leasing_encoded, 200\par
+            else:\par
+                return \{'message': 'No pending/ongoing leasing records'\}, 209\par
+        \par
+        else:\par
+            #USING LEASE RECORDS FOR LIST OF MESSAGES\par
+            userID = request.args.get('userID')\par
+            # as a lessee\par
+            leasingInfo = db.join_tables(userID)\par
+            if leasingInfo is not None:\par
+                leasing_encoded = json.dumps(leasingInfo, default=str)\par
+                return leasing_encoded, 200\par
+            else:\par
+                return abort(400, 'No conversations found')\par
+\par
+\par
+    def post(self):\par
+        lessorID = str(request.json['lessorID'])\par
+        lesseeID = str(request.json['lesseeID'])\par
+        propertyID = str(request.json['propertyID'])\par
+        leasing_status = str(request.json['leasing_status'])\par
+\par
+\par
+        param = str(lessorID + lesseeID + propertyID +\par
+                    leasing_status + str(datetime.now()))\par
+        leasingID = util.generateUUID(param)\par
+\par
+        fields = ['leasingID', 'lessorID', 'lesseeID', 'propertyID', 'leasing_status']        \par
+        data = [leasingID, lessorID, lesseeID, propertyID, leasing_status]\par
+\par
+        check_existing = db.check_existing_data('leasing', 'leasingID', data[0])\par
+\par
+        if check_existing:\par
+            return \{'message': f'User with userID: \{leasingID\} already exist'\}, 409\par
+\par
+        else:\par
+            insert_data_bool = db.insert_data('leasing', fields, data)\par
+\par
+            if insert_data_bool:\par
+                return \{'message': 'Successfully initiated lease request',\par
+                        'leasingID': leasingID\par
+                        \}, 201\par
+\par
+            else:\par
+                return \{'message': 'Unable to lease request'\}, 400\par
+\par
+    def put(self):\par
+        leasingInfo = leasing_args_put.parse_args()\par
+\par
+        fields = []\par
+        data = []\par
+\par
+        for k, v in leasingInfo.items():\par
+            fields.append(k)\par
+            data.append(v)\par
+\par
+        check_existing = db.check_existing_data('leasing', 'leasingID', data[0])\par
+\par
+        if check_existing:\par
+            update_data_bool = db.update_data('leasing', fields, data)\par
+\par
+            if update_data_bool:\par
+                # after inserting important leasing data, create the pdf(contract) and\par
+                # save the contract details to leasing_documents\par
+\par
+                contractInfo = leasing_contracts.parse_args()\par
+                insert_docs = pdf.createPDF(leasingInfo,contractInfo)\par
+\par
+                # leasing_doc_name = str(leasing_docID + "_contract.pdf")\par
+                # insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [\par
+                #                              leasing_docID, leasingID, leasing_doc_name])\par
+                if insert_docs:\par
+                    return \{'message': 'Successfully confirmed lease request'\}, 204\par
+                else:\par
+                    db.delete_data('leasing', 'leasingID', data[0])\par
+\par
+            else:\par
+                return \{'message': 'Unable to lease request'\}, 400\par
+        else:\par
+            return abort(400, 'Leasing info not found')\par
+        \par
+\par
+    def delete(self):\par
+        leasingID = request.args.get('leasingID')\par
+\par
+        check_existing = db.check_existing_data(\par
+            'leasing', 'leasingID', leasingID)\par
+        if check_existing:\par
+            delete_user = db.delete_data('leasing', 'leasingID', leasingID)\par
+            if delete_user:\par
+                return \{\par
+                    'message': f'Leasing ID:\{leasingID\} is deleted'\par
+                \}, 200\par
+            else:\par
+                return \{\par
+                    'message': f'Error deleting lease contract:\{leasingID\}'\par
+                \}, 400\par
+        else:\par
+            return abort(400, 'Cannot delete. Contract not found')\par
+        \par
+\par
+# =======================================================================================\par
+# LEASING CONTRACTS API CLASS\par
+# =======================================================================================\par
+\par
+class LeasingContracts(Resource):\par
+    def get(self):\par
+        # get specific data\par
+        userID = request.args.get('userID')\par
+        \par
+        if userID:\par
+            check_existing_user = db.check_existing_data('user','userID',userID)\par
+            if check_existing_user:\par
+                leasingInfo = db.get_leasing_contracts('leasing',['lessorID','lesseeID'],[userID,userID])\par
+                if leasingInfo is not None:\par
+                    for each in leasingInfo:\par
+                        each['address'] = db.get_address_of_property(each['propertyID'])\par
+                        if each['lessorID'] == userID:\par
+                            lessee = db.get_name_of_user(each['lesseeID'])\par
+                            each['name'] = f"\{lessee['user_fname'].title()\} \{lessee['user_lname'].title()\}"\par
+                        if each['lesseeID'] == userID:\par
+                            lessor = db.get_name_of_user(each['lessorID'])\par
+                            each['name'] = f"\{lessor['user_fname'].title()\} \{lessor['user_lname'].title()\}"\par
+                    leasing_encoded = json.dumps(leasingInfo, default=str)\par
+                    return leasing_encoded, 200\par
+                else:\par
+                    return \{'message':'No contracts found'\},200\par
+            else:\par
+                return abort(400,'User not found')\par
+        else:\par
+            return abort(400,'No userID present')\par
+# =======================================================================================\par
+\par
+class leasingdocs(Resource):\par
+    def get(self, leasingID, file):\par
+        filename = f'static/contracts/\{leasingID\}/\{file\}'\par
+        return send_file(filename, mimetype='application/pdf')\par
+    \par
+\par
+\par
+# =======================================================================================\par
+# LEASING DOCUMENTS API CLASS\par
+# =======================================================================================\par
+\par
+leasing_docs = reqparse.RequestParser()\par
+leasing_docs.add_argument('leasingID', type=str,\par
+                          help='Missing Leasing ID', required=True)\par
+\par
+\par
+class Leasing_Documents(Resource):\par
+    def get(self):\par
+        leasingID = request.args.get('leasingID')\par
+        contract = db.check_existing_data('leasing','leasingID',leasingID)\par
+        if contract:\par
+            pdfs=[]\par
+            for filename in os.listdir(f'static/contracts/\{leasingID\}/'):\par
+                if filename.endswith('.pdf'):\par
+                    pdfs.append(filename)        \par
+                if pdfs:\par
+                    file_path = f"static\\contracts\\\{leasingID\}\\\{pdfs[0]\}"\par
+                    return send_file(file_path)\par
+                else:\par
+                    return abort(400, 'No contract found')\par
+        else:\par
+            return abort(400, 'No leasing record found')\par
+\par
+    def delete(self):\par
+        return None\par
+\par
+\par
+# =======================================================================================\par
+# MESSAGE API CLASS\par
+# =======================================================================================\par
+\par
+class Message(Resource):\par
+    def get(self):\par
+        leasingID = request.args.get('leasingID')\par
+        messages = db.get_items('message', 'leasingID', leasingID)\par
+        sorted_messages = sorted(messages, key=lambda x: x['sent_at'])\par
+        if messages is not None:\par
+            messages_encoded = json.dumps(sorted_messages, default=str)\par
+            print('messages_encoded')\par
+            print(messages_encoded)\par
+            return messages_encoded, 200\par
+        else:\par
+            return abort(400, 'No conversations found')\par
+\par
+    def post(self):\par
+        print(str('hello: '+request.json['leasingID']))\par
+        leasingID = request.json['leasingID']\par
+        msg_senderID = request.json['msg_senderID']\par
+        msg_receiverID = request.json['msg_receiverID']\par
+        msg_content = request.json['msg_content']\par
+        sent_at = request.json['sent_at']\par
+        \par
+        fields = ['msgID', 'leasingID', 'msg_senderID',\par
+                  'msg_receiverID', 'msg_content', 'sent_at']\par
+        \par
+        param = str(leasingID + msg_senderID + msg_receiverID + msg_content + sent_at)\par
+        msgID = util.generateUUID(param)\par
+\par
+        values = [msgID, leasingID, msg_senderID, msg_receiverID, msg_content, sent_at]\par
+\par
+        message = db.insert_data('message', fields, values)\par
+        #app.socketio.emit('add-message', msg_content, broadcast=True)\par
+        return jsonify(\{'success': True\})\par
+\par
+\par
+class Message_Images(Resource):\par
+    def get(self):\par
+        return None\par
+\par
+    def post(self):\par
+        return None\par
+\par
+\par
+# =======================================================================================\par
+# LOGIN API CLASS\par
+# =======================================================================================\par
+\par
+login_args = reqparse.RequestParser()\par
+login_args.add_argument('user_email', type=str,\par
+                        help='Missing Email', required=True)\par
+login_args.add_argument('user_ip', type=str,\par
+                        help='Missing IP Address', required=True)\par
+\par
+class login(Resource):\par
+\par
+    def get(self):\par
+        userID = request.args.get('userID')\par
+        if userID is not None:\par
+            userInfo = db.get_data('user', 'userID', userID)\par
+\par
+            if userInfo:\par
+                userJson = json.dumps(userInfo, default=str)\par
+                \par
+                return jsonify(userJson)\par
+            else:\par
+                return \{'message':'User not found'\}\par
+\par
+        else:\par
+            return \{'message':'No userID'\}\par
+    def post(self):\par
+        loginInfo = login_args.parse_args()\par
+\par
+        loginJson = request.json\par
+        sessionID = generateUUID(json.dumps(loginJson)+str(datetime.now()))\par
+        userIP = None\par
+        fields = []\par
+        data = []\par
+        accessToken = ''\par
+        idToken = ''\par
+        if 'accessToken' in loginJson:\par
+            accessToken = loginJson.pop('accessToken')\par
+        if 'idToken' in loginJson:\par
+            idToken = loginJson.pop('idToken')\par
+        if 'auth_type' in loginJson:\par
+            auth_type = loginJson.pop('auth_type')\par
+\par
+        for k, v in loginJson.items():\par
+            if k == 'user_password':\par
+                if auth_type != 'google':\par
+                    fields.append('user_password_hashed')\par
+                    data.append(hashMD5(v))\par
+            if k != 'user_ip':\par
+                fields.append(k)\par
+                data.append(v)\par
+\par
+            if k == 'user_ip':\par
+                userIP = v\par
+\par
+        # print(fields)\par
+        # print(data)\par
+\par
+        check_credential = db.get_specific_data('user', fields, data)\par
+\par
+        if check_credential:\par
+            session_fields = []\par
+            session_data = []\par
+\par
+            session_fields.append('sessionID')\par
+            session_fields.append('userID')\par
+            session_fields.append('accessToken')\par
+            session_fields.append('idToken')\par
+            session_fields.append('loginTime')\par
+            session_fields.append('ipAddress')\par
+            session_fields.append('status')\par
+\par
+            session_data.append(sessionID)\par
+            session_data.append(check_credential['userID'])\par
+            session_data.append(accessToken)\par
+            session_data.append(idToken)\par
+            session_data.append(str(datetime.now()))\par
+            session_data.append(userIP)\par
+            session_data.append('valid')\par
+\par
+            create_session = db.insert_data(\par
+                'session', session_fields, session_data)\par
+\par
+            if create_session:\par
+                if check_credential['user_status'] == 'active':\par
+                    return \{'message': 'Login',\par
+                            'sessionID': sessionID,\par
+                            'userID': check_credential['userID'],\par
+                            'accessToken':accessToken,\par
+                            'idToken':idToken,\par
+                            \}, 200\par
+                else:\par
+                    update_data = db.update_data('user', ['userID', 'user_status'], [\par
+                                                 check_credential['userID'], 'active'])\par
+\par
+                    return \{'message': 'User Deactivated. Login',\par
+                            'sessionID': sessionID,\par
+                            'userID': check_credential['userID'],\par
+                            'accessToken':accessToken,\par
+                            'idToken':idToken,\par
+                            \}, 200\par
+            else:\par
+                return abort(404, 'Error creating session')\par
+        else:\par
+            return \{'message': 'Invalid Credentials'\}, 404\par
+        # if check_existing:\par
+        #     return \{'message':f'User with userID: \{userID\} already exist'\},409\par
+        # else:\par
+        #     insert_data_bool = db.insert_data('user',fields,data)\par
+        #     if insert_data_bool:\par
+        #         return \{'message':'Success user creation'\},201\par
+        #     else:\par
+        #         return \{'message':'Error user creation'\},400\par
+\par
+\par
+# =======================================================================================\par
+# SESSION API CLASS\par
+# =======================================================================================\par
+\par
+session_args = reqparse.RequestParser()\par
+session_args.add_argument('sessionID', type=str,\par
+                          help='Missing Session ID', required=True)\par
+session_args.add_argument(\par
+    'userID', type=str, help='Missing User ID', required=True)\par
+\par
+\par
+class session(Resource):\par
+    # This is where session is checked if it is still valid or not\par
+    def get(self):\par
+        sessionID = request.args.get('sessionID')\par
+        sessionInfo = db.get_specific_data(\par
+            'session', ['sessionID', 'status'], [sessionID, 'valid'])\par
+        if sessionInfo is not None:\par
+            userJson = json.dumps(sessionInfo, default=str)\par
+            # print(userJson)\par
+            return \{'message': 'Session valid'\}, 200\par
+        else:\par
+            return \{'message': 'Session expired'\}, 200\par
+\par
+    def post(self):\par
+        sessionInfo = session_args.parse_args()\par
+\par
+        sessionJson = request.json\par
+        fields = []\par
+        data = []\par
+        for k, v in sessionJson.items():\par
+            if v is not None:\par
+                if k == 'userID':\par
+                    fields.append('loginTime')\par
+                    data.append(str(datetime.now()))\par
+                fields.append(k)\par
+                data.append(v)\par
+        fields.append('status')\par
+        data.append('open')\par
+\par
+        check_existing = db.check_existing_data(\par
+            'session', 'sessionID', sessionJson['sessionID'])\par
+        if check_existing:\par
+            return \{'message': f'Session with sessionID: \{sessionJson["sessionID"]\} already exist'\}, 409\par
+        else:\par
+\par
+            check_existing_user = db.check_existing_data(\par
+                'user', 'userID', sessionJson['userID'])\par
+            if check_existing_user:\par
+                insert_data_bool = db.insert_data('session', fields, data)\par
+                if insert_data_bool:\par
+                    return \{'message': 'Success session creation'\}, 201\par
+                else:\par
+                    return \{'message': 'Error session creation'\}, 400\par
+            else:\par
+                return abort(400, 'User does not exist')\par
+\par
+    # This is where logout occurs. Client sends a put request containing the sessionID. Server updates the data in the database by setting its status to 'expired'\par
+    def put(self):\par
+        sessionInfo = session_args.parse_args()\par
+\par
+        sessionJson = request.json\par
+        fields = []\par
+        data = []\par
+        for k, v in sessionJson.items():\par
+            if v is not None:\par
+                fields.append(k)\par
+                data.append(v)\par
+\par
+        fields.append('status')\par
+        data.append('expired')\par
+        fields.append('logoutTime')\par
+        data.append(str(datetime.now()))\par
+\par
+        check_existing = db.check_existing_data(\par
+            'session', 'sessionID', sessionJson['sessionID'])\par
+        if check_existing:\par
+            check_existing_user = db.check_existing_data(\par
+                'user', 'userID', sessionJson['userID'])\par
+            if check_existing_user:\par
+                update_data_bool = db.update_data('session', fields, data)\par
+                if update_data_bool:\par
+                    return \{'message': 'Session expires'\}, 201\par
+                else:\par
+                    return \{'message': 'Error session expiration'\}, 400\par
+            else:\par
+                return abort(400, 'User does not exist')\par
+        else:\par
+            return \{'message': f'Session with sessionID: \{sessionJson["sessionID"]\} does not exist'\}, 409\par
+\par
+\par
+# =======================================================================================\par
+# NOTIFICATION API CLASS | CRU\par
+\par
+class notifications(Resource):\par
+    def get(self):\par
+        userID = request.args.get('userID')\par
+        sessionID = request.args.get('sessionID')\par
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])\par
+\par
+        if check_session:\par
+            notifications = db.get_items('notifications','userID',userID)\par
+            if notifications:\par
+                notificationJson = json.dumps(notifications, default=str)\par
+                \par
+                return jsonify(notificationJson )\par
+            else:\par
+                return \{'message':'No notifications'\},204\par
+\par
+        else:\par
+            return abort(401,'Authorization needed')\par
+    def post(self):\par
+        pass\par
+    def put(self):\par
+        pass\par
+    def delete(self):\par
+        pass\par
+\par
+    def patch(self):\par
+        userID = request.args.get('userID')\par
+        notificationID = request.args.get('notificationID')\par
+        sessionID = request.args.get('sessionID')\par
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])\par
+\par
+        if check_session:\par
+            exist = db.get_data('notifications','notificationID',notificationID)\par
+            if exist:\par
+                notif_update = db.update_data('notifications',['notificationID','read'],[notificationID,'read'])\par
+                \par
+                return \{"message":"Notification read"\},202\par
+            else:\par
+                return \{'message':'No notifications'\},204\par
+\par
+        else:\par
+            return abort(401,'Authorization needed')\par
+\par
+# =======================================================================================\par
+# PAYMENT API CLASS | CRU\par
+\par
+# =======================================================================================\par
+# USER PAYMENT METHOD API CLASS | CRUD\par
+\par
+upm_args = reqparse.RequestParser()\par
+upm_args.add_argument('userID', type=str, help='Missing UserID', required=True)\par
+upm_args.add_argument('userPay_accName', type=str,\par
+                      help='Missing Account Name', required=True)\par
+upm_args.add_argument('userPay_accNum', type=str,\par
+                      help='Missing Account Number', required=True)\par
+\par
+\par
+class user_payment_method(Resource):\par
+\par
+    def get(self):\par
+        pass\par
+\par
+    def post(self):\par
+        upmInfo = upm_args.parse_args()\par
+        upmJson = request.json\par
+\par
+        fields = []\par
+        data = []\par
+        paymethodID = json.dumps(upmJson)\par
+        paymethodID = generateUUID(paymethodID)\par
+\par
+        fields.append('paymethodID')\par
+        data.append(paymethodID)\par
+        for k, v in upmJson.items():\par
+            if v is not None:\par
+                fields.append(k)\par
+                data.append(v)\par
+                if k == 'userPay_accName':\par
+                    fields.append('userPay_dateAdded')\par
+                    data.append(str(datetime.now()))\par
+        # print(fields)\par
+        # print(data)\par
+\par
+    def put(self):\par
+        pass\par
+\par
+    def delete(self):\par
+        pass\par
+\par
+\par
+# =======================================================================================\par
+# COMPLAINT API CLASS | CR\par
+complaint_args = reqparse.RequestParser()\par
+complaint_args.add_argument(\par
+    'complaint_categ', type=str, help='Missing Complaint Category', required=True)\par
+complaint_args.add_argument(\par
+    'complaint_desc', type=str, help='Missing Complaint Description', required=True)\par
+complaint_args.add_argument(\par
+    'complainerID', type=str, help='Missing ComplainerID', required=True)\par
+complaint_args.add_argument(\par
+    'complaineeID', type=str, help='Missing ComplaineeID', required=True)\par
+\par
+\par
+class complaint(Resource):\par
+    def get(self):\par
+        complainerID = request.args.get('complainerID')\par
+        if complainerID is None:\par
+            return abort(400, 'Missing complainer ID')\par
+        else:\par
+            complaints = db.get_data('complaint', 'complainerID', complainerID)\par
+            if complaints:\par
+                userJson = json.dumps(complaints, indent=2, cls=JSONEncoder)\par
+                return userJson, 200\par
+            else:\par
+                return \{'message': 'No complaints found'\}\par
+\par
+    def post(self):\par
+        complaintInfo = complaint_args.parse_args()\par
+        complaintJson = request.json\par
+\par
+        complaintID = json.dumps(complaintJson)\par
+        complaintID = generateUUID(complaintID+str(datetime.now()))\par
+\par
+        fields = []\par
+        data = []\par
+        complainerID = ""\par
+        complaineeID = ""\par
+        for k, v in complaintJson.items():\par
+            if v is not None:\par
+                if k == 'complaint_categ':\par
+                    fields.append('complaintID')\par
+                    data.append(complaintID)\par
+                fields.append(k)\par
+                data.append(v)\par
+\par
+                if k == 'complainerID':\par
+                    complainerID = v\par
+                if k == 'complaineeID':\par
+                    complaineeID = v\par
+\par
+        check_pending_complaint = db.get_specific_data('complaint', [\par
+                                                       'complainerID', 'complaineeID', 'complaint_status'], [complainerID, complaineeID, 'pending'])\par
+        if check_pending_complaint:\par
+            return abort(400, 'There is still pending complaint. Wait for complaint to be resolved')\par
+        else:\par
+            fields.append('complaint_status')\par
+            data.append('pending')\par
+\par
+            fields.append('created_at')\par
+            data.append(str(datetime.now()))\par
+\par
+            check_existing = db.check_existing_data(\par
+                'complaint', 'complaintID', complaintID)\par
+            if check_existing:\par
+                return \{'message': f'Complaint with complaintID: \{complaintID\} already exist'\}, 409\par
+            else:\par
+\par
+                check_complainer = db.check_existing_data(\par
+                    'user', 'userID', complainerID)\par
+                check_complainee = db.check_existing_data(\par
+                    'user', 'userID', complaineeID)\par
+                if check_complainer and check_complainee:\par
+                    insert_data_bool = db.insert_data(\par
+                        'complaint', fields, data)\par
+                    if insert_data_bool:\par
+                        return \{'message': 'Success complaint creation'\}, 201\par
+                    else:\par
+                        return \{'message': 'Error complaint creation'\}, 400\par
+                else:\par
+                    warn = ""\par
+                    complainer_msg = "Complainer does not exist."\par
+                    complainee_msg = "Complainee does not exist."\par
+                    if check_complainer:\par
+                        warn = warn + complainer_msg\par
+                    if check_complainee:\par
+                        warn = warn + complainee_msg\par
+                    return abort(400, warn)\par
+\par
+# =======================================================================================\par
+# ADMIN API CLASS | CRUD\par
+\par
+# =======================================================================================\par
+\par
+\par
+# =======================================================================================\par
+# PROPERTY API CLASS | CRUD\par
+\par
+# =======================================================================================\par
+\par
+class property(Resource):\par
+    def get(self):\par
+        userID = request.args.get('userID')\par
+        sessionID = request.args.get('sessionID')\par
+        propertyID = request.args.get('propertyID')\par
+        if userID and sessionID:\par
+            check_user = db.check_existing_data('user', 'userID', userID)\par
+            check_session = db.check_existing_data(\par
+                'session', 'sessionID', sessionID)\par
+\par
+            if check_user and check_session:\par
+                if propertyID:\par
+                    data = db.get_specific_data(\par
+                        'property', ['propertyID'], [propertyID])\par
+                    # print(data)\par
+\par
+                    data['images'] = []\par
+                    for filename in os.listdir(f'static/property_listings/\{data["propertyID"]\}/images/'):\par
+                        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):\par
+                            # data['images'].append(str(filename))\par
+\par
+                            data['images'].append(filename)\par
+                    # print(data)\par
+\par
+                else:\par
+                    data = db.get_items('property', 'userID', userID)\par
+                    # print(data)\par
+                    for each in data:\par
+                        each['images'] = []\par
+                        for filename in os.listdir(f'static/property_listings/\{each["propertyID"]\}/images/'):\par
+                            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):\par
+                                # data['images'].append(str(filename))\par
+\par
+                                each['images'].append(filename)\par
+                        # print(each)\par
+\par
+                response = jsonify(data)\par
+                response.headers.add('Access-Control-Allow-Origin', '*')\par
+                return response\par
+\par
+        if not userID and sessionID:\par
+            data = db.get_items('property', 'property_status', 'open')\par
+            # print(data)\par
+            for each in data:\par
+                each['images'] = []\par
+                for filename in os.listdir(f'static/property_listings/\{each["propertyID"]\}/images/'):\par
+                    if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):\par
+                        # data['images'].append(str(filename))\par
+\par
+                        each['images'].append(filename)\par
+                # print(each)\par
+\par
+            response = jsonify(data)\par
+            response.headers.add('Access-Control-Allow-Origin', '*')\par
+            return response\par
+        else:\par
+            return abort(404, "Incomplete request data")\par
+\par
+    def post(self):\par
+\par
+        address = request.form['address']\par
+        propertyLandSize = request.form['propertyLandSize']\par
+        propertyLandSizeUnit = request.form['propertyLandSizeUnit']\par
+        legalLandDescription = request.form['legalLandDescription']\par
+        price = request.form['price']\par
+        propertyType = request.form['propertyType']\par
+        moreDetails = request.form['moreDetails']\par
+        document = request.files.getlist('document')\par
+        images = request.files.getlist('images')\par
+        latitude = float(request.form['latitude'])\par
+        longitude = float(request.form['longitude'])\par
+        sessionID = request.form['sessionID']\par
+        userID = request.form['userID']\par
+        property_status = 'pending'\par
+        created_at = str(datetime.now())\par
+\par
+        fields = []\par
+        data = []\par
+        print('LATITUDE: ', latitude)\par
+        print('LONGITUDE: ', longitude)\par
+\par
+        fields.append('propertyID')\par
+        fields.append('userID')\par
+        fields.append('property_status')\par
+        fields.append('address')\par
+        fields.append('latitude')\par
+        fields.append('longitude')\par
+        fields.append('property_description')\par
+        fields.append('land_description')\par
+        fields.append('size')\par
+        fields.append('unit_type')\par
+        fields.append('price')\par
+        fields.append('property_type')\par
+        fields.append('created_at')\par
+        propertyID = generateUUID(\par
+            str(userID) + "," + property_status + "," + address + "," + str(latitude) + "," + str(longitude) + "," +\par
+            moreDetails + "," + legalLandDescription + "," + str(propertyLandSize) + "," + propertyLandSizeUnit + "," +\par
+            str(price) + "," + propertyType + "," + created_at)\par
+\par
+        data.append(propertyID)\par
+        data.append(userID)\par
+        data.append(property_status)\par
+        data.append(address)\par
+        data.append(latitude)\par
+        data.append(longitude)\par
+        data.append(moreDetails)\par
+        data.append(legalLandDescription)\par
+        data.append(propertyLandSize)\par
+        data.append(propertyLandSizeUnit)\par
+        data.append(price)\par
+        data.append(propertyType)\par
+        data.append(created_at)\par
+\par
+        # print(address)\par
+        # print(propertyLandSize)\par
+        # print(propertyLandSizeUnit)\par
+        # print(legalLandDescription)\par
+        # print(price)\par
+        # print(propertyType)\par
+        # print(moreDetails)\par
+        # print(document)\par
+        # print(images)\par
+        # print(latitude)\par
+        # print(longitude)\par
+        # print(sessionID)\par
+        # print(userID)\par
+        # print(property_status)\par
+        # print(created_at)\par
+        check_existing_property = db.check_existing_data(\par
+            'property', 'propertyID', propertyID)\par
+\par
+        if check_existing_property:\par
+            return \{'message': f'Property with propertyID: \{propertyID\} already exist'\}, 409\par
+        else:\par
+\par
+            # print(propertyLandSize)\par
+            # print(propertyLandSizeUnit)\par
+            # print(legalLandDescription)\par
+            # print(price)\par
+            # print(propertyType)\par
+            # print(moreDetails)\par
+            insert_property = db.insert_data('property', fields, data)\par
+\par
+            # Create a directory for the property listings if it doesn't exist\par
+            if not os.path.exists(PROPERTY_PATH):\par
+                os.makedirs(PROPERTY_PATH)\par
+\par
+            # Checks the directory of property listing with propertyID. If not present, will create one.\par
+            if not os.path.exists(PROPERTY_PATH+"/"+propertyID):\par
+                os.makedirs(PROPERTY_PATH+"/"+propertyID)\par
+\par
+            # Checks the directory of property listing images with propertyID. If not present, will create one.\par
+            if not os.path.exists(PROPERTY_PATH+"/"+propertyID+"/"+"images"):\par
+                os.makedirs(PROPERTY_PATH+"/"+propertyID+"/"+"images")\par
+\par
+            # Checks the directory of property listing documents with propertyID. If not present, will create one.\par
+            if not os.path.exists(PROPERTY_PATH+"/"+propertyID+"/"+"documents"):\par
+                os.makedirs(PROPERTY_PATH+"/"+propertyID+"/"+"documents")\par
+\par
+            for image in images:\par
+                image.save(os.path.join(PROPERTY_PATH+"/" +\par
+                           propertyID+"/"+"images", image.filename))\par
+            for doc in document:\par
+                doc.save(os.path.join(PROPERTY_PATH+"/" +\par
+                         propertyID+"/"+"documents", doc.filename))\par
+\par
+            return \{'message': 'success'\}, 200\par
+\par
+    def put(self):\par
+        pass\par
+\par
+    def delete(self):\par
+        pass\par
+\par
+\par
+class propertyimages(Resource):\par
+    def get(self, propertyID, image):\par
+        filename = f'static/property_listings/\{propertyID\}/images/\{image\}'\par
+        return send_file(filename, mimetype='image/jpeg')\par
+    \par
+class propertydocuments(Resource):\par
+    def get(self,propertyID,docName):\par
+        filename = f'static/property_listings/\{propertyID\}/documents/\{docName\}'\par
+\par
+        if '.pdf' in filename:\par
+            return send_file(filename, mimetype='application/pdf')\par
+        if '.doc' or '.docx' in filename:\par
+            return send_file(filename, mimetype='application/msword')\par
+\par
+class leasingdocuments(Resource):\par
+    def get(self,leasingID,contractDocument):\par
+        filename = f'static/leasing/\{leasingID\}/documents/\{contractDocument\}'\par
+\par
+        if '.pdf' in filename:\par
+            return send_file(filename, mimetype='application/pdf')\par
+        if '.doc' or '.docx' in filename:\par
+            return send_file(filename, mimetype='application/msword')        \par
+\par
+\par
+# =======================================================================================\par
+# PROPERTY LISTINGS API CLASS | CRUD\par
+\par
+class properties(Resource):\par
+    def get(self):\par
+\par
+        sessionID = request.args.get('sessionID')\par
+\par
+        check_existing_session = db.get_specific_data(\par
+            'session', ['sessionID', 'status'], [sessionID, 'valid'])\par
+        if check_existing_session:\par
+            data = db.get_items('property', 'property_status', 'open')\par
+            # print(data)\par
+            for each in data:\par
+                each['images'] = []\par
+                for filename in os.listdir(f'static/property_listings/\{each["propertyID"]\}/images/'):\par
+                    if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):\par
+                        each['images'].append(filename)\par
+                # print(each)\par
+\par
+            response = jsonify(data)\par
+            response.headers.add('Access-Control-Allow-Origin', '*')\par
+            return response\par
+        else:\par
+\par
+            return abort(404, "Incomplete request data")\par
+\par
+# =======================================================================================\par
+}
+ 

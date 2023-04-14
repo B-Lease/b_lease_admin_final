@@ -922,6 +922,48 @@ class session(Resource):
 # =======================================================================================
 # NOTIFICATION API CLASS | CRU
 
+class notifications(Resource):
+    def get(self):
+        userID = request.args.get('userID')
+        sessionID = request.args.get('sessionID')
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])
+
+        if check_session:
+            notifications = db.get_items('notifications','userID',userID)
+            if notifications:
+                notificationJson = json.dumps(notifications, default=str)
+                
+                return jsonify(notificationJson )
+            else:
+                return {'message':'No notifications'},204
+
+        else:
+            return abort(401,'Authorization needed')
+    def post(self):
+        pass
+    def put(self):
+        pass
+    def delete(self):
+        pass
+
+    def patch(self):
+        userID = request.args.get('userID')
+        notificationID = request.args.get('notificationID')
+        sessionID = request.args.get('sessionID')
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])
+
+        if check_session:
+            exist = db.get_data('notifications','notificationID',notificationID)
+            if exist:
+                notif_update = db.update_data('notifications',['notificationID','read'],[notificationID,'read'])
+                
+                return {"message":"Notification read"},202
+            else:
+                return {'message':'No notifications'},204
+
+        else:
+            return abort(401,'Authorization needed')
+
 # =======================================================================================
 # PAYMENT API CLASS | CRU
 
