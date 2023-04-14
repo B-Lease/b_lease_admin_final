@@ -49,6 +49,9 @@ api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<st
 api.add_resource(restapi.propertydocuments,"/propertydocuments/<string:propertyID>/<string:docName>")
 api.add_resource(restapi.leasingdocuments,"/leasingdocuments/<string:leasingID>/<string:contractDocument>")
 api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
+api.add_resource(restapi.NextPay,"/getLinks")
+api.add_resource(restapi.Redirect, "/test")
+api.add_resource(restapi.Payment, "/pay")
 
 
 
@@ -59,8 +62,8 @@ api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:fi
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = 'project2023!'
-app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+app.config['MYSQL_PASSWORD'] = 'project2023!'
+#app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)

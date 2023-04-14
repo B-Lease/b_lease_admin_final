@@ -1,12 +1,13 @@
 from http.client import HTTPResponse
 from flask_restful import Api, Resource, reqparse
-from flask import request, abort, jsonify, send_file
+from flask import Flask, request, abort, jsonify, send_file, redirect
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
 from emailverification import email_verification
 from apscheduler.schedulers.background import BlockingScheduler
 from flask_cors import CORS
 
+import requests
 import os
 import app
 import db
@@ -26,6 +27,28 @@ PROPERTY_PATH = 'static/property_listings/'
 #         args = signup_put_args.parse_args()
 #         return { id:args}
 
+class NextPay(Resource):
+    def get(self):
+        paymentID = request.args.get('paymentID')
+        url = f'https://api-sandbox.nextpay.world/v2/paymentlinks/{paymentID}'
+        #data = request.get_json()
+        headers = request.headers
+        headers = {
+            "Content-Type": "application/json",
+            "client-id": "ck_sandbox_g0rce9tf67r42g5ehygyhqy9"
+        }
+        response = requests.get(url, headers=headers)
+        fin_response = response.json()
+        return fin_response['url']
+
+class Redirect(Resource):
+    def get(self):
+        return redirect('http://localhost:8100/dashboard/transactions')
+
+class Payment(Resource):
+    def get(self):
+        return redirect('https://app-sandbox.nextpay.world/#/pl/NjWAW10p5')
+    
 
 # =======================================================================================
 # REGISTER API CLASS

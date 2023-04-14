@@ -83,7 +83,7 @@ def email_verification(email:str, code:str):
         mail = smtplib.SMTP('smtp.gmail.com', 587)
         mail.ehlo()
         mail.starttls()
-        mail.login('thehackncode@gmail.com', 'jrdkqpbfsfinasbw')
+        mail.login('thehackncode@gmail.com', 'xhdsxhtngybzspyd')
         mail.sendmail(strFrom, strTo, msgRoot.as_string())
         mail.quit()
 
