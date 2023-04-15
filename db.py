@@ -117,6 +117,41 @@ def get_specific_data(table:str, fields, values):
         cur.close()
         return data
 
+def get_specific_data(table:str, fields, values):
+    cur = mysql.connection.cursor()
+    flds = []
+    
+    if len(fields) == len(values):
+        for i in range(len(fields)):
+            if type(values[i]) == str:
+                flds.append(f'''`{fields[i]}` = "{values[i]}"''')
+            else:
+                flds.append(f'''`{fields[i]}` = {values[i]}''')
+            
+        flds_final = " AND ".join(flds)
+        cur.execute(f'''SELECT * FROM {table} WHERE {flds_final}''')
+        data:dict = cur.fetchone()
+        mysql.connection.commit()
+        cur.close()
+        return data
+
+def get_all_specific_data(table:str, fields, values):
+    cur = mysql.connection.cursor()
+    flds = []
+    
+    if len(fields) == len(values):
+        for i in range(len(fields)):
+            if type(values[i]) == str:
+                flds.append(f'''`{fields[i]}` = "{values[i]}"''')
+            else:
+                flds.append(f'''`{fields[i]}` = {values[i]}''')
+            
+        flds_final = " AND ".join(flds)
+        cur.execute(f'''SELECT * FROM {table} WHERE {flds_final}''')
+        data:dict = cur.fetchall()
+        mysql.connection.commit()
+        cur.close()
+        return data
 
 #not a database abstraction
 #only used temporarily for getting the conversations per inquired property
@@ -203,3 +238,11 @@ def get_address_of_property(propertyID):
     mysql.connection.commit()
     cur.close()
     return str(data['address'])
+
+
+def insert_json_data(table,field,data,id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"UPDATE `{table}` SET (`{field[1]}` = '{data}') WHERE `{field[0]}` = '{id}' ")
+    mysql.connection.commit()
+    cur.close()
+    return True

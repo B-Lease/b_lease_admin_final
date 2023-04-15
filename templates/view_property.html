@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='/js/view_property.js')}}"></script>
+    <script src="{{url_for('static', filename='js/view_property.js')}}"></script>
     <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -188,11 +188,15 @@
                       <br>
                                     
                       {% if property.property_status == 'pending' %}
+                      <br>
                       <div class="approveOrDecline">
-                        <a href="{{url_for('approveStatus',propertyID=property.propertyID)}}" style="border: 10px solid #14a44d; border-radius: 4px;" class="link-light bg-success">Approve</a>
-                        &nbsp; 
-                        <a href="{{url_for('declineStatus',propertyID=property.propertyID)}}" style="border: 10px solid #dc4c64; border-radius: 4px;"class="link-light bg-danger">Decline</a>  
+                        
+                        <button onclick="declineListing('{{property.propertyID}}')" style="border: 10px solid #dc4c64; border-radius: 4px;"class="link-light bg-danger">Decline</button>  
+                     
+                        <button onclick="approveListing('{{property.propertyID}}')" style="border: 10px solid #14a44d; border-radius: 4px;" class="link-light bg-success">Approve</button>
+                       
                       </div>
+                      <br>
                     {% else %}
    
                     {% endif %}

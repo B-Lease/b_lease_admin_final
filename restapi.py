@@ -1,12 +1,13 @@
 from http.client import HTTPResponse
 from flask_restful import Api, Resource, reqparse
-from flask import request, abort, jsonify, send_file
+from flask import Flask, request, abort, jsonify, send_file, redirect
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
 from emailverification import email_verification
 from apscheduler.schedulers.background import BlockingScheduler
 from flask_cors import CORS
 
+import requests
 import os
 import app
 import db
@@ -26,6 +27,28 @@ PROPERTY_PATH = 'static/property_listings/'
 #         args = signup_put_args.parse_args()
 #         return { id:args}
 
+class NextPay(Resource):
+    def get(self):
+        paymentID = request.args.get('paymentID')
+        url = f'https://api-sandbox.nextpay.world/v2/paymentlinks/{paymentID}'
+        #data = request.get_json()
+        headers = request.headers
+        headers = {
+            "Content-Type": "application/json",
+            "client-id": "ck_sandbox_g0rce9tf67r42g5ehygyhqy9"
+        }
+        response = requests.get(url, headers=headers)
+        fin_response = response.json()
+        return fin_response['url']
+
+class Redirect(Resource):
+    def get(self):
+        return redirect('http://localhost:8100/dashboard/transactions')
+
+class Payment(Resource):
+    def get(self):
+        return redirect('https://app-sandbox.nextpay.world/#/pl/NjWAW10p5')
+    
 
 # =======================================================================================
 # REGISTER API CLASS
@@ -630,13 +653,14 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('.pdf'):
+                if filename.endswith('_ongoing.pdf'):
+                    print(str(filename))
                     pdfs.append(filename)        
-                if pdfs:
-                    file_path = f"static\contracts\{leasingID}\{pdfs[0]}"
-                    return send_file(file_path)
-                else:
-                    return abort(400, 'No contract found')
+            if pdfs:
+                file_path = f"static\contracts\{leasingID}\{pdfs[len(pdfs)-1]}"
+                return send_file(file_path)
+            else:
+                return abort(400, 'No contract found')
         else:
             return abort(400, 'No leasing record found')
 
@@ -898,6 +922,48 @@ class session(Resource):
 
 # =======================================================================================
 # NOTIFICATION API CLASS | CRU
+
+class notifications(Resource):
+    def get(self):
+        userID = request.args.get('userID')
+        sessionID = request.args.get('sessionID')
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])
+
+        if check_session:
+            notifications = db.get_items('notifications','userID',userID)
+            if notifications:
+                notificationJson = json.dumps(notifications, default=str)
+                
+                return jsonify(notificationJson )
+            else:
+                return {'message':'No notifications'},204
+
+        else:
+            return abort(401,'Authorization needed')
+    def post(self):
+        pass
+    def put(self):
+        pass
+    def delete(self):
+        pass
+
+    def patch(self):
+        userID = request.args.get('userID')
+        notificationID = request.args.get('notificationID')
+        sessionID = request.args.get('sessionID')
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])
+
+        if check_session:
+            exist = db.get_data('notifications','notificationID',notificationID)
+            if exist:
+                notif_update = db.update_data('notifications',['notificationID','read'],[notificationID,'read'])
+                
+                return {"message":"Notification read"},202
+            else:
+                return {'message':'No notifications'},204
+
+        else:
+            return abort(401,'Authorization needed')
 
 # =======================================================================================
 # PAYMENT API CLASS | CRU
