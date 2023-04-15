@@ -102,7 +102,7 @@
         <h3>Contracts</h3>
         <div id="myBtnContainer">
           <a class="btn btn-outline-success" href="{{url_for('contracts')}}"> For review</a>
-          <a class="btn btn-outline-success" href="{{url_for('pending_contracts')}}"> Pending</a>
+
           <a class="btn btn-success active" href="{{url_for('ongoing_contracts')}}"> Ongoing</a>
           <a class="btn btn-outline-success" href="{{url_for('finished_contracts')}}"> Finished</a>
 
@@ -133,15 +133,13 @@
                 {% for leasing in leasing%}
                 {% if leasing.leasing_status == 'ongoing' %}
                 <td>
+                  <h4 class="text-success fw-bold mb-1">{{leasing.leasingID}}</h4>
+                </td>
+                <td>
                   <div class="d-flex align-items-center">
                   
                     
-                   <img
-                    src=""
-                    alt=""
-                    style="width: 150px; height: 150px; border-radius: 10px;"
-                    class="rounded-circle"
-                    />
+                   
                    
                 
                     <div class="ms-3">

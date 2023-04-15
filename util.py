@@ -5,10 +5,12 @@ import json
 import decimal
 import random
 import io
+import os
 from flask import send_file
 import db
 import os
 
+from fpdf import FPDF
 
 def generateUUID(input:str)->str:
     final_id = str(uuid.uuid3(uuid.NAMESPACE_DNS, input)).replace("-", "")
