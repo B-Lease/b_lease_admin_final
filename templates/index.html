@@ -32,9 +32,12 @@
                     <input type="password" class="form-control" id="admin_password" placeholder="Password" name="admin_password">
                 </div>
                 <!-- invalid dialog -->
-                <div id="message" class="message">
-                    <p>Wrong username or password.</p>
-                </div>
+                {% if message == "Wrong credentials" %}
+                <p class="text-danger text-center p-2">Wrong username or password.</p>
+
+                {% endif %}
+
+                <!-- end of invalid login  -->
                 <div class="loginbtn">
                     <button type="submit" class="btn btn-success" name="login">Login</button>
                 </div>
