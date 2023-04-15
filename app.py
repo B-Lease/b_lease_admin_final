@@ -468,8 +468,8 @@ def approveStatus():
             "propertyID":propertyInfo['propertyID'],
             "image":f"{image}",
         }
-
-        data = f"{propertyInfo['propertyID']},{image}"
+        status = 'approved'
+        data = f"{propertyInfo['propertyID']},{image},{status}"
         if userID and propertyAddress and notification_desc and now and read:
             notificationID = util.generateUUID(f"{userID},{propertyAddress},{notification_categ},{notification_desc},{now},{read}")
         
@@ -484,13 +484,75 @@ def approveStatus():
 
     return redirect(url_for('property_listings', success = message))
 
-@app.route("/declineStatus")
+
+
+@app.route("/declinePropertyListing", methods=['GET'])
+def declinePropertyListing():
+    
+     if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+     
+     propertyID = request.args.get('propertyID')
+
+
+   
+     title = "B-Lease | Decline Property Listings"  
+   
+     return render_template("declineproperty.html", title=title, propertyID=propertyID)
+
+@app.route("/declineStatus", methods=['POST'])
 def declineStatus():
 
-    propertyID = request.args.get('propertyID')
+    propertyID = request.form['propertyID']
+    remarks = request.form['remarks']
     property_status = "declined"
+    userID = None
+    propertyAddress = None
+    message = None
+    now = None
+    read = None
+    notificationID = None
+    
+    
+    notification_desc = ''
+    propertyInfo = db.get_data('property','propertyID',propertyID)
+    if propertyInfo:
+        userID = propertyInfo['userID']
+        propertyAddress = propertyInfo['address']
+        notification_desc = f'Your property at {propertyAddress} has been declined.'
+        now = str(datetime.now())
+        notification_categ = 'Property Listing Approval'
 
-    db.update_data('property', ['propertyID', 'property_status'],[propertyID, property_status])
+        read = "unread"
+        # /propertyimages/<string:propertyID>/<string:image>"
+
+        image = []
+     
+        for filename in os.listdir(f'static/property_listings/{propertyInfo["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            # data['images'].append(str(filename))
+                image.append(filename)
+
+        image = image[0]
+        
+        data = {
+            "propertyID":propertyInfo['propertyID'],
+            "image":f"{image}",
+        }
+
+        status = "rejected"
+
+        data = f"{propertyInfo['propertyID']},{image},{status}"
+        if userID and propertyAddress and notification_desc and now and read:
+            notificationID = util.generateUUID(f"{userID},{propertyAddress},{notification_categ},{notification_desc},{now},{read}")
+        
+    if notificationID:
+        make_notif = db.insert_data('notifications',
+                       ['notificationID','userID','notification_categ','notification_desc','notification_date','read','data'],
+                       [notificationID,userID,notification_categ, notification_desc,now,read,data])
+  
+
+    db.update_data('property', ['propertyID', 'property_status', 'remarks'],[propertyID, property_status,remarks])
     message = "Failed to approve the listing."
     return redirect(url_for('property_listings', success = message))
 
