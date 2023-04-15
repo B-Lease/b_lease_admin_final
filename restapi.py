@@ -1323,7 +1323,7 @@ class propertydocuments(Resource):
 
 class leasingdocuments(Resource):
     def get(self,leasingID,contractDocument):
-        filename = f'static/leasing/{leasingID}/documents/{contractDocument}'
+        filename = f'static/contracts/{leasingID}/documents/{contractDocument}'
 
         if '.pdf' in filename:
             return send_file(filename, mimetype='application/pdf')
