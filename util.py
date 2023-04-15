@@ -7,6 +7,9 @@ import random
 import io
 import os
 from flask import send_file
+import db
+import os
+
 from fpdf import FPDF
 
 def generateUUID(input:str)->str:
@@ -69,5 +72,27 @@ def convertPDFasBlob(file_path:str, leasing_doc_name:str):
 
     # Return the file as a blob
     return send_file(file_object, attachment_filename=leasing_doc_name, as_attachment=True)
+
+
+def checkSession(sessionID):
+        
+        check_sessionID = db.get_specific_data('session', ['sessionID','status'],[sessionID,'valid'])
+
+
+        if check_sessionID:
+            return True
+        else:
+            return False
+        
+def deleteFolder(parent_folder, sub_folder):
+    try:
+        os.rmdir(f"/static/{parent_folder}/{sub_folder}")
+        print(f"Folder {sub_folder} from {parent_folder} deleted successfully")
+        return True
+    except OSError as e:
+        print(f"Error deleting folder: {e}")
+        return False
+        
+
 
 

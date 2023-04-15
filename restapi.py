@@ -1107,7 +1107,7 @@ class complaint(Resource):
 
 
 # =======================================================================================
-# PROPERTY API CLASS | CRUD
+#    API CLASS | CRUD
 
 # =======================================================================================
 
@@ -1283,8 +1283,29 @@ class property(Resource):
         pass
 
     def delete(self):
-        pass
+        userID = request.args.get('userID')
+        sessionID = request.args.get('sessionID')
+        propertyID = request.args.get('propertyID')
 
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+        check_property = db.get_data('property', 'propertyID', propertyID)
+
+        if not check_user:
+            return abort(404, "User not found")
+        if not check_session:
+            return abort(404, "Session invalid")
+        if not check_property:
+            return abort(404,"Property not found")  
+        delete_property = db.delete_data('property','propertyID',propertyID)
+
+        if delete_property:
+            delete_files = util.deleteFolder('property_listings',propertyID)
+            if delete_files:
+                return {"message",f"Property deleted successfully"},200
+            else:
+                return abort(404,f"Property {propertyID} not del    eted")
+         
 
 class propertyimages(Resource):
     def get(self, propertyID, image):
@@ -1338,3 +1359,5 @@ class properties(Resource):
             return abort(404, "Incomplete request data")
 
 # =======================================================================================
+
+
