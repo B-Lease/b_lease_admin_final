@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
 from flask_mysqldb import MySQL
@@ -68,6 +68,8 @@ app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
 # app.config['MYSQL_PASSWORD'] = 'project2023!'
 app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
+# app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
+#app.config['MYSQL_PASSWORD'] = 'nathaniel'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
@@ -615,7 +617,7 @@ def view_contract():
      
 
     leasing['documents'] = []
-    for filename in os.listdir(f'static/leasing/{leasing["leasingID"]}/documents/'):
+    for filename in os.listdir(f'static/contracts/{leasing["leasingID"]}'):
         if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
             # data['images'].append(str(filename))
 
@@ -630,12 +632,7 @@ def approveContract():
     leasingID = request.args.get('leasingID')
     leasing_status = "ongoing"
     leasing = db.get_all_data('leasing')
-    
-    # day = datetime.strptime('leasing_start', '%Y-%m-%d').strftime('%d')
 
-    # print(str(day))
-    # define your leasing start and end dates
-    leasingID = request.args.get('leasingID')
     leasing_payment_frequency = request.args.get('leasing_payment_frequency')
     pay_lessorID = request.args.get('lessorID')
     pay_lesseeID = request.args.get('lesseeID')
@@ -646,27 +643,117 @@ def approveContract():
     leasing_end_str = request.args.get('leasing_end')
     leasing_start = datetime.strptime(leasing_start_str, '%Y-%m-%d').date()
     leasing_end = datetime.strptime(leasing_end_str, '%Y-%m-%d').date()
+    # day = datetime.strptime('leasing_start', '%Y-%m-%d').strftime('%d')
 
-    val = None
-    
-
-    fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
-    # loop over the range of dates and insert records
-    current_date = leasing_start
-    while current_date <= leasing_end:
-        # check if the current date occurs within the leasing period
-        if current_date < leasing_start or current_date >= leasing_end:
-            current_date += relativedelta(months=1)
-            continue
-        
+    # print(str(day))
+    if leasing_payment_frequency == "1":
+        # define your leasing start and end dates
         paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
-        val = (current_date).strftime("%Y-%m-%d")
-        data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+        leasing_start = (leasing_start).strftime("%Y-%m-%d")
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, leasing_start, pay_fee]
         db.insert_data('payment',fields,data)
+
+    elif leasing_payment_frequency == "2":
+        # define your leasing start and end dates
+        val = None
+        ctr = 0
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        # loop over the range of dates and insert records
+        ctr_date = leasing_start
+        while ctr_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if ctr_date < leasing_start or ctr_date >= leasing_end:
+                ctr_date += relativedelta(months=1)
+                continue
+            
+            ctr+=1
+            # increment the current date by one month
+            ctr_date += relativedelta(months=1)
         
-        # increment the current date by one month
-        current_date += relativedelta(months=1)
-    db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, leasing_status])
+        pay_fee = float(pay_fee)/ctr + 1
+        current_date = leasing_start
+        while current_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if current_date < leasing_start or current_date >= leasing_end:
+                current_date += relativedelta(months=1)
+                continue
+            
+            paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
+            val = (current_date).strftime("%Y-%m-%d")
+            data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+            db.insert_data('payment',fields,data)
+            
+            # increment the current date by one month
+            current_date += relativedelta(months=1)
+
+    elif leasing_payment_frequency == "3":
+        # define your leasing start and end dates
+        val = None
+        ctr = 0
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        # loop over the range of dates and insert records
+        ctr_date = leasing_start
+        while ctr_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if ctr_date < leasing_start or ctr_date >= leasing_end:
+                ctr_date += relativedelta(months=3)
+                continue
+            
+            ctr+=1
+            # increment the current date by one month
+            ctr_date += relativedelta(months=3)
+        
+        pay_fee = float(pay_fee)/ctr + 1
+        current_date = leasing_start
+        while current_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if current_date < leasing_start or current_date >= leasing_end:
+                current_date += relativedelta(months=3)
+                continue
+            
+            paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
+            val = (current_date).strftime("%Y-%m-%d")
+            data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+            db.insert_data('payment',fields,data)
+            
+            # increment the current date by one month
+            current_date += relativedelta(months=3)
+    
+    elif leasing_payment_frequency == "4":
+        # define your leasing start and end dates
+        val = None
+        ctr = 0
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        # loop over the range of dates and insert records
+        ctr_date = leasing_start
+        while ctr_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if ctr_date < leasing_start or ctr_date >= leasing_end:
+                ctr_date += relativedelta(months=12)
+                continue
+            
+            ctr+=1
+            # increment the current date by one month
+            ctr_date += relativedelta(months=12)
+        
+        pay_fee = float(pay_fee)/ctr + 1
+        current_date = leasing_start
+        while current_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if current_date < leasing_start or current_date >= leasing_end:
+                current_date += relativedelta(months=12)
+                continue
+            
+            paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
+            val = (current_date).strftime("%Y-%m-%d")
+            data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+            db.insert_data('payment',fields,data)
+            
+            # increment the current date by one month
+            current_date += relativedelta(months=12)
+    
+    db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, 'ongoing'])
     message = "You have successfully approve the contract."
     return redirect(url_for('contracts', success = message))
 
@@ -750,10 +837,3 @@ def deletepaymentaccount():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
-
-
-
-
-
-
-
