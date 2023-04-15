@@ -557,7 +557,12 @@ main a:hover {
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
   }
-  
 
+.message {
+    text-align:center;
+    color:red;
+    margin-top:10px;
+    font-size: small;
+}
 
 
