@@ -64,10 +64,10 @@ api.add_resource(restapi.notifications,"/notifications")
 #Database Connection Setup 
 #-----------------------------------------------------
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_PORT'] = 3308
+app.config['MYSQL_PORT'] = 3307
 app.config['MYSQL_USER'] = 'root'
 # app.config['MYSQL_PASSWORD'] = 'project2023!'
-app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
+app.config['MYSQL_PASSWORD'] = '10031999'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
@@ -113,13 +113,14 @@ def login_user():
         okey = db.get_specific_data('admin',fields,data)
         if okey is not None:
             session['sessionID'] = okey['adminID']  
+            session['admin_firstname'] = okey['admin_fname']
+            session['admin_lastname'] = okey['admin_lname']
             message = "Login Successfully"
-
+            return redirect(url_for('dashboard'))
         else:
-            message = "Wrong credentials"
-    
-
-            return render_template('index.html', message=message)   
+            message = "Wrong credentials"  
+            return render_template('index.html', message=message)
+         
    
      
 
@@ -131,7 +132,8 @@ def dashboard():
     title = "B-Lease | Dashboard" 
 
     if 'sessionID' in session:
-        return render_template('dashboard.html', okey=session['sessionID'], title=title)
+        firstname = session['admin_firstname']
+        return render_template('dashboard.html', okey=session['sessionID'], title=title, firstname=firstname)
     return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -161,6 +163,7 @@ def user_report():
                 # data['images'].append(str(filename))
                     
                 each['images'].append(filename)
+                
     return render_template(
         "user_report.html",
         title=title,
