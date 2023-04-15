@@ -117,6 +117,41 @@ def get_specific_data(table:str, fields, values):
         cur.close()
         return data
 
+def get_specific_data(table:str, fields, values):
+    cur = mysql.connection.cursor()
+    flds = []
+    
+    if len(fields) == len(values):
+        for i in range(len(fields)):
+            if type(values[i]) == str:
+                flds.append(f'''`{fields[i]}` = "{values[i]}"''')
+            else:
+                flds.append(f'''`{fields[i]}` = {values[i]}''')
+            
+        flds_final = " AND ".join(flds)
+        cur.execute(f'''SELECT * FROM {table} WHERE {flds_final}''')
+        data:dict = cur.fetchone()
+        mysql.connection.commit()
+        cur.close()
+        return data
+
+def get_all_specific_data(table:str, fields, values):
+    cur = mysql.connection.cursor()
+    flds = []
+    
+    if len(fields) == len(values):
+        for i in range(len(fields)):
+            if type(values[i]) == str:
+                flds.append(f'''`{fields[i]}` = "{values[i]}"''')
+            else:
+                flds.append(f'''`{fields[i]}` = {values[i]}''')
+            
+        flds_final = " AND ".join(flds)
+        cur.execute(f'''SELECT * FROM {table} WHERE {flds_final}''')
+        data:dict = cur.fetchall()
+        mysql.connection.commit()
+        cur.close()
+        return data
 
 #not a database abstraction
 #only used temporarily for getting the conversations per inquired property

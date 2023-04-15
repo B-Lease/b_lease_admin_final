@@ -653,13 +653,14 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('.pdf'):
+                if filename.endswith('_ongoing.pdf'):
+                    print(str(filename))
                     pdfs.append(filename)        
-                if pdfs:
-                    file_path = f"static\contracts\{leasingID}\{pdfs[0]}"
-                    return send_file(file_path)
-                else:
-                    return abort(400, 'No contract found')
+            if pdfs:
+                file_path = f"static\contracts\{leasingID}\{pdfs[len(pdfs)-1]}"
+                return send_file(file_path)
+            else:
+                return abort(400, 'No contract found')
         else:
             return abort(400, 'No leasing record found')
 

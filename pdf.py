@@ -147,7 +147,7 @@ def createPDF(leasingInfo, contractInfo):
     # Create the new directory
     make_path = print('ok') if os.path.exists(path) else os.makedirs(path)
 
-    pdf_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}.pdf"
+    pdf_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}_ongoing.pdf"
     # Initialize COM
     pythoncom.CoInitialize()
 
