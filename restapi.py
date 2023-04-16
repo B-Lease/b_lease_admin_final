@@ -13,7 +13,7 @@ import app
 import db
 import util
 import json
-import pdf
+import contract
 
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
@@ -47,8 +47,15 @@ class Redirect(Resource):
 
 class Payment(Resource):
     def get(self):
-        return redirect('https://app-sandbox.nextpay.world/#/pl/NjWAW10p5')
-    
+        userID = request.args.get('userID')
+        paymentInfo = db.get_transactions('payment',userID)
+        
+        if len(paymentInfo) != 0:
+            payment_encoded = json.dumps(paymentInfo, default=str)
+            return payment_encoded, 200
+        else:
+            return {'message': 'No transactions'}, 209
+        
 
 # =======================================================================================
 # REGISTER API CLASS
@@ -563,7 +570,7 @@ class Leasing(Resource):
                 # save the contract details to leasing_documents
 
                 contractInfo = leasing_contracts.parse_args()
-                insert_docs = pdf.createPDF(leasingInfo,contractInfo)
+                insert_docs = contract.setContract(leasingInfo,contractInfo)
 
                 # leasing_doc_name = str(leasing_docID + "_contract.pdf")
                 # insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [
@@ -653,7 +660,7 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('_ongoing.pdf'):
+                if filename.endswith('_ongoing.docx'):
                     print(str(filename))
                     pdfs.append(filename)        
             if pdfs:

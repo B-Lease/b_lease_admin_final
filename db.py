@@ -223,6 +223,14 @@ def get_leasing_contracts(table:str, fields, values):
         cur.close()
         return data
 
+def get_transactions(table:str, userID:str):
+    cur = mysql.connection.cursor() 
+    cur.execute(f'SELECT * FROM {table} WHERE `pay_lessorID` = "{userID}" || `pay_lesseeID` = "{userID}"')
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
 def get_name_of_user(userID):
     cur = mysql.connection.cursor() 
     cur.execute(f'''SELECT `user_fname`,`user_lname` FROM `user` WHERE `userID` = "{userID}" ''')
