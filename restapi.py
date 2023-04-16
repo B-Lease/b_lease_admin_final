@@ -1,30 +1,59 @@
 from http.client import HTTPResponse
 from flask_restful import Api, Resource, reqparse
 from flask import request, abort, jsonify, send_file
+from flask import Flask, request, abort, jsonify, send_file, redirect
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
 from emailverification import email_verification
 from apscheduler.schedulers.background import BlockingScheduler
 from flask_cors import CORS
 
+import requests
 import os
 import app
 import db
 import util
 import json
-import pdf
+import contract
 
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
 # signup_put_args.add_argument("contact_number", type=str, help="Phone number of the user")
-
-
 # class signup(Resource):
 #     def get(self):
 #         return {'data':'hello'}
 #     def put(self,id):
 #         args = signup_put_args.parse_args()
 #         return { id:args}
+
+class NextPay(Resource):
+    def get(self):
+        paymentID = request.args.get('paymentID')
+        url = f'https://api-sandbox.nextpay.world/v2/paymentlinks/{paymentID}'
+        #data = request.get_json()
+        headers = request.headers
+        headers = {
+            "Content-Type": "application/json",
+            "client-id": "ck_sandbox_g0rce9tf67r42g5ehygyhqy9"
+        }
+        response = requests.get(url, headers=headers)
+        fin_response = response.json()
+        return fin_response['url']
+
+class Redirect(Resource):
+    def get(self):
+        return redirect('http://localhost:8100/dashboard/transactions')
+
+class Payment(Resource):
+    def get(self):
+        userID = request.args.get('userID')
+        paymentInfo = db.get_transactions('payment',userID)
+
+        if len(paymentInfo) != 0:
+            payment_encoded = json.dumps(paymentInfo, default=str)
+            return payment_encoded, 200
+        else:
+            return {'message': 'No transactions'}, 209
 
 
 # =======================================================================================
@@ -540,7 +569,7 @@ class Leasing(Resource):
                 # save the contract details to leasing_documents
 
                 contractInfo = leasing_contracts.parse_args()
-                insert_docs = pdf.createPDF(leasingInfo,contractInfo)
+                insert_docs = contract.setContract(leasingInfo,contractInfo)
 
                 # leasing_doc_name = str(leasing_docID + "_contract.pdf")
                 # insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [
@@ -636,13 +665,14 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('.pdf'):
+                if filename.endswith('_ongoing.docx'):
+                    print(str(filename))
                     pdfs.append(filename)        
-                if pdfs:
-                    file_path = f"static\contracts\{leasingID}\{pdfs[0]}"
-                    return send_file(file_path)
-                else:
-                    return abort(400, 'No contract found')
+            if pdfs:
+                file_path = f"static\contracts\{leasingID}\{pdfs[len(pdfs)-1]}"
+                return send_file(file_path)
+            else:
+                return abort(400, 'No contract found')
         else:
             return abort(400, 'No leasing record found')
 
@@ -1383,7 +1413,7 @@ class propertydocuments(Resource):
 
 class leasingdocuments(Resource):
     def get(self,leasingID,contractDocument):
-        filename = f'static/leasing/{leasingID}/documents/{contractDocument}'
+        filename = f'static/contracts/{leasingID}/{contractDocument}'
 
         if '.pdf' in filename:
             return send_file(filename, mimetype='application/pdf')
