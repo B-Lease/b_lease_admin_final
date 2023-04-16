@@ -1,5 +1,6 @@
 from http.client import HTTPResponse
 from flask_restful import Api, Resource, reqparse
+from flask import request, abort, jsonify, send_file
 from flask import Flask, request, abort, jsonify, send_file, redirect
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
@@ -18,8 +19,6 @@ import contract
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
 # signup_put_args.add_argument("contact_number", type=str, help="Phone number of the user")
-
-
 # class signup(Resource):
 #     def get(self):
 #         return {'data':'hello'}
@@ -49,13 +48,13 @@ class Payment(Resource):
     def get(self):
         userID = request.args.get('userID')
         paymentInfo = db.get_transactions('payment',userID)
-        
+
         if len(paymentInfo) != 0:
             payment_encoded = json.dumps(paymentInfo, default=str)
             return payment_encoded, 200
         else:
             return {'message': 'No transactions'}, 209
-        
+
 
 # =======================================================================================
 # REGISTER API CLASS
@@ -627,6 +626,12 @@ class LeasingContracts(Resource):
                         if each['lesseeID'] == userID:
                             lessor = db.get_name_of_user(each['lessorID'])
                             each['name'] = f"{lessor['user_fname'].title()} {lessor['user_lname'].title()}"
+                        each['images'] = []
+                        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                                # data['images'].append(str(filename))
+                                    
+                                each['images'].append(filename)
                     leasing_encoded = json.dumps(leasingInfo, default=str)
                     return leasing_encoded, 200
                 else:
@@ -1118,6 +1123,25 @@ class complaint(Resource):
 
 # =======================================================================================
 
+property_args_put = reqparse.RequestParser()
+#  'userID': this.userID,
+#           'sessionID':this.sessionID,
+#           'propertyID':this.propertyID,
+#           'price':price,
+#           'property_type':property_type,
+#           'moreDetails':moreDetails
+
+property_args_put.add_argument('propertyID', type=str,
+                           help='Missing Property ID')
+property_args_put.add_argument('price', type=str,
+                           help='Missing Property Price', required=True)
+property_args_put.add_argument('property_type', type=str,
+                           help='Missing Property Type', required=True)
+
+property_args_put.add_argument('property_description', type=str,
+                           help='Missing Property Details', required=True)
+
+
 class property(Resource):
     def get(self):
         userID = request.args.get('userID')
@@ -1287,7 +1311,48 @@ class property(Resource):
             return {'message': 'success'}, 200
 
     def put(self):
-        pass
+        propertyInfo = property_args_put.parse_args()
+
+        propertyJson = request.json
+        userID = request.args.get('userID')
+        sessionID = request.args.get('sessionID')
+        
+
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        if not check_user:
+            return abort(404,"User not found")
+        
+
+
+        fields = []
+        data = []
+
+        for k, v in propertyJson.items():
+            if v is not None:
+                fields.append(k)
+                data.append(v)
+
+        check_existing = db.check_existing_data(
+            'property', 'propertyID', propertyJson['propertyID'])
+
+        if check_existing:
+            update_property = db.update_data('property', fields, data)
+
+            if update_property:
+                return {
+                    'message': f"Property with propertyID:{propertyJson['propertyID']} updated successfully"
+                }, 200
+            else:
+                return {
+                    'message': f"Error updating property with property:{propertyJson['propertyID']}"
+                }, 400
+        else:
+            return {'message': f'User with userID: {propertyJson["propertyID"]} does not exist'}, 400
 
     def delete(self):
         userID = request.args.get('userID')
@@ -1304,15 +1369,33 @@ class property(Resource):
             return abort(404, "Session invalid")
         if not check_property:
             return abort(404,"Property not found")  
+        
+
+  
+        check_leasing = db.checkOngoingLeasing(propertyID)
+
+        if check_leasing:
+            print("Cannot delete")
+            return {"message":"Cannot delete leasing is ongoing"},403
+        else:
+            print("Clearing")
+            empty_leasing = db.delete_data('leasing','propertyID', propertyID)
+        print("Deleting")        
         delete_property = db.delete_data('property','propertyID',propertyID)
 
         if delete_property:
             delete_files = util.deleteFolder('property_listings',propertyID)
+            
             if delete_files:
-                return {"message",f"Property deleted successfully"},200
+                print("Files deleted")
+                print("Success deleting")
+                return {"message":"Property deleted successfully"},200
             else:
-                return abort(404,f"Property {propertyID} not del    eted")
-         
+                return abort(404,f"Property {propertyID} not deleted")
+        
+      
+            
+            
 
 class propertyimages(Resource):
     def get(self, propertyID, image):

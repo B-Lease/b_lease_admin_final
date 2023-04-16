@@ -116,6 +116,24 @@ def get_specific_data(table:str, fields, values):
         mysql.connection.commit()
         cur.close()
         return data
+    
+def get_all_specific_data(table:str, fields, values):
+    cur = mysql.connection.cursor()
+    flds = []
+    
+    if len(fields) == len(values):
+        for i in range(len(fields)):
+            if type(values[i]) == str:
+                flds.append(f'''`{fields[i]}` = "{values[i]}"''')
+            else:
+                flds.append(f'''`{fields[i]}` = {values[i]}''')
+            
+        flds_final = " AND ".join(flds)
+        cur.execute(f'''SELECT * FROM {table} WHERE {flds_final}''')
+        data:dict = cur.fetchall()
+        mysql.connection.commit()
+        cur.close()
+        return data
 
 def get_specific_data(table:str, fields, values):
     cur = mysql.connection.cursor()
@@ -176,13 +194,13 @@ def join_tables(userID:str):
             user u
         JOIN
             leasing l ON 
-                u.userID = l.lessorID || u.userID = l.lesseeID
+                u.userID  = l.lessorID  || u.userID  = l.lesseeID 
         JOIN 
-            user u1 ON l.lessorID = u1.userID
+            user u1 ON l.lessorID  = u1.userID
         JOIN 
-            user u2 ON l.lesseeID = u2.userID
+            user u2 ON l.lesseeID  = u2.userID
         JOIN
-            property p ON l.propertyID = p.propertyID
+            property p ON l.propertyID  = p.propertyID
         LEFT JOIN
             (SELECT 
                 leasingID, 
@@ -198,7 +216,7 @@ def join_tables(userID:str):
         ON 
             latest_msg.leasingID = m.leasingID AND latest_msg.latest_sent_at = m.sent_at
         WHERE 
-        u.userID = '{userID}';
+        u.userID  = '{userID}';
     ''')
     data:dict = cur.fetchall()
     mysql.connection.commit()
@@ -254,3 +272,19 @@ def insert_json_data(table,field,data,id):
     mysql.connection.commit()
     cur.close()
     return True
+
+def emptyLeasingProperty(propertyID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"UPDATE `leasing` SET `propertyID` = NULL WHERE `propertyID` = '{propertyID}' ")
+    mysql.connection.commit()
+    cur.close()
+    return True
+
+def checkOngoingLeasing(propertyID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT * FROM leasing WHERE propertyID = '{propertyID}' AND (leasing_status = 'ongoing' OR leasing_status = 'pending' OR leasing_status = 'for review' )")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+

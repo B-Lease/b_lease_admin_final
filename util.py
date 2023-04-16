@@ -9,6 +9,8 @@ import os
 from flask import send_file
 import db
 import os
+import shutil
+
 
 from fpdf import FPDF
 
@@ -86,7 +88,7 @@ def checkSession(sessionID):
         
 def deleteFolder(parent_folder, sub_folder):
     try:
-        os.rmdir(f"/static/{parent_folder}/{sub_folder}")
+        shutil.rmtree(f"static/{parent_folder}/{sub_folder}")
         print(f"Folder {sub_folder} from {parent_folder} deleted successfully")
         return True
     except OSError as e:
