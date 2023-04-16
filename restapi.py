@@ -1,18 +1,19 @@
 from http.client import HTTPResponse
 from flask_restful import Api, Resource, reqparse
-from flask import request, abort, jsonify, send_file
+from flask import Flask, request, abort, jsonify, send_file, redirect
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
 from emailverification import email_verification
 from apscheduler.schedulers.background import BlockingScheduler
 from flask_cors import CORS
 
+import requests
 import os
 import app
 import db
 import util
 import json
-import pdf
+import contract
 
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
@@ -26,6 +27,35 @@ PROPERTY_PATH = 'static/property_listings/'
 #         args = signup_put_args.parse_args()
 #         return { id:args}
 
+class NextPay(Resource):
+    def get(self):
+        paymentID = request.args.get('paymentID')
+        url = f'https://api-sandbox.nextpay.world/v2/paymentlinks/{paymentID}'
+        #data = request.get_json()
+        headers = request.headers
+        headers = {
+            "Content-Type": "application/json",
+            "client-id": "ck_sandbox_g0rce9tf67r42g5ehygyhqy9"
+        }
+        response = requests.get(url, headers=headers)
+        fin_response = response.json()
+        return fin_response['url']
+
+class Redirect(Resource):
+    def get(self):
+        return redirect('http://localhost:8100/dashboard/transactions')
+
+class Payment(Resource):
+    def get(self):
+        userID = request.args.get('userID')
+        paymentInfo = db.get_transactions('payment',userID)
+        
+        if len(paymentInfo) != 0:
+            payment_encoded = json.dumps(paymentInfo, default=str)
+            return payment_encoded, 200
+        else:
+            return {'message': 'No transactions'}, 209
+        
 
 # =======================================================================================
 # REGISTER API CLASS
@@ -483,7 +513,15 @@ class Leasing(Resource):
             userID = request.args.get('userID')
             # as a lessee
             leasingInfo = db.join_tables(userID)
+            
             if leasingInfo is not None:
+                for each in leasingInfo:
+                    each['images'] = []
+                    for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                            # data['images'].append(str(filename))
+                                
+                            each['images'].append(filename)
                 leasing_encoded = json.dumps(leasingInfo, default=str)
                 return leasing_encoded, 200
             else:
@@ -540,7 +578,7 @@ class Leasing(Resource):
                 # save the contract details to leasing_documents
 
                 contractInfo = leasing_contracts.parse_args()
-                insert_docs = pdf.createPDF(leasingInfo,contractInfo)
+                insert_docs = contract.setContract(leasingInfo,contractInfo)
 
                 # leasing_doc_name = str(leasing_docID + "_contract.pdf")
                 # insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [
@@ -636,13 +674,14 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('.pdf'):
+                if filename.endswith('_ongoing.docx'):
+                    print(str(filename))
                     pdfs.append(filename)        
-                if pdfs:
-                    file_path = f"static\contracts\{leasingID}\{pdfs[0]}"
-                    return send_file(file_path)
-                else:
-                    return abort(400, 'No contract found')
+            if pdfs:
+                file_path = f"static\contracts\{leasingID}\{pdfs[len(pdfs)-1]}"
+                return send_file(file_path)
+            else:
+                return abort(400, 'No contract found')
         else:
             return abort(400, 'No leasing record found')
 
@@ -1383,7 +1422,7 @@ class propertydocuments(Resource):
 
 class leasingdocuments(Resource):
     def get(self,leasingID,contractDocument):
-        filename = f'static/leasing/{leasingID}/documents/{contractDocument}'
+        filename = f'static/contracts/{leasingID}/{contractDocument}'
 
         if '.pdf' in filename:
             return send_file(filename, mimetype='application/pdf')
@@ -1419,5 +1458,140 @@ class properties(Resource):
             return abort(404, "Incomplete request data")
 
 # =======================================================================================
+# USER FEEDBACK API
+
+feedback_args_post = reqparse.RequestParser()
+
+# userID
+# propertyID
+# feedback_rating
+# feedback_content
+# created_at
+
+feedback_args_post.add_argument('userID', type=str,
+                           help='Missing User ID')
+
+feedback_args_post.add_argument('propertyID', type=str,
+                           help='Missing Property ID', required=True)
+
+feedback_args_post.add_argument('feedback_rating', type=int,
+                           help='Missing Feedback Rating', required=True)
+
+feedback_args_post.add_argument('feedback_content', type=str,
+                           help='Missing Feedback Content', required=True)
+
+feedback_args_post.add_argument('sessionID', type=str,
+                           help='Missing Session ID', required=True)
 
 
+class feedback(Resource):
+    def get(self):
+        propertyID = request.args.get('propertyID')
+        sessionID = request.args.get('sessionID')
+        check_property = db.get_data('property','propertyID',propertyID)
+
+        check_session = db.get_specific_data('session', ['sessionID','status'], [sessionID,'valid'])
+
+
+        if not check_property:
+            return abort(404,"Property not found")
+        if not check_session:
+            return abort(404,"Unauthorized access")
+        
+        if check_session:
+            feedbacks = db.getPropertyFeedback(propertyID)
+            if feedbacks:
+                feedbacksJson = json.dumps(feedbacks, default=str)
+                
+                return jsonify(feedbacksJson )
+            else:
+                return {'message':'No feedbacks'},204
+
+        else:
+            return abort(401,'Authorization needed')
+    def post(self):
+        feedbackInfo = feedback_args_post.parse_args()
+
+        feedbackJson = request.json
+        userID = feedbackJson['userID']
+        sessionID = feedbackJson.pop('sessionID')
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        if not check_user:
+            return abort(404,"User not found")
+        
+
+
+        fields = []
+        data = []
+        fields.append('feedbackID')
+        data.append(generateUUID(
+            f"{feedbackJson['userID']},{feedbackJson['propertyID']},{feedbackJson['feedback_rating']},{feedbackJson['feedback_content']}"
+        ))
+        for k, v in feedbackJson.items():
+            if v is not None:
+                fields.append(k)
+                data.append(v)
+        fields.append('created_at')
+        data.append(str(datetime.now()))
+        check_existing = db.check_existing_data(
+            'property', 'propertyID', feedbackJson['propertyID'])
+
+        if check_existing:
+            insert_feedback = db.insert_data('user_feedback', fields, data)
+
+            if insert_feedback:
+                return {
+                    'message': f"Feedback with propertyID:{feedbackJson['propertyID']} submitted successfully"
+                }, 200
+            else:
+                return {
+                    'message': f"Error creating property feedback with property:{feedbackJson['propertyID']}"
+                }, 400
+        else:
+            return {'message': f'User with userID: {feedbackJson["propertyID"]} does not exist'}, 400
+
+
+class countfeedback(Resource):
+    def get(self):
+        propertyID = request.args.get('propertyID')
+        sessionID = request.args.get('sessionID')
+
+        check_property = db.get_data('property', 'propertyID',propertyID)
+        check_session = util.checkSession(sessionID)\
+        
+        if not check_property:
+            return abort(404, "Property not found")
+        if not check_session:
+            return abort(403,"Unauthorized access")
+        
+        countFeedback = db.totalPropertyFeedback(propertyID)
+
+        if not countFeedback:
+            return  {"message":"No feedback"},201
+        if countFeedback:
+            return jsonify(countFeedback )
+        
+class countrating(Resource):
+    def get(self):
+        propertyID = request.args.get('propertyID')
+        sessionID = request.args.get('sessionID')
+
+        check_property = db.get_data('property', 'propertyID',propertyID)
+        check_session = util.checkSession(sessionID)\
+        
+        if not check_property:
+            return abort(404, "Property not found")
+        if not check_session:
+            return abort(403,"Unauthorized access")
+        
+        countRating = db.averagePropertyRating(propertyID)
+
+        if not countRating:
+            return  {"message":"No feedback yet"},201
+        if countRating:
+            return jsonify(countRating )
