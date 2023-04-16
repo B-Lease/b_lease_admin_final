@@ -17,7 +17,7 @@ import base64
 
 unchecked = u'\u2b1c '
 checked = u'\u2611 '
-def createPDF(leasingInfo, contractInfo):
+def setContract(leasingInfo, contractInfo):
     date_obj = datetime.strptime(str(date.today()), '%Y-%m-%d').strftime('%B %d, %Y')
     leasing_start = datetime.strptime(leasingInfo['leasing_start'], '%Y-%m-%d').strftime('%B %d, %Y')
     leasing_end = datetime.strptime(leasingInfo['leasing_end'], '%Y-%m-%d').strftime('%B %d, %Y')
@@ -131,10 +131,6 @@ def createPDF(leasingInfo, contractInfo):
                     p.add_run(parts[1])
                     break
 
-    docx_path = "static\\contracts\\land-lease-agreement.docx" 
-    
-    doc.save(f"{docx_path}")
-    
     # Specify the path of the parent directory
     parent_dir = "static\\contracts\\"
 
@@ -147,17 +143,21 @@ def createPDF(leasingInfo, contractInfo):
     # Create the new directory
     make_path = print('ok') if os.path.exists(path) else os.makedirs(path)
 
-    pdf_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}_ongoing.pdf"
-    # Initialize COM
-    pythoncom.CoInitialize()
+    docx_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}_ongoing.docx" 
+    
+    doc.save(f"{docx_path}")
 
-    # Convert to PDF
-    docx2pdf.convert(docx_path, pdf_path)
+    # pdf_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}_ongoing.pdf"
+    # # Initialize COM
+    # pythoncom.CoInitialize()
 
-    # Uninitialize COM
-    pythoncom.CoUninitialize()
+    # # Convert to PDF
+    # docx2pdf.convert(docx_path, pdf_path)
 
-    os.remove(docx_path)
+    # # Uninitialize COM
+    # pythoncom.CoUninitialize()
+
+    # os.remove(docx_path)
     return True
 
 def ordinal_suffix(day):

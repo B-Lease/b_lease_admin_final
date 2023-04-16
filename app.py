@@ -11,7 +11,7 @@ from flask_socketio import SocketIO, send, emit
 import requests
 import flask
 import socketmessage
-import pdf
+import contract
 import json
 
 app = Flask(__name__)
@@ -66,8 +66,8 @@ api.add_resource(restapi.notifications,"/notifications")
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = 'project2023!'
-app.config['MYSQL_PASSWORD'] = '10031999'
+app.config['MYSQL_PASSWORD'] = 'project2023!'
+#app.config['MYSQL_PASSWORD'] = '10031999'
 #app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
 # app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
 #app.config['MYSQL_PASSWORD'] = 'nathaniel'
@@ -80,13 +80,13 @@ mysql = MySQL(app)
 # Find the specific string
 @app.route('/pdffile')
 def edit_word():
-    response = pdf.createPDF()
+    response = contract.setContract()
 
     return response
 
 @app.route('/pdf')
 def generate_pdf():
-    response = pdf.generate_pdf()
+    response = contract.generate_pdf()
 
     return response
 #============================================================
