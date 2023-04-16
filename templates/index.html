@@ -9,8 +9,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}}</title>
-
-    
 </head>
 
   
@@ -23,7 +21,7 @@
     </div>
 
     <!-- login form -->
-    <form action="{{ url_for('login_user') }}" method="POST">
+    <form action="{{ url_for('login_user')}}" method="POST">
         <div class="flx">
             <div class="content">
                 <div class="flx">
@@ -33,6 +31,13 @@
                 <div class="flx">
                     <input type="password" class="form-control" id="admin_password" placeholder="Password" name="admin_password">
                 </div>
+                <!-- invalid dialog -->
+                {% if message == "Wrong credentials" %}
+                <p class="text-danger text-center p-2">Wrong username or password.</p>
+
+                {% endif %}
+
+                <!-- end of invalid login  -->
                 <div class="loginbtn">
                     <button type="submit" class="btn btn-success" name="login">Login</button>
                 </div>

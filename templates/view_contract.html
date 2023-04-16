@@ -35,9 +35,9 @@
         <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple ">
           <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
         </a>
-        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple text-success active"><i
+        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple "><i
             class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-        <a href="{{url_for('contracts')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+        <a href="{{url_for('contracts')}}" class="list-group-item list-group-item-action py-2 ripple text-success active" ><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
         <a href="#" class="list-group-item list-group-item-action py-2 ripple">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
@@ -104,9 +104,11 @@
 <main style="margin-top: 58px;">
     <div class="container pt-3 align-items-center">
         <!-- Dashboard -->  
+        
+        {% if leasing.leasing_status == 'for review' %}
         <a href="{{url_for('contracts')}}" >
-                    Go back
-        </a>
+          Go back
+        </a>    
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-lg-5 col-xl-8">
             <div class="card text-black" style="border-radius: 25px;">
@@ -133,11 +135,19 @@
                     </label>
                   </div> -->
                   <!-- end of checklist  -->
-                  <label class="checkbox-container">1st requirement
+                  <label class="checkbox-container">Proof of ownership is valid
                     <input type="checkbox">
                     <span class="checkmark"></span>
                   </label>
-                  <label class="checkbox-container">2nd requirement
+                  <label class="checkbox-container">Ownership exists in the Registry of Deeds
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                  </label>
+                  <label class="checkbox-container">Set property price is at least PHP
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                  </label>
+                  <label class="checkbox-container">Set lease term is at least 6 months
                     <input type="checkbox">
                     <span class="checkmark"></span>
                   </label>
@@ -157,6 +167,69 @@
                   </div>
             </div>           
         </div>
+       
+        {% elif leasing.leasing_status == 'ongoing' %}
+        <a href="{{url_for('ongoing_contracts')}}" >
+          Go back
+        </a> 
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-lg-5 col-xl-8">
+              <div class="card text-black" style="border-radius: 25px;">
+                  <div class="card-body p-md-4">
+                    <h4 style="text-align: center; font-weight: 700; color:#40a047">Leasing ID : {{leasing.leasingID}}</h4>
+                      <hr>
+                      <div class="form-group" style="margin-top: 30px;display: flex;">
+                        <div class="co-body" style="width:50%;">
+                        <h5>Lessor Details</h5>
+                        <h6>Lessor ID: &nbsp;<input type="text" style="width:60%" placeholder="{{leasing.lessorID}}" disabled></h6>
+                        {% for user in user%}
+                        {% if leasing.lessorID == user.userID%}
+                       <h6>Fullname: &nbsp;<input type="text" style="width:60%" placeholder="{{user.user_lname}}, {{user.user_fname}} {{user.user_mname}}" disabled></h6>
+                        {% endif %}
+                        {% endfor %}
+                        </div>
+                        <div style="width:50%;">
+                        <h5>Lessee Details</h5>
+                        <h6>Lessee ID: &nbsp;<input type="text" style="width:60%" placeholder="{{leasing.lesseeID}}" disabled></h6>
+                        {% for user in user%}
+                        {% if leasing.lesseeID == user.userID%}
+                        <h6>Fullname: &nbsp;<input type="text" style="width:60%" placeholder="{{user.user_lname}}, {{user.user_fname}} {{user.user_mname}}" disabled></h6>
+                        {% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <br><br>
+                    <h4 style="color:#40a047;">Contract Details</h4><hr style="width:30%;opacity: 0.1;">
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Property ID: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.propertyID}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Status: </h6><span class="badge badge-warning rounded-pill d-inline" style="display: inline-block;vertical-align: top;">{{leasing.leasing_status}}</span><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797" >Leasing Start: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_start}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Leasing End: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_end}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Payment Frequency:</h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_payment_frequency}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Total Fee: </h6><h6 style="display: inline-block;vertical-align: top; color:black;"><i class="fa-solid fa-peso-sign"></i> {{leasing.leasing_total_fee}}</h6><br>
+                    {% for each in leasing.documents %}
+                    <br>
+                    <h4 style="color:#40a047">Approved Contract</h4><hr style="width:30%;opacity: 0.1;">
+                    
+                    <i class="fa-solid fa-file-pdf" style="color: #787878;"></i>
+                    <a href="/leasingdocuments/{{leasing.leasingID}}/{{each}}" target="_blank">{{each}}</a>
+                    {% endfor %} 
+                    <br><br>
+                    <h4 style="color:#40a047;">Payment Details</h4><hr style="width:30%;opacity: 0.1;">
+                    {% for payment in payment %}
+                    {% if payment.pay_status == 'paid' %}
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Payment ID: </h6><h6 style="display: inline-block;vertical-align: top;">{{payment.paymentID}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Date Paid: </h6><h6 style="display: inline-block;vertical-align: top;">{{payment.pay_date}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Paid Fee: </h6><h6 style="display: inline-block;vertical-align: top;">{{payment.pay_fee}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Status: </h6><span class="badge badge-success rounded-pill d-inline" style="display: inline-block;vertical-align: top;">{{payment.pay_status}}</span><br>
+                    <hr style="width:60%;margin-left: 80px;">
+                    {% endif %}
+                    {% endfor%}
+                  </div>
+              </div>
+          </div>
+        </div>
+        
+        {%else%}{%endif%}
   
           
         
