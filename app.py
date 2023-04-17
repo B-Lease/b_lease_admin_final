@@ -58,6 +58,11 @@ api.add_resource(restapi.Payment, "/pay")
 api.add_resource(restapi.notifications,"/notifications")
 api.add_resource(restapi.Leasing_Status,"/leasingstatus")
 
+api.add_resource(restapi.feedback,"/feedback")
+api.add_resource(restapi.countfeedback,"/countfeedback")
+api.add_resource(restapi.countrating,"/countrating")
+
+
 
 
 #-----------------------------------------------------
@@ -67,7 +72,7 @@ api.add_resource(restapi.Leasing_Status,"/leasingstatus")
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'project2023!'
+app.config['MYSQL_PASSWORD'] = 'nathaniel'
 #app.config['MYSQL_PASSWORD'] = '10031999'
 #app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
 # app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
