@@ -51,11 +51,12 @@ api.add_resource(restapi.propertydocuments,"/propertydocuments/<string:propertyI
 api.add_resource(restapi.leasingdocuments,"/leasingdocuments/<string:leasingID>/<string:contractDocument>")
 api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
 
-api.add_resource(restapi.NextPay,"/getLinks")
+api.add_resource(restapi.NextPay,"/payLinks")
 api.add_resource(restapi.Redirect, "/test")
 api.add_resource(restapi.Payment, "/pay")
 
 api.add_resource(restapi.notifications,"/notifications")
+api.add_resource(restapi.Leasing_Status,"/leasingstatus")
 
 
 

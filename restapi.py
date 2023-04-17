@@ -1,7 +1,7 @@
 from http.client import HTTPResponse
 from flask_restful import Api, Resource, reqparse
 from flask import request, abort, jsonify, send_file
-from flask import Flask, request, abort, jsonify, send_file, redirect
+from flask import Flask, request, abort, jsonify, send_file, redirect, render_template, Response
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
 from emailverification import email_verification
@@ -10,11 +10,14 @@ from flask_cors import CORS
 
 import requests
 import os
-import app
 import db
 import util
 import json
 import contract
+import hmac
+import json
+import hashlib
+import time
 
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
@@ -38,11 +41,31 @@ class NextPay(Resource):
         }
         response = requests.get(url, headers=headers)
         fin_response = response.json()
-        return fin_response['url']
+        return fin_response
+    
+    def post(self):
+        payload = request.json
+        client_secret = 'oz2lgjvuyhv6gpm03zopbf3y'
+        body_string = json.dumps(payload, separators=(',', ':'))
+        print(body_string)
+        signature = hmac.new(client_secret.encode('utf-8'), body_string.encode('utf-8'), digestmod=hashlib.sha256).hexdigest()
+        print(signature)
+        
+        url = 'https://api-sandbox.nextpay.world/v2/paymentlinks/'
+        #data = request.get_json()
+        headers = {
+            "Content-Type": "application/json",
+            "client-id": "ck_sandbox_g0rce9tf67r42g5ehygyhqy9",
+            "signature": str(signature)
+        }
+        response = requests.post(url, json=payload, headers=headers)
+        fin_response = response.json()
+        print(fin_response)
+        return fin_response, 201
 
 class Redirect(Resource):
     def get(self):
-        return redirect('http://localhost:8100/dashboard/transactions')
+        return render_template('payment-success.html'), 201
 
 class Payment(Resource):
     def get(self):
@@ -678,6 +701,26 @@ class Leasing_Documents(Resource):
 
     def delete(self):
         return None
+    
+class Leasing_Status(Resource):
+    def put(self):
+        leasingID = request.json['leasingID']
+        leasing_status = 'for review' if request.args.get('leasing_status') == '1' else 'declined'
+
+        check_existing = db.check_existing_data(
+            'leasing', 'leasingID', leasingID)
+        
+        fields = ['leasingID','leasing_status']
+        data = [leasingID, leasing_status]
+        if check_existing:
+            update_data_bool = db.update_data('leasing', fields, data)
+            if update_data_bool:
+                return {'message': 'Contract status updated successfully'}, 201
+            else:
+                return {'message': 'Error approving contract'}, 400
+        else:
+            return {'message': f'Leasing record not found'}, 409
+
 
 
 # =======================================================================================
