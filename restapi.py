@@ -18,8 +18,6 @@ import contract
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
 # signup_put_args.add_argument("contact_number", type=str, help="Phone number of the user")
-
-
 # class signup(Resource):
 #     def get(self):
 #         return {'data':'hello'}
@@ -49,13 +47,11 @@ class Payment(Resource):
     def get(self):
         userID = request.args.get('userID')
         paymentInfo = db.get_transactions('payment',userID)
-        
         if len(paymentInfo) != 0:
             payment_encoded = json.dumps(paymentInfo, default=str)
             return payment_encoded, 200
         else:
             return {'message': 'No transactions'}, 209
-        
 
 # =======================================================================================
 # REGISTER API CLASS
