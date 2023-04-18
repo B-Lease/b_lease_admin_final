@@ -38,7 +38,7 @@
             class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
         <a href="{{url_for('contracts')}}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
         </a>
         <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
@@ -100,7 +100,12 @@
   <!-- Navbar -->
 </header>
 <!--Main layout-->
+ 
+
+
 <main style="margin-top: 58px;">
+
+
     <div class="container pt-3 align-items-center">
         <!-- Dashboard -->  
         <a href="{{url_for('property_listings')}}" >
@@ -191,7 +196,7 @@
                       <br>
                       <div class="approveOrDecline">
                         
-                        <button onclick="declineListing('{{property.propertyID}}')" style="border: 10px solid #dc4c64; border-radius: 4px;"class="link-light bg-danger">Decline</button>  
+                        <a  href="{{url_for('declinePropertyListing', propertyID = property.propertyID)}}" style="border: 10px solid #dc4c64; border-radius: 4px;"class="link-light bg-danger">Decline</a>  
                      
                         <button onclick="approveListing('{{property.propertyID}}')" style="border: 10px solid #14a44d; border-radius: 4px;" class="link-light bg-success">Approve</button>
                        

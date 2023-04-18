@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
 from flask_mysqldb import MySQL
@@ -11,8 +11,9 @@ from flask_socketio import SocketIO, send, emit
 import requests
 import flask
 import socketmessage
-import pdf
+import contract
 import json
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "b-lease2022"
@@ -34,7 +35,6 @@ api.add_resource(restapi.user,"/user")
 api.add_resource(restapi.delete_user,"/delete_user")
 api.add_resource(restapi.changepassword,"/changepassword")
 api.add_resource(restapi.session,"/session")
-api.add_resource(restapi.complaint,"/complaint")
 api.add_resource(restapi.user_payment_method,"/user_payment_method")
 api.add_resource(restapi.register,"/register")
 api.add_resource(restapi.login,"/login")
@@ -49,8 +49,22 @@ api.add_resource(restapi.properties,"/properties")
 api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<string:image>")
 api.add_resource(restapi.propertydocuments,"/propertydocuments/<string:propertyID>/<string:docName>")
 api.add_resource(restapi.leasingdocuments,"/leasingdocuments/<string:leasingID>/<string:contractDocument>")
-api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
+# api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
+
+api.add_resource(restapi.NextPay,"/payLinks")
+api.add_resource(restapi.Redirect, "/test")
+api.add_resource(restapi.Payment, "/pay")
+
 api.add_resource(restapi.notifications,"/notifications")
+api.add_resource(restapi.Leasing_Status,"/leasingstatus")
+
+api.add_resource(restapi.feedback,"/feedback")
+api.add_resource(restapi.countfeedback,"/countfeedback")
+api.add_resource(restapi.countrating,"/countrating")
+api.add_resource(restapi.complaint,"/complaints")
+api.add_resource(restapi.complaintThread,"/complaintThread")
+
+
 
 
 #-----------------------------------------------------
@@ -60,9 +74,11 @@ api.add_resource(restapi.notifications,"/notifications")
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = 'project2023!'
+app.config['MYSQL_PASSWORD'] = 'project2023!'
+#app.config['MYSQL_PASSWORD'] = '10031999'
+#app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
 # app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
-app.config['MYSQL_PASSWORD'] = 'nathaniel'
+#app.config['MYSQL_PASSWORD'] = 'nathaniel'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 app.config['MYSQL_DB'] = 'b_lease'
 mysql = MySQL(app)
@@ -72,13 +88,13 @@ mysql = MySQL(app)
 # Find the specific string
 @app.route('/pdffile')
 def edit_word():
-    response = pdf.createPDF()
+    response = contract.setContract()
 
     return response
 
 @app.route('/pdf')
 def generate_pdf():
-    response = pdf.generate_pdf()
+    response = contract.generate_pdf()
 
     return response
 #============================================================
@@ -88,7 +104,9 @@ def index():
     if 'sessionID' in session:
             return redirect(url_for('dashboard'))
     
+
     title = "B-Lease | Login" 
+    
     return render_template('index.html', title=title)   
    
     
@@ -96,7 +114,7 @@ def index():
 def login_user():
     if 'sessionID' in session:
             return redirect(url_for('dashboard'))
-    
+
     if request.method == 'POST' and 'admin_username' in request.form and 'admin_password' in request.form: 
         admin_username = request.form['admin_username']
         admin_password = request.form['admin_password']
@@ -105,10 +123,16 @@ def login_user():
         
         okey = db.get_specific_data('admin',fields,data)
         if okey is not None:
-            session['sessionID'] = okey['adminID']
+            session['sessionID'] = okey['adminID']  
+            session['admin_firstname'] = okey['admin_fname']
+            session['admin_lastname'] = okey['admin_lname']
+            message = "Login Successfully"
+            return redirect(url_for('dashboard'))
         else:
-            print ('not okey')
-        return redirect(url_for('index'))
+            message = "Wrong credentials"  
+            return render_template('index.html', message=message)
+         
+   
      
 
     
@@ -116,9 +140,11 @@ def login_user():
 def dashboard():
     if 'sessionID' not in session:
             return redirect(url_for('index'))
-    title = "B-Lease | Dashboard"   
+    title = "B-Lease | Dashboard" 
+
     if 'sessionID' in session:
-        return render_template('dashboard.html', okey=session['sessionID'], title=title)
+        firstname = session['admin_firstname']
+        return render_template('dashboard.html', okey=session['sessionID'], title=title, firstname=firstname)
     return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -140,12 +166,23 @@ def user_report():
     
     title = "B-Lease | User Report"
     user = db.get_all_data('user')
+    # logoutTime = request.args.get('logoutTime')
+    # logout = db.get_specific_data('session','logoutTime',logoutTime)
 
-
+    print(logout)
+    for each in user:
+        each['images'] = []
+        for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                # data['images'].append(str(filename))
+                    
+                each['images'].append(filename)
+                
     return render_template(
         "user_report.html",
         title=title,
         user = user,
+        logout=logout
     )
 
 @app.route("/view_user")
@@ -154,10 +191,21 @@ def view_user():
         return redirect(url_for('dashboard'))
     
     title = "B-Lease | User Info"   
-    user = db.get_all_data('user')
+    userID = request.args.get('userID')
+    
+    user = db.get_specific_data('user', ['userID'], [userID])
     error = request.args.get('error')
     success = request.args.get('success')
 
+
+    user['images'] = []
+    for filename in os.listdir(f'static/users/{user["userID"]}/images/'):
+        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            # data['images'].append(str(filename))
+                
+            user['images'].append(filename)
+                    
+                
     return render_template(
         "view_user.html",
         title=title,
@@ -206,21 +254,11 @@ def addAdmin():
     if existing_member is None:
    
         now = datetime.now()
-        date_now = now.strftime("%Y-%m-%d %H:%M:%S")
-        print('\n\n')
-        print("----------------------------------------")
-        print(f"New admin added | {date_now}")
-        print("AdminID: " + adminID)
-        print("Name:" + admin_fname+ " "+ admin_mname + " " + admin_lname)
-        print("Username: " + admin_username)
-        print("Password: " + admin_password)
-        print("----------------------------------------")
-        print("\n\n")
 
         md5_hash = hashlib.md5(admin_password.encode()).hexdigest()
 
-        fields = ['adminID','admin_fname', 'admin_mname', 'admin_lname', 'admin_username', 'admin_password_hashed','admin_password', 'created_at']
-        data = [adminID,admin_fname, admin_mname,admin_lname,admin_username,md5_hash,admin_password,date_now]
+        fields = ['adminID','admin_fname', 'admin_mname', 'admin_lname', 'admin_username', 'admin_password_hashed','admin_password']
+        data = [adminID,admin_fname, admin_mname,admin_lname,admin_username,md5_hash,admin_password]
 
         db.insert_data('admin', fields, data)
         
@@ -419,6 +457,7 @@ def view_property():
             # data['images'].append(str(filename))
                 
             property['images'].append(filename)
+
      property['documents'] = []
      for filename in os.listdir(f'static/property_listings/{property["propertyID"]}/documents/'):
         if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
@@ -468,8 +507,8 @@ def approveStatus():
             "propertyID":propertyInfo['propertyID'],
             "image":f"{image}",
         }
-
-        data = f"{propertyInfo['propertyID']},{image}"
+        status = 'approved'
+        data = f"{propertyInfo['propertyID']},{image},{status}"
         if userID and propertyAddress and notification_desc and now and read:
             notificationID = util.generateUUID(f"{userID},{propertyAddress},{notification_categ},{notification_desc},{now},{read}")
         
@@ -484,13 +523,75 @@ def approveStatus():
 
     return redirect(url_for('property_listings', success = message))
 
-@app.route("/declineStatus")
+
+
+@app.route("/declinePropertyListing", methods=['GET'])
+def declinePropertyListing():
+    
+     if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+     
+     propertyID = request.args.get('propertyID')
+
+
+   
+     title = "B-Lease | Decline Property Listings"  
+   
+     return render_template("declineproperty.html", title=title, propertyID=propertyID)
+
+@app.route("/declineStatus", methods=['POST'])
 def declineStatus():
 
-    propertyID = request.args.get('propertyID')
+    propertyID = request.form['propertyID']
+    remarks = request.form['remarks']
     property_status = "declined"
+    userID = None
+    propertyAddress = None
+    message = None
+    now = None
+    read = None
+    notificationID = None
+    
+    
+    notification_desc = ''
+    propertyInfo = db.get_data('property','propertyID',propertyID)
+    if propertyInfo:
+        userID = propertyInfo['userID']
+        propertyAddress = propertyInfo['address']
+        notification_desc = f'Your property at {propertyAddress} has been declined.'
+        now = str(datetime.now())
+        notification_categ = 'Property Listing Approval'
 
-    db.update_data('property', ['propertyID', 'property_status'],[propertyID, property_status])
+        read = "unread"
+        # /propertyimages/<string:propertyID>/<string:image>"
+
+        image = []
+     
+        for filename in os.listdir(f'static/property_listings/{propertyInfo["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            # data['images'].append(str(filename))
+                image.append(filename)
+
+        image = image[0]
+        
+        data = {
+            "propertyID":propertyInfo['propertyID'],
+            "image":f"{image}",
+        }
+
+        status = "rejected"
+
+        data = f"{propertyInfo['propertyID']},{image},{status}"
+        if userID and propertyAddress and notification_desc and now and read:
+            notificationID = util.generateUUID(f"{userID},{propertyAddress},{notification_categ},{notification_desc},{now},{read}")
+        
+    if notificationID:
+        make_notif = db.insert_data('notifications',
+                       ['notificationID','userID','notification_categ','notification_desc','notification_date','read','data'],
+                       [notificationID,userID,notification_categ, notification_desc,now,read,data])
+  
+
+    db.update_data('property', ['propertyID', 'property_status', 'remarks'],[propertyID, property_status,remarks])
     message = "Failed to approve the listing."
     return redirect(url_for('property_listings', success = message))
 
@@ -502,9 +603,9 @@ def contracts():
     title = "B-Lease | List of Contracts"  
 
     leasing = db.get_all_data('leasing')
-   
+    
     user = db.get_all_data('user')
-
+    
     # im = Image.open(property_images)
     return render_template("contracts.html", title=title, property=property, user=user,leasing=leasing)
 
@@ -517,32 +618,89 @@ def view_contract():
     user = db.get_all_data('user')
     title = "B-Lease | View Contracts" 
     leasing = db.get_all_data('leasing')
+    payment = db.get_all_data('payment')
 
     leasing = db.get_specific_data('leasing',['leasingID'],[leasingID])
      
 
     leasing['documents'] = []
-    for filename in os.listdir(f'static/leasing/{leasing["leasingID"]}/documents/'):
+    for filename in os.listdir(f'static/contracts/{leasing["leasingID"]}'):
         if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
             # data['images'].append(str(filename))
 
             leasing['documents'].append(filename)
+        # print(filename)
 
-    return render_template("view_contract.html", title=title, leasing=leasing, user=user)
 
+    return render_template("view_contract.html", title=title, leasing=leasing, user=user,payment=payment)
+
+@app.route("/markasresolve")
+def markasresolve():
+    
+    complaintID = request.args.get('complaintID')
+
+    db.update_data('complaint', ['complaintID', 'complaint_status'],[complaintID, 'resolve'])
+    message = "Approve"
+
+    return redirect(url_for('manage_complaint', success = message))
+
+# @app.route('/updatethread',methods=['POST'])
+# def updatethread():
+
+#     complaintID = request.args.get('complaintID')
+#     complaint_threadID = request.args.get('complaint_threadID')
+#     complaint_subject=request.args.get('complaint_subject')
+#     complaint_desc = request.args.get('complaint_desc')
+#     complainerID = request.args.get('complainerID')
+#     complaineeID = request.args.get('complaineeID')
+#     complaint_status = request.args.get('complaint_status')
+#     complaint_status = request.args.get('complaint_status')
+
+#     complaintID = util.generateUUID(str(complaint_threadID + datetime.now()))
+
+#     complaint_desc = request.form['complaint_desc'].upper()
+
+#     fields = ['complaintID', 'complaint_threadID','complaint_subject','complaint_desc','complainerID','complaineeID','complaint_status','created_at']
+
+#     current_date = datetime.date.today()
+
+#     data = [complaintID, complaint_threadID, complaint_subject, complaint_desc, complainerID, complaineeID, complaint_status, current_date ]
+#     sample = db.insert_data('complaint',fields,data)
+#     print(sample)
+#     message= "success"
+
+#     return redirect(url_for('view_complaint',success = message))
+
+@app.route('/updatethread',methods=['POST'])
+def updatethread():
+ 
+
+    # Retrieve the existing values for the thread from the database
+    
+    complaintID = request.form['complaintID']
+    thread_content = request.form['thread_content']
+    created_at =str(datetime.now())
+    message = ""
+    if complaintID and thread_content:
+        complaintthreadID = util.generateUUID(f"{complaintID},{thread_content},{created_at}")
+        fields = ['complaintthreadID', 'complaintID', 'thread_content', 'created_at']
+        data = [complaintthreadID, complaintID, thread_content, created_at]
+        insert_thread = db.insert_data('complaint_thread', fields, data)
+        if insert_thread:
+    # fields = ['complaintID', 'complaint_threadID','complaint_subject','complaint_desc','complainerID','complaineeID','complaint_status','created_at']
+    # data = [complaintID, complaint_threadID, complaint_subject, complaint_desc, complainerID, complaineeID, complaint_status, current_date]
+    # db.insert_data('complaint',fields,data)
+            message= "success"
+        else:
+            message = "error"
+    #nagbutang man ko ari ug kwaan complaintID basin ga undo ka, ayaw lang pag delete ari boss
+    return redirect(url_for('view_complaint',message=message, complaintID=complaintID))
 
 @app.route("/approveContract")
 def approveContract():
 
     leasingID = request.args.get('leasingID')
-    leasing_status = "pending"
-    leasing = db.get_all_data('leasing')
-    
-    # day = datetime.strptime('leasing_start', '%Y-%m-%d').strftime('%d')
 
-    # print(str(day))
-    # define your leasing start and end dates
-    leasingID = request.args.get('leasingID')
     leasing_payment_frequency = request.args.get('leasing_payment_frequency')
     pay_lessorID = request.args.get('lessorID')
     pay_lesseeID = request.args.get('lesseeID')
@@ -553,27 +711,117 @@ def approveContract():
     leasing_end_str = request.args.get('leasing_end')
     leasing_start = datetime.strptime(leasing_start_str, '%Y-%m-%d').date()
     leasing_end = datetime.strptime(leasing_end_str, '%Y-%m-%d').date()
+    # day = datetime.strptime('leasing_start', '%Y-%m-%d').strftime('%d')
 
-    val = None
-    
-
-    fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
-    # loop over the range of dates and insert records
-    current_date = leasing_start
-    while current_date <= leasing_end:
-        # check if the current date occurs within the leasing period
-        if current_date < leasing_start or current_date >= leasing_end:
-            current_date += relativedelta(months=1)
-            continue
-        
+    # print(str(day))
+    if leasing_payment_frequency == "1":
+        # define your leasing start and end dates
         paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
-        val = (current_date).strftime("%Y-%m-%d")
-        data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+        leasing_start = (leasing_start).strftime("%Y-%m-%d")
+        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, leasing_start, pay_fee]
         db.insert_data('payment',fields,data)
+
+    elif leasing_payment_frequency == "2":
+        # define your leasing start and end dates
+        val = None
+        ctr = 0
+        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        # loop over the range of dates and insert records
+        ctr_date = leasing_start
+        while ctr_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if ctr_date < leasing_start or ctr_date >= leasing_end:
+                ctr_date += relativedelta(months=1)
+                continue
+            
+            ctr+=1
+            # increment the current date by one month
+            ctr_date += relativedelta(months=1)
         
-        # increment the current date by one month
-        current_date += relativedelta(months=1)
-    db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, leasing_status])
+        pay_fee = float(pay_fee)/ctr + 1
+        current_date = leasing_start
+        while current_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if current_date < leasing_start or current_date >= leasing_end:
+                current_date += relativedelta(months=1)
+                continue
+            
+            paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
+            val = (current_date).strftime("%Y-%m-%d")
+            data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+            db.insert_data('payment',fields,data)
+            
+            # increment the current date by one month
+            current_date += relativedelta(months=1)
+
+    elif leasing_payment_frequency == "3":
+        # define your leasing start and end dates
+        val = None
+        ctr = 0
+        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        # loop over the range of dates and insert records
+        ctr_date = leasing_start
+        while ctr_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if ctr_date < leasing_start or ctr_date >= leasing_end:
+                ctr_date += relativedelta(months=3)
+                continue
+            
+            ctr+=1
+            # increment the current date by one month
+            ctr_date += relativedelta(months=3)
+        
+        pay_fee = float(pay_fee)/ctr + 1
+        current_date = leasing_start
+        while current_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if current_date < leasing_start or current_date >= leasing_end:
+                current_date += relativedelta(months=3)
+                continue
+            
+            paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
+            val = (current_date).strftime("%Y-%m-%d")
+            data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+            db.insert_data('payment',fields,data)
+            
+            # increment the current date by one month
+            current_date += relativedelta(months=3)
+    
+    elif leasing_payment_frequency == "4":
+        # define your leasing start and end dates
+        val = None
+        ctr = 0
+        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        # loop over the range of dates and insert records
+        ctr_date = leasing_start
+        while ctr_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if ctr_date < leasing_start or ctr_date >= leasing_end:
+                ctr_date += relativedelta(months=12)
+                continue
+            
+            ctr+=1
+            # increment the current date by one month
+            ctr_date += relativedelta(months=12)
+        
+        pay_fee = float(pay_fee)/ctr + 1
+        current_date = leasing_start
+        while current_date <= leasing_end:
+            # check if the current date occurs within the leasing period
+            if current_date < leasing_start or current_date >= leasing_end:
+                current_date += relativedelta(months=12)
+                continue
+            
+            paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
+            val = (current_date).strftime("%Y-%m-%d")
+            data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
+            db.insert_data('payment',fields,data)
+            
+            # increment the current date by one month
+            current_date += relativedelta(months=12)
+    
+    db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, 'ongoing'])
     message = "You have successfully approve the contract."
     return redirect(url_for('contracts', success = message))
 
@@ -587,18 +835,6 @@ def declineContract():
     message = "Failed to approve the contract."
     return redirect(url_for('contracts', success = message))
 
-@app.route("/pending_contracts")
-def pending_contracts():
-    if 'sessionID' not in session:
-        return redirect(url_for('dashboard'))
-    
-    title = "B-Lease | List of Contracts"  
-    leasing = db.get_all_data('leasing')
-   
-    user = db.get_all_data('user')
-
-    # im = Image.open(property_images)
-    return render_template("pending_contracts.html", title=title, property=property, user=user,leasing=leasing)
 
 @app.route("/ongoing_contracts")
 def ongoing_contracts():
@@ -637,25 +873,31 @@ def payment_reports():
 
     return render_template("payment_reports.html", title=title, payment=payment,user=user)
 
-@app.route("/deletepaymentaccount", methods=['GET'])
-def deletepaymentaccount():
-    
-    paymentID = request.args.get('paymentID')
-    
-    payment = db.get_specific_data('payment', ['paymentID'], [paymentID])
-    
-    if payment:
-        okey = db.delete_data('payment', 'paymentID', paymentID)
-        if okey:
-            print ('Payment Successfully Deleted')
-            return redirect(url_for('payment_reports'))
-        else:
-            print('Payment was not deleted')
-            return redirect(url_for('payment_reports'))
-    else:
-        print('Payment not found')
-        return redirect(url_for('payment_reports'))
 
+@app.route("/manage_complaint")
+def manage_complaint():
+    if 'sessionID' not in session:
+            return redirect(url_for('index'))
+    title = "B-Lease | Manage Complaints"   
+
+    complaint = db.get_all_data('complaint')
+    user = db.get_all_data('user')
+
+    return render_template("manage_complaint.html", title=title, complaint=complaint,user=user)
+
+@app.route("/view_complaint")
+def view_complaint():
+    if 'sessionID' not in session:
+            return redirect(url_for('index'))
+    title = "B-Lease | View Complaint"   
+
+    complaintID = request.args.get('complaintID')
+   
+    message = request.args.get('message')
+    complaint = db.get_data('complaint', 'complaintID', complaintID)
+    complaint_thread = db.get_thread(complaintID)
+
+    return render_template("view_complaint.html", title=title, complaint=complaint, complaint_thread = complaint_thread, message=message)
 
 
 # if __name__ == "__main__":
@@ -669,10 +911,3 @@ def deletepaymentaccount():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
-
-
-
-
-
-
-

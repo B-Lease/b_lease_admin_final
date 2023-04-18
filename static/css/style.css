@@ -557,7 +557,45 @@ main a:hover {
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
   }
+
+.message {
+    text-align:center;
+    color:red;
+    margin-top:10px;
+    font-size: small;
+}
+
+.scroll-container {
+    position: relative;
+    width: 100%;
+    height: 250px; /* Set the height of the scrollable container */
+    overflow: hidden; /* Hide the default scrollbars */
+  }
   
+  .scroll-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll; /* Enable scrolling */
+    padding-right: 20px; /* Add space for the custom scrollbar */
+  }
+  
+  .scroll-content::-webkit-scrollbar {
+    width: 10px; /* Set the width of the custom scrollbar */
+  }
+  
+  .scroll-content::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Set the color of the scrollbar thumb */
+    border-radius: 5px; /* Round the edges of the scrollbar thumb */
+  }
 
+.link-light {
+    align-items: right;
+    border: 10px solid #14a44d; 
+    border-radius: 4px;
+}
 
-
+#thread_content{
+    width:75%;
+    align-items: center;
+}

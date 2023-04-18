@@ -33,7 +33,7 @@
             class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
         <a href="{{url_for('contracts')}}" class="list-group-item list-group-item-action py-2 text-success ripple active"><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
         </a>
         <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
@@ -102,7 +102,7 @@
         <h3>Contracts</h3>
         <div id="myBtnContainer">
           <a class="btn btn-outline-success" href="{{url_for('contracts')}}"> For review</a>
-          <a class="btn btn-outline-success" href="{{url_for('pending_contracts')}}"> Pending</a>
+
           <a class="btn btn-success active" href="{{url_for('ongoing_contracts')}}"> Ongoing</a>
           <a class="btn btn-outline-success" href="{{url_for('finished_contracts')}}"> Finished</a>
 
@@ -133,15 +133,13 @@
                 {% for leasing in leasing%}
                 {% if leasing.leasing_status == 'ongoing' %}
                 <td>
+                  <h4 class="text-success fw-bold mb-1">{{leasing.leasingID}}</h4>
+                </td>
+                <td>
                   <div class="d-flex align-items-center">
                   
                     
-                   <img
-                    src=""
-                    alt=""
-                    style="width: 150px; height: 150px; border-radius: 10px;"
-                    class="rounded-circle"
-                    />
+                   
                    
                 
                     <div class="ms-3">

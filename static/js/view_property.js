@@ -41,6 +41,7 @@ $(document).ready(function() {
     $('#view-modal').hide();
   });
 
+
   // $('.delete-confirm-btn').click(function() {
   //   var id = $(this).data('id');
   //   location.href = location.href + "&parameter=" + value;
@@ -54,6 +55,10 @@ function setUpdateModal(updateStatus){
   adminID.value = id;
 }
 
+
+function setDeclineModal(propertyID){
+  document.getElementById('propertylistingID').value = propertyID;
+}
 function approveListing(propertyID){
 
     window.location.href = "/approveStatus?propertyID="+propertyID;

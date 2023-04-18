@@ -34,7 +34,7 @@
             class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
         <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
         </a>
         <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
@@ -102,7 +102,11 @@
   <div class="container pt-3 align-items-center">
     <!-- Dashboard -->
         <br>
-        <h3>Hello Admin!</h3>
+       
+        
+        <h3>Hello {{firstname}}</h3>
+        
+      
         <h9>Here's what awaits you..</h9>
         <!-- search -->
         <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">

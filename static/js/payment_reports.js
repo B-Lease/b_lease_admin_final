@@ -26,3 +26,17 @@ function deleteButtonUser(){
     var paymentID = document.getElementById('deletepaymentID').value;
     location.href =  "/deletepaymentaccount?paymentID=" + paymentID;
 }
+
+function setViewModalPayment(paymentID, leasingID, pay_status, pay_lessorID, pay_lesseeID, pay_receiptNum,pay_date, pay_fee){
+   
+
+  document.getElementById("paymentID").value = paymentID;
+  document.getElementById("leasingID").value = leasingID;
+  document.getElementById("pay_status").value = pay_status;
+  document.getElementById("pay_lessorID").value = pay_lessorID;
+  document.getElementById("pay_lesseeID").value = pay_lesseeID;
+  document.getElementById("pay_receiptNum").value = pay_receiptNum;
+  document.getElementById("pay_date").value = pay_date;
+  document.getElementById("pay_fee").value = pay_fee;
+
+}
