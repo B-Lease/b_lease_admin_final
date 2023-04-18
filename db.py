@@ -288,3 +288,23 @@ def checkOngoingLeasing(propertyID):
     cur.close()
     return data
 
+def get_complaints(table:str, field:str, value:str)->dict:
+    cur = mysql.connection.cursor() 
+    print(f'SELECT * FROM {table} WHERE {field} = "{value}" ')
+    cur.execute(f'SELECT * FROM {table} WHERE {field} = "{value}" ORDER BY created_at')
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def get_thread(complaintID):
+    cursor = mysql.connection.cursor() 
+    cursor.execute(f'SELECT * FROM complaint_thread WHERE `complaintID` = "{complaintID}"')
+    result:dict = cursor.fetchall()
+    mysql.connection.commit()
+    cursor.close()
+    if result:
+        return result
+        
+    else:
+        return None
