@@ -72,7 +72,7 @@ api.add_resource(restapi.countrating,"/countrating")
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'nathaniel'
+app.config['MYSQL_PASSWORD'] = 'project2023!'
 #app.config['MYSQL_PASSWORD'] = '10031999'
 #app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
 # app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
