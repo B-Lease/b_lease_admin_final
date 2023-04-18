@@ -541,8 +541,17 @@ class Leasing(Resource):
 
         fields = ['leasingID', 'lessorID', 'lesseeID', 'propertyID', 'leasing_status']        
         data = [leasingID, lessorID, lesseeID, propertyID, leasing_status]
+     
+        notificationID = None
+        userID = None
+        lessee = None
+        notification_categ = None
+        notification_desc = None
+        notification_date = None
+        read = None
+        data = None
 
-        check_existing = db.check_existing_data('leasing', 'leasingID', data[0])
+        check_existing = db.check_existing_data('leasing', 'leasingID', leasingID)
 
         if check_existing:
             return {'message': f'User with userID: {leasingID} already exist'}, 409
@@ -551,6 +560,45 @@ class Leasing(Resource):
             insert_data_bool = db.insert_data('leasing', fields, data)
 
             if insert_data_bool:
+                userID = lessorID
+                notification_categ = "Property Inquiries"
+                lessee = db.get_data('user','userID', lesseeID)
+                lessor = db.get_data('user','userID', lessorID)
+                property = db.get_data('property','propertyID',propertyID)
+                notification_desc = f"{lessee['user_lname']}, {lessee['user_fname']} has inquired about your property in {property['address']}"
+                notification_date = str(datetime.now())
+                read = "unread"
+
+                # Make message greeting here
+                msgID = None
+                msg_senderID = lessee['userID']
+                msg_receiverID =  lessor['userID']
+                msg_receivername = lessee['userID']
+                msg_content = f"Hello, my name is {lessee['user_fname']} and I am interested in your property listing."
+                sent_at = str(datetime.now())
+
+                 
+                param = str(leasingID + msg_senderID + msg_receiverID + msg_content + sent_at)
+                msgID = util.generateUUID(param)
+
+                message_fields = ['msgID', 'leasingID', 'msg_senderID','msg_receiverID','msg_content', 'sent_at']
+                message_data = [msgID,leasingID, msg_senderID, msg_receiverID, msg_content,sent_at]
+
+                insert_message = db.insert_data('message',message_fields,message_data)
+
+                if insert_message:
+                    data = f"{leasingID}+|+{lessor['userID']}+|+{lessor['user_fname']}+|+{lessor['user_mname']}+|+{lessor['user_lname']}+|+{lessee['userID']}+|+{lessee['user_fname']}+|+{lessee['user_mname']}+|+{lessee['user_lname']}+|+{property['address']}+|+{property['land_description']}+|+{msg_senderID}+|+{msg_receiverID}+|+{msg_receivername}"
+
+                if userID and notification_categ and notification_desc and notification_date and read and data:
+                    notificationID = util.generateUUID(f"{userID},{notification_categ},{notification_desc},{notification_date},{read},{data}")
+                    notification_fields = ['notificationID','userID','notification_categ','notification_desc','notification_date']
+                    notification_data = [notificationID, userID, notification_categ, notification_desc, notification_date]
+                    insert_notification = db.insert_data('notification', notification_fields, notification_data)
+
+
+
+                # notif_fields = ['notificationID','userID','notification_categ','notification_desc', 'notification_date', 'read', 'data']
+                # notif_data = []
                 return {'message': 'Successfully initiated lease request',
                         'leasingID': leasingID
                         }, 201
