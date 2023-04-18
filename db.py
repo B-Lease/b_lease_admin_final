@@ -186,6 +186,7 @@ def join_tables(userID:str):
             u2.user_fname as lessee_fname,
             u2.user_mname as lessee_mname,
             u2.user_lname as lessee_lname,
+            p.propertyID as propertyID,
             p.address,
             p.land_description,
             m.msg_content,
@@ -288,14 +289,21 @@ def checkOngoingLeasing(propertyID):
     cur.close()
     return data
 
+
 def get_complaints(table:str, field:str, value:str)->dict:
     cur = mysql.connection.cursor() 
     print(f'SELECT * FROM {table} WHERE {field} = "{value}" ')
     cur.execute(f'SELECT * FROM {table} WHERE {field} = "{value}" ORDER BY created_at')
+
+def getPropertyFeedback(propertyID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT f.feedbackID,f.userID,u.user_fname, u.user_lname, f.propertyID,f.feedback_rating,f.feedback_content,f.created_at FROM `user_feedback` f, `user` u WHERE f.userID = u.userID AND f.propertyID = '{propertyID}' ")
+
     data:dict = cur.fetchall()
     mysql.connection.commit()
     cur.close()
     return data
+
 
 def get_thread(complaintID):
     cursor = mysql.connection.cursor() 
@@ -324,3 +332,20 @@ def getLoggingReport():
     mysql.connection.commit()
     cur.close()
     return result
+
+def totalPropertyFeedback(propertyID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT COUNT(*) FROM `user_feedback`  WHERE `propertyID` = '{propertyID}'")
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def averagePropertyRating(propertyID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT ROUND(AVG(`feedback_rating`),1) AS `average_rating` FROM `user_feedback` WHERE `propertyID` = '{propertyID}'")
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data
+

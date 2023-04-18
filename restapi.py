@@ -1,7 +1,7 @@
 from http.client import HTTPResponse
 from flask_restful import Api, Resource, reqparse
 from flask import request, abort, jsonify, send_file
-from flask import Flask, request, abort, jsonify, send_file, redirect
+from flask import Flask, request, abort, jsonify, send_file, redirect, render_template, Response
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
 from emailverification import email_verification
@@ -10,11 +10,14 @@ from flask_cors import CORS
 
 import requests
 import os
-import app
 import db
 import util
 import json
 import contract
+import hmac
+import json
+import hashlib
+import time
 
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
@@ -38,23 +41,41 @@ class NextPay(Resource):
         }
         response = requests.get(url, headers=headers)
         fin_response = response.json()
-        return fin_response['url']
+        return fin_response
+    
+    def post(self):
+        payload = request.json
+        client_secret = 'oz2lgjvuyhv6gpm03zopbf3y'
+        body_string = json.dumps(payload, separators=(',', ':'))
+        print(body_string)
+        signature = hmac.new(client_secret.encode('utf-8'), body_string.encode('utf-8'), digestmod=hashlib.sha256).hexdigest()
+        print(signature)
+        
+        url = 'https://api-sandbox.nextpay.world/v2/paymentlinks/'
+        #data = request.get_json()
+        headers = {
+            "Content-Type": "application/json",
+            "client-id": "ck_sandbox_g0rce9tf67r42g5ehygyhqy9",
+            "signature": str(signature)
+        }
+        response = requests.post(url, json=payload, headers=headers)
+        fin_response = response.json()
+        print(fin_response)
+        return fin_response, 201
 
 class Redirect(Resource):
     def get(self):
-        return redirect('http://localhost:8100/dashboard/transactions')
+        return render_template('payment-success.html'), 201
 
 class Payment(Resource):
     def get(self):
         userID = request.args.get('userID')
         paymentInfo = db.get_transactions('payment',userID)
-
         if len(paymentInfo) != 0:
             payment_encoded = json.dumps(paymentInfo, default=str)
             return payment_encoded, 200
         else:
             return {'message': 'No transactions'}, 209
-
 
 # =======================================================================================
 # REGISTER API CLASS
@@ -512,7 +533,15 @@ class Leasing(Resource):
             userID = request.args.get('userID')
             # as a lessee
             leasingInfo = db.join_tables(userID)
+            
             if leasingInfo is not None:
+                for each in leasingInfo:
+                    each['images'] = []
+                    for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                            # data['images'].append(str(filename))
+                                
+                            each['images'].append(filename)
                 leasing_encoded = json.dumps(leasingInfo, default=str)
                 return leasing_encoded, 200
             else:
@@ -532,8 +561,17 @@ class Leasing(Resource):
 
         fields = ['leasingID', 'lessorID', 'lesseeID', 'propertyID', 'leasing_status']        
         data = [leasingID, lessorID, lesseeID, propertyID, leasing_status]
+     
+        notificationID = None
+        userID = None
+        lessee = None
+        notification_categ = None
+        notification_desc = None
+        notification_date = None
+        read = None
+        data = None
 
-        check_existing = db.check_existing_data('leasing', 'leasingID', data[0])
+        check_existing = db.check_existing_data('leasing', 'leasingID', leasingID)
 
         if check_existing:
             return {'message': f'User with userID: {leasingID} already exist'}, 409
@@ -542,6 +580,45 @@ class Leasing(Resource):
             insert_data_bool = db.insert_data('leasing', fields, data)
 
             if insert_data_bool:
+                userID = lessorID
+                notification_categ = "Property Inquiries"
+                lessee = db.get_data('user','userID', lesseeID)
+                lessor = db.get_data('user','userID', lessorID)
+                property = db.get_data('property','propertyID',propertyID)
+                notification_desc = f"{lessee['user_lname']}, {lessee['user_fname']} has inquired about your property in {property['address']}"
+                notification_date = str(datetime.now())
+                read = "unread"
+
+                # Make message greeting here
+                msgID = None
+                msg_senderID = lessee['userID']
+                msg_receiverID =  lessor['userID']
+                msg_receivername = lessee['userID']
+                msg_content = f"Hello, my name is {lessee['user_fname']} and I am interested in your property listing."
+                sent_at = str(datetime.now())
+
+                 
+                param = str(leasingID + msg_senderID + msg_receiverID + msg_content + sent_at)
+                msgID = util.generateUUID(param)
+
+                message_fields = ['msgID', 'leasingID', 'msg_senderID','msg_receiverID','msg_content', 'sent_at']
+                message_data = [msgID,leasingID, msg_senderID, msg_receiverID, msg_content,sent_at]
+
+                insert_message = db.insert_data('message',message_fields,message_data)
+
+                if insert_message:
+                    data = f"{leasingID}+|+{lessor['userID']}+|+{lessor['user_fname']}+|+{lessor['user_mname']}+|+{lessor['user_lname']}+|+{lessee['userID']}+|+{lessee['user_fname']}+|+{lessee['user_mname']}+|+{lessee['user_lname']}+|+{property['address']}+|+{property['land_description']}+|+{msg_senderID}+|+{msg_receiverID}+|+{msg_receivername}"
+
+                if userID and notification_categ and notification_desc and notification_date and read and data:
+                    notificationID = util.generateUUID(f"{userID},{notification_categ},{notification_desc},{notification_date},{read},{data}")
+                    notification_fields = ['notificationID','userID','notification_categ','notification_desc','notification_date']
+                    notification_data = [notificationID, userID, notification_categ, notification_desc, notification_date]
+                    insert_notification = db.insert_data('notification', notification_fields, notification_data)
+
+
+
+                # notif_fields = ['notificationID','userID','notification_categ','notification_desc', 'notification_date', 'read', 'data']
+                # notif_data = []
                 return {'message': 'Successfully initiated lease request',
                         'leasingID': leasingID
                         }, 201
@@ -682,6 +759,26 @@ class Leasing_Documents(Resource):
 
     def delete(self):
         return None
+    
+class Leasing_Status(Resource):
+    def put(self):
+        leasingID = request.json['leasingID']
+        leasing_status = 'for review' if request.args.get('leasing_status') == '1' else 'declined'
+
+        check_existing = db.check_existing_data(
+            'leasing', 'leasingID', leasingID)
+        
+        fields = ['leasingID','leasing_status']
+        data = [leasingID, leasing_status]
+        if check_existing:
+            update_data_bool = db.update_data('leasing', fields, data)
+            if update_data_bool:
+                return {'message': 'Contract status updated successfully'}, 201
+            else:
+                return {'message': 'Error approving contract'}, 400
+        else:
+            return {'message': f'Leasing record not found'}, 409
+
 
 
 # =======================================================================================
@@ -1032,22 +1129,29 @@ class user_payment_method(Resource):
 # COMPLAINT API CLASS | CR
 complaint_args = reqparse.RequestParser()
 complaint_args.add_argument(
-    'complaint_categ', type=str, help='Missing Complaint Category', required=True)
+    'complaintID', type=str, help='Missing Complaint ID', required=True)
+complaint_args.add_argument(
+    'complaint_subject', type=str, help='Missing Complaint Category', required=True)
 complaint_args.add_argument(
     'complaint_desc', type=str, help='Missing Complaint Description', required=True)
 complaint_args.add_argument(
     'complainerID', type=str, help='Missing ComplainerID', required=True)
 complaint_args.add_argument(
     'complaineeID', type=str, help='Missing ComplaineeID', required=True)
+complaint_args.add_argument(
+    'complaint_status', type=str, help='Missing Complaint Status', required=True)
+complaint_args.add_argument(
+    'created_at', type=str, help='Missing Created At', required=True)
+
 
 
 class complaint(Resource):
     def get(self):
-        complainerID = request.args.get('complainerID')
-        if complainerID is None:
-            return abort(400, 'Missing complainer ID')
+        complaintID = request.args.get('leasingID')
+        if complaintID is None:
+            return abort(400, 'Missing leasing ID')
         else:
-            complaints = db.get_data('complaint', 'complainerID', complainerID)
+            complaints = db.get_items('complaint', 'complaintID', complaintID)
             if complaints:
                 userJson = json.dumps(complaints, indent=2, cls=JSONEncoder)
                 return userJson, 200
@@ -1056,65 +1160,39 @@ class complaint(Resource):
 
     def post(self):
         complaintInfo = complaint_args.parse_args()
-        complaintJson = request.json
-
-        complaintID = json.dumps(complaintJson)
-        complaintID = generateUUID(complaintID+str(datetime.now()))
 
         fields = []
         data = []
-        complainerID = ""
-        complaineeID = ""
-        for k, v in complaintJson.items():
-            if v is not None:
-                if k == 'complaint_categ':
-                    fields.append('complaintID')
-                    data.append(complaintID)
-                fields.append(k)
-                data.append(v)
 
-                if k == 'complainerID':
-                    complainerID = v
-                if k == 'complaineeID':
-                    complaineeID = v
+        for k, v in complaintInfo.items():
+            fields.append(k)
+            data.append(v)
 
-        check_pending_complaint = db.get_specific_data('complaint', [
-                                                       'complainerID', 'complaineeID', 'complaint_status'], [complainerID, complaineeID, 'pending'])
-        if check_pending_complaint:
-            return abort(400, 'There is still pending complaint. Wait for complaint to be resolved')
-        else:
-            fields.append('complaint_status')
-            data.append('pending')
+        check_existing = db.check_existing_data('complaint', 'complaintID', data[0])
 
-            fields.append('created_at')
-            data.append(str(datetime.now()))
+        if not check_existing:
+            insert_data_bool = db.insert_data('complaint', fields, data)
 
-            check_existing = db.check_existing_data(
-                'complaint', 'complaintID', complaintID)
-            if check_existing:
-                return {'message': f'Complaint with complaintID: {complaintID} already exist'}, 409
+            if insert_data_bool:
+                return {'message': 'Successfully filed a complaint'}, 204
+
             else:
+                return {'message': 'Unable to file'}, 400
+        else:
+            return abort(400, 'Complaint info not found')
 
-                check_complainer = db.check_existing_data(
-                    'user', 'userID', complainerID)
-                check_complainee = db.check_existing_data(
-                    'user', 'userID', complaineeID)
-                if check_complainer and check_complainee:
-                    insert_data_bool = db.insert_data(
-                        'complaint', fields, data)
-                    if insert_data_bool:
-                        return {'message': 'Success complaint creation'}, 201
-                    else:
-                        return {'message': 'Error complaint creation'}, 400
-                else:
-                    warn = ""
-                    complainer_msg = "Complainer does not exist."
-                    complainee_msg = "Complainee does not exist."
-                    if check_complainer:
-                        warn = warn + complainer_msg
-                    if check_complainee:
-                        warn = warn + complainee_msg
-                    return abort(400, warn)
+class complaintThread(Resource):
+    def get(self):
+        complaintID = request.args.get('leasingID')
+        if complaintID is None:
+            return abort(400, 'Missing leasing ID')
+        else:
+            complaints = db.get_items('complaint_thread', 'complaintID', complaintID)
+            if complaints:
+                userJson = json.dumps(complaints, indent=2, cls=JSONEncoder)
+                return userJson, 200
+            else:
+                return {'message': 'No complaints found'}
 
 # =======================================================================================
 # ADMIN API CLASS | CRUD
@@ -1453,5 +1531,140 @@ class properties(Resource):
             return abort(404, "Incomplete request data")
 
 # =======================================================================================
+# USER FEEDBACK API
+
+feedback_args_post = reqparse.RequestParser()
+
+# userID
+# propertyID
+# feedback_rating
+# feedback_content
+# created_at
+
+feedback_args_post.add_argument('userID', type=str,
+                           help='Missing User ID')
+
+feedback_args_post.add_argument('propertyID', type=str,
+                           help='Missing Property ID', required=True)
+
+feedback_args_post.add_argument('feedback_rating', type=int,
+                           help='Missing Feedback Rating', required=True)
+
+feedback_args_post.add_argument('feedback_content', type=str,
+                           help='Missing Feedback Content', required=True)
+
+feedback_args_post.add_argument('sessionID', type=str,
+                           help='Missing Session ID', required=True)
 
 
+class feedback(Resource):
+    def get(self):
+        propertyID = request.args.get('propertyID')
+        sessionID = request.args.get('sessionID')
+        check_property = db.get_data('property','propertyID',propertyID)
+
+        check_session = db.get_specific_data('session', ['sessionID','status'], [sessionID,'valid'])
+
+
+        if not check_property:
+            return abort(404,"Property not found")
+        if not check_session:
+            return abort(404,"Unauthorized access")
+        
+        if check_session:
+            feedbacks = db.getPropertyFeedback(propertyID)
+            if feedbacks:
+                feedbacksJson = json.dumps(feedbacks, default=str)
+                
+                return jsonify(feedbacksJson )
+            else:
+                return {'message':'No feedbacks'},204
+
+        else:
+            return abort(401,'Authorization needed')
+    def post(self):
+        feedbackInfo = feedback_args_post.parse_args()
+
+        feedbackJson = request.json
+        userID = feedbackJson['userID']
+        sessionID = feedbackJson.pop('sessionID')
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        if not check_user:
+            return abort(404,"User not found")
+        
+
+
+        fields = []
+        data = []
+        fields.append('feedbackID')
+        data.append(generateUUID(
+            f"{feedbackJson['userID']},{feedbackJson['propertyID']},{feedbackJson['feedback_rating']},{feedbackJson['feedback_content']}"
+        ))
+        for k, v in feedbackJson.items():
+            if v is not None:
+                fields.append(k)
+                data.append(v)
+        fields.append('created_at')
+        data.append(str(datetime.now()))
+        check_existing = db.check_existing_data(
+            'property', 'propertyID', feedbackJson['propertyID'])
+
+        if check_existing:
+            insert_feedback = db.insert_data('user_feedback', fields, data)
+
+            if insert_feedback:
+                return {
+                    'message': f"Feedback with propertyID:{feedbackJson['propertyID']} submitted successfully"
+                }, 200
+            else:
+                return {
+                    'message': f"Error creating property feedback with property:{feedbackJson['propertyID']}"
+                }, 400
+        else:
+            return {'message': f'User with userID: {feedbackJson["propertyID"]} does not exist'}, 400
+
+
+class countfeedback(Resource):
+    def get(self):
+        propertyID = request.args.get('propertyID')
+        sessionID = request.args.get('sessionID')
+
+        check_property = db.get_data('property', 'propertyID',propertyID)
+        check_session = util.checkSession(sessionID)\
+        
+        if not check_property:
+            return abort(404, "Property not found")
+        if not check_session:
+            return abort(403,"Unauthorized access")
+        
+        countFeedback = db.totalPropertyFeedback(propertyID)
+
+        if not countFeedback:
+            return  {"message":"No feedback"},201
+        if countFeedback:
+            return jsonify(countFeedback )
+        
+class countrating(Resource):
+    def get(self):
+        propertyID = request.args.get('propertyID')
+        sessionID = request.args.get('sessionID')
+
+        check_property = db.get_data('property', 'propertyID',propertyID)
+        check_session = util.checkSession(sessionID)\
+        
+        if not check_property:
+            return abort(404, "Property not found")
+        if not check_session:
+            return abort(403,"Unauthorized access")
+        
+        countRating = db.averagePropertyRating(propertyID)
+
+        if not countRating:
+            return  {"message":"No feedback yet"},201
+        if countRating:
+            return jsonify(countRating )

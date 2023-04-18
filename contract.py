@@ -120,6 +120,7 @@ def setContract(leasingInfo, contractInfo):
                     # Add the image to the document
                     p.add_run('\n\nLessor signature: \n').bold = True
                     p.add_run().add_picture(image_data, width=Inches(3))
+                    p.add_run('\n\nLessee signature: \n').bold = True
                     p.add_run(parts[1])
 
                 else:
@@ -143,7 +144,7 @@ def setContract(leasingInfo, contractInfo):
     # Create the new directory
     make_path = print('ok') if os.path.exists(path) else os.makedirs(path)
 
-    docx_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}_ongoing.docx" 
+    docx_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}_pending.docx" 
     
     doc.save(f"{docx_path}")
 
