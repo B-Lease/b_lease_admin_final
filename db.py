@@ -307,7 +307,7 @@ def getPropertyFeedback(propertyID):
 
 def get_thread(complaintID):
     cursor = mysql.connection.cursor() 
-    cursor.execute(f'SELECT * FROM complaint_thread WHERE `complaintID` = "{complaintID}"')
+    cursor.execute(f'SELECT * FROM complaint_thread WHERE `complaintID` = "{complaintID}" order by `created_at` ASC')
     result:dict = cursor.fetchall()
     mysql.connection.commit()
     cursor.close()
@@ -316,6 +316,22 @@ def get_thread(complaintID):
         
     else:
         return None
+
+
+def getLoggingReport():
+    cur = mysql.connection.cursor()
+    query = """
+        SELECT u.userID, u.user_fname, u.user_mname, u.user_lname, u.user_email, s.status, MAX(s.loginTime) as lastLogin
+        FROM user u
+        JOIN session s ON u.userID = s.userID
+        GROUP BY u.userID, u.user_fname, u.user_mname, u.user_lname, u.user_email, s.status
+        ORDER BY lastLogin DESC
+    """
+    cur.execute(query)
+    result = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return result
 
 def totalPropertyFeedback(propertyID):
     cur = mysql.connection.cursor()

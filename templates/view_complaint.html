@@ -104,7 +104,7 @@
   <div class="container pt-3 align-items-center">
       
         <a href="{{url_for('manage_complaint')}}" style="float:left" >
-          Go back
+          <i class="fa-solid fa-arrow-left"></i> Go back
         </a>
         
         <br><br>
@@ -123,11 +123,10 @@
                     
                      
                       <h6 style="margin-left: 0px; padding:5px 5px; color:#40a047;">Category:&nbsp;{{complaint.complaint_subject}}</h6>
-                      <h6 style="margin-left: 0px; padding:5px 5px;">Complainer ID: &nbsp; {{complaint.complainerID}}</h6>
-                      <h6 style="margin-left: 0px; padding:5px 5px;">Complainee ID:&nbsp; {{complaint.complaineeID}}</h6>
-                      
-                      <br>
-                      <h3>Complaints Thread</h3>
+                      <h6 style="margin-left: 0px; padding:5px 5px; color:#979797">Complainer ID: &nbsp; {{complaint.complainerID}}</h6>
+                      <h6 style="margin-left: 0px; padding:5px 5px; color:#979797">Complainee ID:&nbsp; {{complaint.complaineeID}}</h6>
+                      <hr>
+                      <h3>Thread</h3>
                       <div class="scroll-container">
                         <div class="scroll-content">
                           
@@ -154,7 +153,7 @@
                               
                             <textarea id="thread_content" name="thread_content"></textarea><br><br>
                             <input type="hidden"  id="complaintID" name="complaintID" value="{{ complaint.complaintID }}">
-                            <input type="submit" value="Update Thread" class="link-light bg-success">
+                            <input type="submit" value="Update Thread" class="link-light bg-success shadow-sm">
 
                             {% if message is defined and message == "success"%}
                             <p style="color:green;">{{message}}</p>
@@ -164,7 +163,7 @@
                             {% endif %}
                           </form>
                           <br>
-                          <a href="{{url_for('markasresolve',complaintID=complaint.complaintID)}}" style="border: 10px solid #14a44d; border-radius: 4px;" class="link-light bg-success">Mark as Resolve</a><br><br>
+                          <a href="{{url_for('markasresolve',complaintID=complaint.complaintID)}}" style="border: 10px solid #e4a11b; border-radius: 4px;" class="link-light bg-warning shadow-sm">Mark as Resolved</a><br><br>
                       {% endif %}
 
                

@@ -127,18 +127,21 @@
         <table class="table align-middle mb-0 bg-white">
             <thead class="bg-light text-success">
               <tr>
+             
                 <th>ID</th>
                 <th>Name</th>
                 <!-- <th>User Type</th> -->
- 
+                <!-- <th>Last Login</th> -->
+                <th>Last Login</th>
                 <th>Status</th>
+                
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
 
               <tr>
-                {% for user in user%}
+                {% for user in logging%}
                 <td>
                     {{user.userID}}
                 </td>
@@ -157,17 +160,21 @@
                     </div>
                     </div>
                   </td>   
+                  <td>
+                    {{user.lastLogin}}
+                  </td>
+                  <td>
+                    <span class="badge badge-success rounded-pill d-inline">{{user.status}}</span>
+                  </td>
                 
-                </td>
+                
         
-              
-                <!-- {% if user.userID == session.userID%}
-                <td>{{session.sessionID}} </td>
-                {% endif %} -->
-               
-                <td>
-                    <span class="badge badge-success rounded-pill d-inline">{{user.user_status}}</span>
-                </td>
+                <!-- {% for each in session %}
+                {% if user.userID == session.userID%}
+                <td>{{session.logoutTime}} </td>
+                {% endif %}
+                {% endfor %} -->
+        
                 <td>
                   <a href="{{url_for('view_user',userID=user.userID)}}" class="view-btn"  data-id="456">
                     <i class="fa-solid fa-eye"></i>
