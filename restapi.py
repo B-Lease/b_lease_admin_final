@@ -674,7 +674,11 @@ class LeasingContracts(Resource):
 class leasingdocs(Resource):
     def get(self, leasingID, file):
         filename = f'static/contracts/{leasingID}/{file}'
-        return send_file(filename, mimetype='application/pdf')
+
+        if '.pdf' in filename:
+            return send_file(filename, mimetype='application/pdf')
+        if '.doc' or '.docx' in filename:
+            return send_file(filename, mimetype='application/msword')   
     
 
 

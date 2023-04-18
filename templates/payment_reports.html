@@ -36,7 +36,7 @@
         </a>
         <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
         </a>
         <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple text-success active"><i
@@ -151,12 +151,12 @@
                 <td>{{payment.pay_date}} </td>
                 <td><i class="fa-solid fa-peso-sign"></i> {{payment.pay_fee}} </td>
                 <td>
-                  {% if payment.pay_status == 'pending' %}
-                  <span class="badge badge-warning rounded-pill d-inline" >{{payment.pay_status}}</span>
-                  {% elif payment.pay_status == 'paid' %}
-                  <span class="badge badge-success rounded-pill d-inline" >{{payment.pay_status}}</span>
+                  {% if payment.payout_status == 'pending' %}
+                  <span class="badge badge-warning rounded-pill d-inline" >{{payment.payout_status}}</span>
+                  {% elif payment.payout_status == 'paid' %}
+                  <span class="badge badge-success rounded-pill d-inline" >{{payment.payout_status}}</span>
                   {% else %}
-                  <span class="badge badge-danger rounded-pill d-inline" >{{payment.pay_status}}</span>
+                  <span class="badge badge-danger rounded-pill d-inline" >{{payment.payout_status}}</span>
                   {% endif %}
                 </td>
                 <!-- <td>
