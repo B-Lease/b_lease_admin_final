@@ -158,23 +158,23 @@ def user_report():
         return redirect(url_for('dashboard'))
     
     title = "B-Lease | User Report"
-    user = db.get_all_data('user')
+    logging = db.getLoggingReport()
+    # session = db.get_all_data('session')
     # logoutTime = request.args.get('logoutTime')
     # logout = db.get_specific_data('session','logoutTime',logoutTime)
 
-    print(logout)
-    for each in user:
+   
+    for each in logging:
         each['images'] = []
         for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
             if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
                 # data['images'].append(str(filename))
-                    
                 each['images'].append(filename)
                 
     return render_template(
         "user_report.html",
         title=title,
-        user = user,
+        logging = logging,
         logout=logout
     )
 

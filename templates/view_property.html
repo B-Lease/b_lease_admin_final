@@ -109,7 +109,7 @@
     <div class="container pt-3 align-items-center">
         <!-- Dashboard -->  
         <a href="{{url_for('property_listings')}}" >
-                    Go back
+          <i class="fa-solid fa-arrow-left"></i> Go back
         </a>
       <div class="row d-flex justify-content-center align-items-center h-250">
         <div class="col-lg-10 col-xl-11">
@@ -181,8 +181,7 @@
                       <i class="bi bi-bounding-box-circles"></i><span class="ml-1">&nbsp; {{property.size}} {{property.unit_type}}</span>
                       <br>
                       <i class="bi bi-house-door-fill"></i><span class="ml-1">&nbsp; {{property.property_type}}</span>
-                      <br>
-                      <br>
+                      <hr>
                       <label class="price" for="property_description">About This Property:</label>
                       <p>{{property.property_description}}</p>
 
