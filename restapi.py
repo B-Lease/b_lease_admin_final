@@ -1081,22 +1081,29 @@ class user_payment_method(Resource):
 # COMPLAINT API CLASS | CR
 complaint_args = reqparse.RequestParser()
 complaint_args.add_argument(
-    'complaint_categ', type=str, help='Missing Complaint Category', required=True)
+    'complaintID', type=str, help='Missing Complaint ID', required=True)
+complaint_args.add_argument(
+    'complaint_subject', type=str, help='Missing Complaint Category', required=True)
 complaint_args.add_argument(
     'complaint_desc', type=str, help='Missing Complaint Description', required=True)
 complaint_args.add_argument(
     'complainerID', type=str, help='Missing ComplainerID', required=True)
 complaint_args.add_argument(
     'complaineeID', type=str, help='Missing ComplaineeID', required=True)
+complaint_args.add_argument(
+    'complaint_status', type=str, help='Missing Complaint Status', required=True)
+complaint_args.add_argument(
+    'created_at', type=str, help='Missing Created At', required=True)
+
 
 
 class complaint(Resource):
     def get(self):
-        complainerID = request.args.get('complainerID')
-        if complainerID is None:
-            return abort(400, 'Missing complainer ID')
+        complaintID = request.args.get('leasingID')
+        if complaintID is None:
+            return abort(400, 'Missing leasing ID')
         else:
-            complaints = db.get_data('complaint', 'complainerID', complainerID)
+            complaints = db.get_items('complaint', 'complaintID', complaintID)
             if complaints:
                 userJson = json.dumps(complaints, indent=2, cls=JSONEncoder)
                 return userJson, 200
@@ -1105,65 +1112,39 @@ class complaint(Resource):
 
     def post(self):
         complaintInfo = complaint_args.parse_args()
-        complaintJson = request.json
-
-        complaintID = json.dumps(complaintJson)
-        complaintID = generateUUID(complaintID+str(datetime.now()))
 
         fields = []
         data = []
-        complainerID = ""
-        complaineeID = ""
-        for k, v in complaintJson.items():
-            if v is not None:
-                if k == 'complaint_categ':
-                    fields.append('complaintID')
-                    data.append(complaintID)
-                fields.append(k)
-                data.append(v)
 
-                if k == 'complainerID':
-                    complainerID = v
-                if k == 'complaineeID':
-                    complaineeID = v
+        for k, v in complaintInfo.items():
+            fields.append(k)
+            data.append(v)
 
-        check_pending_complaint = db.get_specific_data('complaint', [
-                                                       'complainerID', 'complaineeID', 'complaint_status'], [complainerID, complaineeID, 'pending'])
-        if check_pending_complaint:
-            return abort(400, 'There is still pending complaint. Wait for complaint to be resolved')
-        else:
-            fields.append('complaint_status')
-            data.append('pending')
+        check_existing = db.check_existing_data('complaint', 'complaintID', data[0])
 
-            fields.append('created_at')
-            data.append(str(datetime.now()))
+        if not check_existing:
+            insert_data_bool = db.insert_data('complaint', fields, data)
 
-            check_existing = db.check_existing_data(
-                'complaint', 'complaintID', complaintID)
-            if check_existing:
-                return {'message': f'Complaint with complaintID: {complaintID} already exist'}, 409
+            if insert_data_bool:
+                return {'message': 'Successfully filed a complaint'}, 204
+
             else:
+                return {'message': 'Unable to file'}, 400
+        else:
+            return abort(400, 'Complaint info not found')
 
-                check_complainer = db.check_existing_data(
-                    'user', 'userID', complainerID)
-                check_complainee = db.check_existing_data(
-                    'user', 'userID', complaineeID)
-                if check_complainer and check_complainee:
-                    insert_data_bool = db.insert_data(
-                        'complaint', fields, data)
-                    if insert_data_bool:
-                        return {'message': 'Success complaint creation'}, 201
-                    else:
-                        return {'message': 'Error complaint creation'}, 400
-                else:
-                    warn = ""
-                    complainer_msg = "Complainer does not exist."
-                    complainee_msg = "Complainee does not exist."
-                    if check_complainer:
-                        warn = warn + complainer_msg
-                    if check_complainee:
-                        warn = warn + complainee_msg
-                    return abort(400, warn)
+class complaintThread(Resource):
+    def get(self):
+        complaintID = request.args.get('leasingID')
+        if complaintID is None:
+            return abort(400, 'Missing leasing ID')
+        else:
+            complaints = db.get_items('complaint_thread', 'complaintID', complaintID)
+            if complaints:
+                userJson = json.dumps(complaints, indent=2, cls=JSONEncoder)
+                return userJson, 200
+            else:
+                return {'message': 'No complaints found'}
 
 # =======================================================================================
 # ADMIN API CLASS | CRUD

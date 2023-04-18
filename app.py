@@ -35,7 +35,6 @@ api.add_resource(restapi.user,"/user")
 api.add_resource(restapi.delete_user,"/delete_user")
 api.add_resource(restapi.changepassword,"/changepassword")
 api.add_resource(restapi.session,"/session")
-api.add_resource(restapi.complaint,"/complaint")
 api.add_resource(restapi.user_payment_method,"/user_payment_method")
 api.add_resource(restapi.register,"/register")
 api.add_resource(restapi.login,"/login")
@@ -62,6 +61,8 @@ api.add_resource(restapi.Leasing_Status,"/leasingstatus")
 api.add_resource(restapi.feedback,"/feedback")
 api.add_resource(restapi.countfeedback,"/countfeedback")
 api.add_resource(restapi.countrating,"/countrating")
+api.add_resource(restapi.complaint,"/complaints")
+api.add_resource(restapi.complaintThread,"/complaintThread")
 
 
 
@@ -73,9 +74,9 @@ api.add_resource(restapi.countrating,"/countrating")
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = 'project2023!'
+app.config['MYSQL_PASSWORD'] = 'project2023!'
 #app.config['MYSQL_PASSWORD'] = '10031999'
-app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
+#app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
 # app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
 #app.config['MYSQL_PASSWORD'] = 'nathaniel'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
