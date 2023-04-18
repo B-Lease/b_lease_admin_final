@@ -25,10 +25,10 @@
   <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
     <div class="position-sticky">
       <div class="list-group list-group-flush mx-7 mt-5">
-        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
+        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple " aria-current="true">
           <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
         </a>
-        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple text-success active">
+        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple ">
           <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
         </a>
         <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
@@ -36,7 +36,7 @@
         </a>
         <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
             class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple text-success active">
           <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
         </a>
         <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
@@ -104,7 +104,7 @@
   <div class="container pt-3 align-items-center">
         <!-- Dashboard -->
         <br>
-        <h3>Accounts</h3>
+        <h3>Complaints</h3>
          <!-- search -->
          <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
             <!-- <div class="input-group" style="outline-color: black;">
@@ -127,61 +127,49 @@
         <table class="table align-middle mb-0 bg-white">
             <thead class="bg-light text-success">
               <tr>
-                <th>ID</th>
-                <th>Name</th>
+                <th>Complaint Thread ID</th>
+                <th>Category</th>
                 <!-- <th>User Type</th> -->
  
                 <th>Status</th>
+                <th>Created At</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
 
               <tr>
-                {% for user in user%}
+                {% for complaint in complaint %}
                 <td>
-                    {{user.userID}}
+                    {{complaint.complaintID}}
                 </td>
                 <td>
-                  <div class="d-flex align-items-center">
-                  <img
-                  src="{{url_for('static',filename='users/{}/images/{}'.format(user.userID,user.images[0]))}}"
-                    alt=""
-                    style="width: 50px; height: 50px; border-radius: 10px;"
-                    class="rounded-circle"
-                    />
-                
-                    <div class="ms-3">
-                      <p class="fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {{user.user_mname |first}}</p>
-                      <p class="text-muted mb-0">{{user.user_email}}</p>
-                    </div>
-                    </div>
-                  </td>   
-                
+                    {{complaint.complaint_subject}}
                 </td>
-        
-              
-                <!-- {% if user.userID == session.userID%}
-                <td>{{session.sessionID}} </td>
-                {% endif %} -->
                
-                <td>
-                    <span class="badge badge-success rounded-pill d-inline">{{user.user_status}}</span>
+                <td>{% if complaint.complaint_status == 'pending' %}
+                    <span class="badge badge-warning rounded-pill d-inline">{{complaint.complaint_status}}</span>
+                    {% else %}
+                    <span class="badge badge-success rounded-pill d-inline">{{complaint.complaint_status}}</span>
+                    {% endif %}
                 </td>
                 <td>
-                  <a href="{{url_for('view_user',userID=user.userID)}}" class="view-btn"  data-id="456">
+                    {{complaint.created_at}}
+                </td>
+                <td>
+                  <a href="{{url_for('view_complaint',complaintID=complaint.complaintID)}}" class="view-btn"  data-id="456">
                     <i class="fa-solid fa-eye"></i>
                   </a>
                   &nbsp;
-                  <a onclick="setDeleteModalUser('{{user.userID}}')" class="delete-btn" data-id="123">
+                  <!-- <a onclick="setDeleteModalUser('{{user.userID}}')" class="delete-btn" data-id="123">
                     <i class="fa-solid fa-trash-can"></i>
-                  </a>
+                  </a> -->
                 </td>
               </tr>
               {% endfor %}
         </table>
               <!-- delete -->
-              <div
+              <!-- <div
               class="modal"
               id="delete-modal"
               data-mdb-backdrop="static"
@@ -204,7 +192,7 @@
                   </div>
                 </div>
               </div>
-              
+               -->
             
   </div>
 </main>
