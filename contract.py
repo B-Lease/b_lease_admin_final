@@ -120,6 +120,7 @@ def setContract(leasingInfo, contractInfo):
                     # Add the image to the document
                     p.add_run('\n\nLessor signature: \n').bold = True
                     p.add_run().add_picture(image_data, width=Inches(3))
+                    p.add_run('\n\nLessee signature: \n').bold = True
                     p.add_run(parts[1])
 
                 else:
