@@ -1,23 +1,30 @@
-from http.client import HTTPResponse
-from flask_restful import Api, Resource, reqparse
-from flask import request, abort, jsonify, send_file
-from flask import Flask, request, abort, jsonify, send_file, redirect, render_template, Response
+from config import api, app
+from flask_restful import Resource, reqparse
+from flask import jsonify, request, abort, send_file, redirect, render_template, Response
 from datetime import datetime, timedelta
 from util import generateUUID, hashMD5, JSONEncoder, generate_otp
 from emailverification import email_verification
 from apscheduler.schedulers.background import BlockingScheduler
 from flask_cors import CORS
-
 import requests
 import os
 import db
-import util
-import json
 import contract
 import hmac
-import json
 import hashlib
 import time
+import json
+import util
+from http.client import HTTPResponse
+
+
+
+
+#--------------------------------------------------------------------------------
+#RESTAPI resource classes are defined here
+#RESTAPI endpoints are defined in the api_endpoints.py
+#--------------------------------------------------------------------------------
+
 
 PROPERTY_PATH = 'static/property_listings/'
 # signup_put_args = reqparse.RequestParser()
@@ -561,6 +568,9 @@ class Leasing(Resource):
 
         fields = ['leasingID', 'lessorID', 'lesseeID', 'propertyID', 'leasing_status']        
         data = [leasingID, lessorID, lesseeID, propertyID, leasing_status]
+
+
+
      
         # notificationID = None
         # userID = None
@@ -580,45 +590,23 @@ class Leasing(Resource):
             insert_data_bool = db.insert_data('leasing', fields, data)
 
             if insert_data_bool:
-                # userID = lessorID
-                # notification_categ = "Property Inquiries"
-                # lessee = db.get_data('user','userID', lesseeID)
-                # lessor = db.get_data('user','userID', lessorID)
-                # property = db.get_data('property','propertyID',propertyID)
-                # notification_desc = f"{lessee['user_lname']}, {lessee['user_fname']} has inquired about your property in {property['address']}"
-                # notification_date = str(datetime.now())
-                # read = "unread"
+                notif_userID = lessorID
+                notification_categ = "Property Inquiries"
+                notif_lessee = db.get_data('user','userID', lesseeID)
+                notif_lessor = db.get_data('user','userID', lessorID)
+                notif_property = db.get_data('property','propertyID',propertyID)
+                notification_desc = f"{notif_lessee['user_lname']}, {notif_lessee['user_fname']} has inquired about your property in {notif_property['address']}"
+                notification_date = str(datetime.now())
+                notif_read = "unread"
 
-                # # Make message greeting here
-                # msgID = None
-                # msg_senderID = lessee['userID']
-                # msg_receiverID =  lessor['userID']
-                # msg_receivername = lessee['userID']
-                # msg_content = f"Hello, my name is {lessee['user_fname']} and I am interested in your property listing."
-                # sent_at = str(datetime.now())
+                notif_image = util.getPropertyImageThumbnail(notif_property['propertyID'])
+                notif_data = f"{notif_userID}*|*{leasingID}*|*{notif_lessor['userID']}*|*{notif_lessor['user_fname']}*|*{notif_lessor['user_mname']}*|*{notif_lessor['user_lname']}*|*{notif_lessee['userID']}*|*{notif_lessee['user_fname']}*|*{notif_lessee['user_mname']}*|*{notif_lessee['user_lname']}*|*{notif_property['address']}*|*{notif_property['land_description']}*|*{notif_userID}*|*{notif_lessee['userID']}*|*{notif_lessee['user_fname']}*|*{notif_property['propertyID']}*|*{notif_image}"
 
-                 
-                # param = str(leasingID + msg_senderID + msg_receiverID + msg_content + sent_at)
-                # msgID = util.generateUUID(param)
-
-                # message_fields = ['msgID', 'leasingID', 'msg_senderID','msg_receiverID','msg_content', 'sent_at']
-                # message_data = [msgID,leasingID, msg_senderID, msg_receiverID, msg_content,sent_at]
-
-                # insert_message = db.insert_data('message',message_fields,message_data)
-
-                # if insert_message:
-                #     data = f"{leasingID}+|+{lessor['userID']}+|+{lessor['user_fname']}+|+{lessor['user_mname']}+|+{lessor['user_lname']}+|+{lessee['userID']}+|+{lessee['user_fname']}+|+{lessee['user_mname']}+|+{lessee['user_lname']}+|+{property['address']}+|+{property['land_description']}+|+{msg_senderID}+|+{msg_receiverID}+|+{msg_receivername}"
-
-                # if userID and notification_categ and notification_desc and notification_date and read and data:
-                #     notificationID = util.generateUUID(f"{userID},{notification_categ},{notification_desc},{notification_date},{read},{data}")
-                #     notification_fields = ['notificationID','userID','notification_categ','notification_desc','notification_date']
-                #     notification_data = [notificationID, userID, notification_categ, notification_desc, notification_date]
-                #     insert_notification = db.insert_data('notification', notification_fields, notification_data)
-
-
-
-                # notif_fields = ['notificationID','userID','notification_categ','notification_desc', 'notification_date', 'read', 'data']
-                # notif_data = []
+                notificationID = util.generateUUID(f"{notif_userID},{notification_categ},{notification_desc},{notification_date},{notif_read},{data}")
+                notification_fields = ['notificationID','userID','notification_categ','notification_desc','notification_date','read', 'data']
+                notification_data = [notificationID, notif_userID, notification_categ, notification_desc, notification_date,notif_read,notif_data]
+                insert_notification = db.insert_data('notifications', notification_fields, notification_data)
+                
                 return {'message': 'Successfully initiated lease request',
                         'leasingID': leasingID
                         }, 201
@@ -628,13 +616,14 @@ class Leasing(Resource):
 
     def put(self):
         leasingInfo = leasing_args_put.parse_args()
-
+       
         fields = []
         data = []
 
         for k, v in leasingInfo.items():
             fields.append(k)
             data.append(v)
+         
 
         check_existing = db.check_existing_data('leasing', 'leasingID', data[0])
 
@@ -646,12 +635,36 @@ class Leasing(Resource):
                 # save the contract details to leasing_documents
 
                 contractInfo = leasing_contracts.parse_args()
+              
                 insert_docs = contract.setContract(leasingInfo,contractInfo)
 
                 # leasing_doc_name = str(leasing_docID + "_contract.pdf")
                 # insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [
                 #                              leasing_docID, leasingID, leasing_doc_name])
                 if insert_docs:
+              
+                   
+
+                    getLeasingInfo = db.getLeasingInfo(data[0])
+
+                    notif_lessee = db.get_data('user','userID', getLeasingInfo['lesseeID'])
+                    notif_lessor = db.get_data('user','userID',  getLeasingInfo['lessorID'])
+                    getLeasingInfo['propertyImage'] = util.getPropertyImageThumbnail(getLeasingInfo['propertyID'])
+            
+                    #Lessee's Notification
+                    lessee_notif_userID = notif_lessee['userID']
+                    notification_categ = "Leasing Contract"
+                    notif_read = "unread"
+                    notification_date = str(datetime.now())
+                    notif_data = f"{getLeasingInfo['leasingID']}*|*{getLeasingInfo['propertyID']}*|*{getLeasingInfo['address']}*|*{getLeasingInfo['leasing_status']}*|*{getLeasingInfo['propertyImage']}*|*{getLeasingInfo['lessorID']}*|*{getLeasingInfo['lesseeID']}"
+                    
+                    lessee_notification_desc = f"{notif_lessor['user_lname']},{notif_lessor['user_fname']} has set a leasing contract to the property you inquired."
+                    lessee_notificationID = util.generateUUID(f"{lessee_notif_userID},{notification_categ},{lessee_notification_desc},{notification_date},{notif_read},{notif_data}")
+
+                    lessee_notification_fields = ['notificationID','userID','notification_categ','notification_desc','notification_date','read', 'data']
+                    lessee_notification_data = [lessee_notificationID, lessee_notif_userID, notification_categ, lessee_notification_desc, notification_date,notif_read,notif_data]
+                    lessee_insert_notification = db.insert_data('notifications', lessee_notification_fields, lessee_notification_data)
+
                     return {'message': 'Successfully confirmed lease request'}, 204
                 else:
                     db.delete_data('leasing', 'leasingID', data[0])
@@ -679,7 +692,15 @@ class Leasing(Resource):
                 }, 400
         else:
             return abort(400, 'Cannot delete. Contract not found')
-        
+
+
+# =======================================================================================
+# GET LEASING INFORMATION
+# =======================================================================================
+
+class GetLeasingInfo(Resource):
+    def get(self):
+        pass
 
 # =======================================================================================
 # LEASING CONTRACTS API CLASS
@@ -717,6 +738,7 @@ class LeasingContracts(Resource):
                 return abort(400,'User not found')
         else:
             return abort(400,'No userID present')
+
 # =======================================================================================
 
 class leasingdocs(Resource):
@@ -746,7 +768,7 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('_ongoing.docx'):
+                if filename.endswith('_pending.docx'):
                     print(str(filename))
                     pdfs.append(filename)        
             if pdfs:
@@ -763,6 +785,7 @@ class Leasing_Documents(Resource):
 class Leasing_Status(Resource):
     def put(self):
         leasingID = request.json['leasingID']
+        leasingID = request.args.get('leasingID')
         leasing_status = 'for review' if request.args.get('leasing_status') == '1' else 'declined'
 
         check_existing = db.check_existing_data(
@@ -773,6 +796,24 @@ class Leasing_Status(Resource):
         if check_existing:
             update_data_bool = db.update_data('leasing', fields, data)
             if update_data_bool:
+                #Lessor's Notification
+                getLeasingInfo = db.getLeasingInfo(leasingID)
+                getLeasingInfo['propertyImage'] = util.getPropertyImageThumbnail(getLeasingInfo['propertyID'])
+
+                lessor_notif_userID = getLeasingInfo['lessorID']
+                notif_lessee = db.get_data('user','userID', getLeasingInfo['lesseeID'])
+                notification_categ = "Leasing Contract"
+                notif_read = "unread"
+                notification_date = str(datetime.now())
+                notif_data = f"{getLeasingInfo['leasingID']}*|*{getLeasingInfo['propertyID']}*|*{getLeasingInfo['address']}*|*{getLeasingInfo['leasing_status']}*|*{getLeasingInfo['propertyImage']}*|*{getLeasingInfo['lessorID']}*|*{getLeasingInfo['lesseeID']}"
+                
+                lessor_notification_desc = f"{notif_lessee['user_lname']},{notif_lessee['user_fname']} has approved your leasing contract"
+                lessor_notificationID = util.generateUUID(f"{lessor_notif_userID},{notification_categ},{lessor_notification_desc},{notification_date},{notif_read},{notif_data}")
+
+                lessor_notification_fields = ['notificationID','userID','notification_categ','notification_desc','notification_date','read', 'data']
+                lessor_notification_data = [lessor_notificationID, lessor_notif_userID, notification_categ, lessor_notification_desc, notification_date,notif_read,notif_data]
+                lessor_insert_notification = db.insert_data('notifications', lessor_notification_fields, lessor_notification_data)
+
                 return {'message': 'Contract status updated successfully'}, 201
             else:
                 return {'message': 'Error approving contract'}, 400
@@ -798,6 +839,7 @@ class Message(Resource):
         else:
             return abort(400, 'No conversations found')
 
+
     def post(self):
         print(str('hello: '+request.json['leasingID']))
         leasingID = request.json['leasingID']
@@ -818,6 +860,28 @@ class Message(Resource):
         #app.socketio.emit('add-message', msg_content, broadcast=True)
         return jsonify({'success': True})
 
+class CountMessage(Resource):
+    def get(self):
+        leasingID = request.args.get('leasingID')
+        if leasingID:
+            count_message = db.countMessage(leasingID)
+
+            if count_message:
+                return {"totalMessages": count_message['countMessage']},200
+        else:
+            return abort("Missing Leasing ID", 404)
+        
+class CountUnreadNotifications(Resource):
+    def get(self):
+        userID = request.args.get("userID")
+
+        if userID:
+            count_unread = str(db.countUnreadNotifications(userID))
+
+            if count_unread:
+                return {"unreadNotifications":count_unread},200
+        else:
+            return abort("Missing user ID", 404)
 
 class Message_Images(Resource):
     def get(self):
@@ -1337,21 +1401,7 @@ class property(Resource):
         data.append(propertyType)
         data.append(created_at)
 
-        # print(address)
-        # print(propertyLandSize)
-        # print(propertyLandSizeUnit)
-        # print(legalLandDescription)
-        # print(price)
-        # print(propertyType)
-        # print(moreDetails)
-        # print(document)
-        # print(images)
-        # print(latitude)
-        # print(longitude)
-        # print(sessionID)
-        # print(userID)
-        # print(property_status)
-        # print(created_at)
+   
         check_existing_property = db.check_existing_data(
             'property', 'propertyID', propertyID)
 
@@ -1359,12 +1409,7 @@ class property(Resource):
             return {'message': f'Property with propertyID: {propertyID} already exist'}, 409
         else:
 
-            # print(propertyLandSize)
-            # print(propertyLandSizeUnit)
-            # print(legalLandDescription)
-            # print(price)
-            # print(propertyType)
-            # print(moreDetails)
+         
             insert_property = db.insert_data('property', fields, data)
 
             # Create a directory for the property listings if it doesn't exist

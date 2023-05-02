@@ -1,5 +1,4 @@
-from flask_mysqldb import MySQL
-from app import mysql
+from config import mysql
 
 
 def get_data(table:str, field:str, value:str)->dict:
@@ -349,3 +348,28 @@ def averagePropertyRating(propertyID):
     cur.close()
     return data
 
+
+def countMessage(leasingID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT IFNULL(COUNT(*),0) AS countMessage FROM `message` WHERE `leasingID` = '{leasingID}'")
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+
+def countUnreadNotifications(userID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT IFNULL(COUNT(*),0) as unreadNotifications FROM b_lease.notifications WHERE `userID` = '{userID}' AND `read` = 'unread'")
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data['unreadNotifications']
+
+def getLeasingInfo(leasingID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT l.leasingID,l.propertyID,p.address,l.leasing_status,l.lessorID,l.lesseeID FROM leasing l, property p WHERE l.propertyID = p.propertyID AND l.leasingID = '{leasingID}' GROUP BY l.leasingID")
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data

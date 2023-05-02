@@ -95,6 +95,11 @@ def deleteFolder(parent_folder, sub_folder):
         print(f"Error deleting folder: {e}")
         return False
         
+def getPropertyImageThumbnail(propertyID)->str:
+    image = []
+    
+    for filename in os.listdir(f'static/property_listings/{propertyID}/images/'):
+        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            image.append(filename)
 
-
-
+    return str(image[0])

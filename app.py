@@ -1,90 +1,26 @@
-from datetime import datetime, timedelta
-import hashlib
-from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
-from flask_mysqldb import MySQL
-from flask_restful import Api,Resource
-import db
-import restapi
-from flask_cors import CORS
+from config import app, mysql, api
 from flask_socketio import SocketIO, send, emit
-
-import requests
-import flask
-import socketmessage
-import contract
-import json
-from datetime import datetime
-
-app = Flask(__name__)
-app.secret_key = "b-lease2022"
-#=====================================================
-api = Api(app)
-CORS(app)
-
-#
-#----------------------------------------------------
-
+from datetime import datetime, timedelta
+from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
 import os
-import flask
-import mysql.connector
 from dateutil.relativedelta import relativedelta
 import util
+import db
+import contract
 
-
-api.add_resource(restapi.user,"/user")
-api.add_resource(restapi.delete_user,"/delete_user")
-api.add_resource(restapi.changepassword,"/changepassword")
-api.add_resource(restapi.session,"/session")
-api.add_resource(restapi.user_payment_method,"/user_payment_method")
-api.add_resource(restapi.register,"/register")
-api.add_resource(restapi.login,"/login")
-
-api.add_resource(restapi.Leasing,"/leasing")
-api.add_resource(restapi.LeasingContracts,"/leasingcontracts")
-api.add_resource(restapi.Leasing_Documents,"/leasingdocs")
-api.add_resource(restapi.Message,"/messages")
-api.add_resource(restapi.property,"/property")
-api.add_resource(restapi.properties,"/properties")
-
-api.add_resource(restapi.propertyimages,"/propertyimages/<string:propertyID>/<string:image>")
-api.add_resource(restapi.propertydocuments,"/propertydocuments/<string:propertyID>/<string:docName>")
-api.add_resource(restapi.leasingdocuments,"/leasingdocuments/<string:leasingID>/<string:contractDocument>")
-# api.add_resource(restapi.leasingdocs,"/leasingdocs/<string:leasingID>/<string:file>")
-
-api.add_resource(restapi.NextPay,"/payLinks")
-api.add_resource(restapi.Redirect, "/test")
-api.add_resource(restapi.Payment, "/pay")
-
-api.add_resource(restapi.notifications,"/notifications")
-api.add_resource(restapi.Leasing_Status,"/leasingstatus")
-
-api.add_resource(restapi.feedback,"/feedback")
-api.add_resource(restapi.countfeedback,"/countfeedback")
-api.add_resource(restapi.countrating,"/countrating")
-api.add_resource(restapi.complaint,"/complaints")
-api.add_resource(restapi.complaintThread,"/complaintThread")
+import api_endpoints
 
 
 
 
-#-----------------------------------------------------
 
-#Database Connection Setup 
-#-----------------------------------------------------
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_PORT'] = 3308
-app.config['MYSQL_USER'] = 'root'
-#app.config['MYSQL_PASSWORD'] = 'project2023!'
-#app.config['MYSQL_PASSWORD'] = '10031999'
-#app.config['MYSQL_PASSWORD'] = 'Kyla2001!!'
-# app.config['MYSQL_PASSWORD'] = '@farmleaseoperationsmanagement2022'
-app.config['MYSQL_PASSWORD'] = 'nathaniel'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
-app.config['MYSQL_DB'] = 'b_lease'
-mysql = MySQL(app)
-#-----------------------------------------------------
 
-#=============================================================
+#--------------------------------------------------------------------------------
+#Routings of the web server are configured and found here
+#--------------------------------------------------------------------------------
+
+
+
 # Find the specific string
 @app.route('/pdffile')
 def edit_word():
@@ -494,14 +430,7 @@ def approveStatus():
         read = "unread"
         # /propertyimages/<string:propertyID>/<string:image>"
 
-        image = []
-     
-        for filename in os.listdir(f'static/property_listings/{propertyInfo["propertyID"]}/images/'):
-            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-            # data['images'].append(str(filename))
-                image.append(filename)
-
-        image = image[0]
+        image = util.getPropertyImageThumbnail(propertyInfo['propertyID'])
         
         data = {
             "propertyID":propertyInfo['propertyID'],
@@ -705,7 +634,7 @@ def approveContract():
     pay_lessorID = request.args.get('lessorID')
     pay_lesseeID = request.args.get('lesseeID')
     pay_fee = request.args.get('leasing_total_fee')
-
+    
     # define your leasing start and end dates
     leasing_start_str = request.args.get('leasing_start')
     leasing_end_str = request.args.get('leasing_end')
@@ -718,7 +647,7 @@ def approveContract():
         # define your leasing start and end dates
         paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
         leasing_start = (leasing_start).strftime("%Y-%m-%d")
-        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
         data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, leasing_start, pay_fee]
         db.insert_data('payment',fields,data)
 
@@ -726,7 +655,7 @@ def approveContract():
         # define your leasing start and end dates
         val = None
         ctr = 0
-        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
         # loop over the range of dates and insert records
         ctr_date = leasing_start
         while ctr_date <= leasing_end:
@@ -759,7 +688,7 @@ def approveContract():
         # define your leasing start and end dates
         val = None
         ctr = 0
-        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
         # loop over the range of dates and insert records
         ctr_date = leasing_start
         while ctr_date <= leasing_end:
@@ -792,7 +721,7 @@ def approveContract():
         # define your leasing start and end dates
         val = None
         ctr = 0
-        fields = ['paymentID', 'leasingID','payout_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
+        fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
         # loop over the range of dates and insert records
         ctr_date = leasing_start
         while ctr_date <= leasing_end:
@@ -820,7 +749,33 @@ def approveContract():
             
             # increment the current date by one month
             current_date += relativedelta(months=12)
-    
+
+    # Get leasing information
+    getLeasingInfo = db.getLeasingInfo(leasingID)
+    getLeasingInfo['propertyImage'] = util.getPropertyImageThumbnail(getLeasingInfo['propertyID'])
+
+    # Lessor's Notification
+    lessor_notif_userID = getLeasingInfo['lessorID']
+    notif_lessee = db.get_data('user', 'userID', getLeasingInfo['lesseeID'])
+    notification_categ = "Leasing Contract"
+    notif_read = "unread"
+    notification_date = str(datetime.now())
+    notif_data = f"{getLeasingInfo['leasingID']}*|*{getLeasingInfo['propertyID']}*|*{getLeasingInfo['address']}*|*{getLeasingInfo['leasing_status']}*|*{getLeasingInfo['propertyImage']}*|*{getLeasingInfo['lessorID']}*|*{getLeasingInfo['lesseeID']}"
+    lessor_notification_desc = f"Your contract has been approved and is now ongoing"
+    lessor_notificationID = util.generateUUID(f"{lessor_notif_userID},{notification_categ},{lessor_notification_desc},{notification_date},{notif_read},{notif_data}")
+    lessor_notification_fields = ['notificationID', 'userID', 'notification_categ', 'notification_desc', 'notification_date', 'read', 'data']
+    lessor_notification_data = [lessor_notificationID, lessor_notif_userID, notification_categ, lessor_notification_desc, notification_date, notif_read, notif_data]
+    lessor_insert_notification = db.insert_data('notifications', lessor_notification_fields, lessor_notification_data)
+
+    # Lessee's Notification
+    lessee_notif_userID = getLeasingInfo['lesseeID']
+    lessee_notification_desc = f"Your contract has been approved and is now ongoing"
+    lessee_notificationID = util.generateUUID(f"{lessee_notif_userID},{notification_categ},{lessee_notification_desc},{notification_date},{notif_read},{notif_data}")
+    lessee_notification_fields = ['notificationID', 'userID', 'notification_categ', 'notification_desc', 'notification_date', 'read', 'data']
+    lessee_notification_data = [lessee_notificationID, lessee_notif_userID, notification_categ, lessee_notification_desc, notification_date, notif_read, notif_data]
+    lessee_insert_notification = db.insert_data('notifications', lessee_notification_fields, lessee_notification_data)
+
+
     db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, 'ongoing'])
     message = "You have successfully approve the contract."
     return redirect(url_for('contracts', success = message))
@@ -908,6 +863,5 @@ def view_complaint():
     
 #     http_server = WSGIServer(('0.0.0.0', 5000,), app, handler_class=WebSocketHandler)
 #     http_server.serve_forever()
-
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
