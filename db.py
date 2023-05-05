@@ -73,12 +73,30 @@ def insert_data(table:str, fields, value)->bool:
     cur.close()
     return True
 
+def delete_data_where(table:str, fields, data)-> bool:
+    cur = mysql.connection.cursor()
+    flds = []
+    if len(fields) == len(data):
+
+        for i in range(0, len(fields),1):
+            flds.append(f'''`{fields[i]}` = "{data[i]}" ''')
+
+        flds_final = ' AND '.join(flds)
+        print(f"DELETE FROM `{table}` WHERE {flds_final}")
+        cur.execute(f"DELETE FROM `{table}` WHERE {flds_final} ")
+        mysql.connection.commit()
+        cur.close()
+        return True
+    else:
+        return False
+
 def delete_data(table:str, field, value)->bool:
     cur = mysql.connection.cursor()
     cur.execute(f'''DELETE FROM `{table}` WHERE `{field}` = "{value}" ''')
     mysql.connection.commit()
     cur.close()
     return True
+
 
 def update_data(table:str, fields, values)->bool:
     cur = mysql.connection.cursor()
@@ -342,7 +360,7 @@ def totalPropertyFeedback(propertyID):
 
 def averagePropertyRating(propertyID):
     cur = mysql.connection.cursor()
-    cur.execute(f"SELECT ROUND(AVG(`feedback_rating`),1) AS `average_rating` FROM `user_feedback` WHERE `propertyID` = '{propertyID}'")
+    cur.execute(f"SELECT IFNULL(ROUND(AVG(`feedback_rating`),1),0) AS `average_rating` FROM `user_feedback` WHERE `propertyID` = '{propertyID}'")
     data:dict = cur.fetchone()
     mysql.connection.commit()
     cur.close()
@@ -369,6 +387,30 @@ def countUnreadNotifications(userID):
 def getLeasingInfo(leasingID):
     cur = mysql.connection.cursor()
     cur.execute(f"SELECT l.leasingID,l.propertyID,p.address,l.leasing_status,l.lessorID,l.lesseeID FROM leasing l, property p WHERE l.propertyID = p.propertyID AND l.leasingID = '{leasingID}' GROUP BY l.leasingID")
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def getMyPropertyFavoriteIDs(userID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT `propertyID` AS favorite_propertyID FROM property_favorites WHERE `userID` = '{userID}'")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def getMyPropertyFavorites(userID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT p.* FROM property p INNER JOIN property_favorites pf ON p.propertyID = pf.propertyID WHERE pf.userID = '{userID}'")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def getIndividualPropertyListing(propertyID):
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT p.*, u.user_fname, u.user_lname FROM property p INNER JOIN user u ON p.userID = u.userID WHERE propertyID = '{propertyID}'")
     data:dict = cur.fetchone()
     mysql.connection.commit()
     cur.close()

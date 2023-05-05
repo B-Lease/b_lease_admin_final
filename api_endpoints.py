@@ -51,4 +51,10 @@ api.add_resource(restapi.CountMessage, '/messages/count')
 api.add_resource(restapi.leasingdocuments, '/leasingdocuments/<string:leasingID>/<string:contractDocument>')
 api.add_resource(restapi.propertydocuments, '/propertydocuments/<string:propertyID>/<string:docName>')
 
+#Property Favorites
+api.add_resource(restapi.Favorites, '/favorites')
+
+#Get Property Favorite IDs
+api.add_resource(restapi.PropertyFavorites, '/propertyFavorites')
+
 
