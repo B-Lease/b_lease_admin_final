@@ -1238,6 +1238,7 @@ class complaint(Resource):
             insert_data_bool = db.insert_data('complaint', fields, data)
 
             if insert_data_bool:
+                
                 return {'message': 'Successfully filed a complaint'}, 204
 
             else:
@@ -1300,16 +1301,17 @@ class property(Resource):
 
             if check_user and check_session:
                 if propertyID:
-                    data = db.get_specific_data(
-                        'property', ['propertyID'], [propertyID])
-                    # print(data)
+                    data = db.getIndividualPropertyListing(propertyID)
 
                     data['images'] = []
+                  
                     for filename in os.listdir(f'static/property_listings/{data["propertyID"]}/images/'):
                         if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
                             # data['images'].append(str(filename))
 
                             data['images'].append(filename)
+                    data['rating'] = db.averagePropertyRating(data['propertyID'])['average_rating']
+                    print("RATINGG : ", data['rating'])
                     # print(data)
 
                 else:
@@ -1317,12 +1319,15 @@ class property(Resource):
                     # print(data)
                     for each in data:
                         each['images'] = []
+                 
                         for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
                             if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
                                 # data['images'].append(str(filename))
 
                                 each['images'].append(filename)
+                        each['rating'] = db.averagePropertyRating(each['propertyID'])['average_rating']
                         # print(each)
+                        print("RATINGG : ", each['rating'])
 
                 response = jsonify(data)
                 response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1333,12 +1338,15 @@ class property(Resource):
             # print(data)
             for each in data:
                 each['images'] = []
+      
                 for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
                     if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
                         # data['images'].append(str(filename))
 
                         each['images'].append(filename)
                 # print(each)
+                each['rating'] = db.averagePropertyRating(each['propertyID'])['average_rating']
+                print("RATINGG : ", each['rating'])
 
             response = jsonify(data)
             response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1563,11 +1571,12 @@ class properties(Resource):
             # print(data)
             for each in data:
                 each['images'] = []
+             
                 for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
                     if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
                         each['images'].append(filename)
                 # print(each)
-
+                each['rating'] = db.averagePropertyRating(each['propertyID'])['average_rating']
             response = jsonify(data)
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
@@ -1712,4 +1721,123 @@ class countrating(Resource):
         if not countRating:
             return  {"message":"No feedback yet"},201
         if countRating:
-            return jsonify(countRating )
+            return jsonify(countRating)
+
+
+
+# Favorites EndPoint
+# =======================================================================================
+
+favorites_args_post = reqparse.RequestParser()
+favorites_args_post.add_argument('sessionID', type=str, help='Missing Session ID', required=True)
+favorites_args_post.add_argument('userID', type=str, help='Missing User ID', required=True)
+favorites_args_post.add_argument('propertyID', type=str, help='Missing Property ID', required=True)
+
+class Favorites(Resource):
+    def post(self):
+        favoritesInfo = favorites_args_post.parse_args()
+        favoritesJson = request.json
+        userID = favoritesJson['userID']
+        sessionID = favoritesJson.pop('sessionID')
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        if not check_user:
+            return abort(404,"User not found")
+        
+        fields = ['property_favoritesID', 'userID', 'propertyID']
+        data = [generateUUID(f"{favoritesJson['propertyID']}, {favoritesJson['userID']}"),favoritesJson['userID'],favoritesJson['propertyID']]
+
+        insert_favorites = db.insert_data('property_favorites', fields, data)
+        if insert_favorites:
+            return {
+                'message': f"Favorites added"
+            }, 200
+        else:
+            return {
+                'message': f"Error adding favorites"
+            }, 400
+
+    def get(self):
+        userID = request.args.get('userID')
+        sessionID = request.args.get('sessionID')
+
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+
+        if not check_session:
+            return abort(404, "Session unauthorized")
+        
+        if not check_user:
+            return abort(404, "User ID not found")
+        
+        property_favorites = db.getMyPropertyFavorites(userID)
+        for each in property_favorites:
+                        each['images'] = []
+                 
+                        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                                # data['images'].append(str(filename))
+
+                                each['images'].append(filename)
+        if property_favorites:
+            return jsonify(property_favorites)
+        else:
+            return {"message": "No property favorites"},200
+
+    def delete(self):
+        userID = request.args.get("userID")
+        sessionID = request.args.get("sessionID")
+        propertyID = request.args.get("propertyID")
+
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+        check_property = db.get_data('property', 'propertyID', propertyID)
+
+        if not check_session:
+            return abort(404, "Session unauthorized")
+        if not check_user:
+            return abort(404,"User ID not found")
+        if not check_property:
+            return abort(404, "Property ID not found")
+    
+        fields = ['userID', 'propertyID']
+        data = [userID, propertyID]
+
+        delete_favorites = db.delete_data_where('property_favorites', fields, data)
+
+        if delete_favorites:
+            return {"message":"Property removed from favorites"},200
+        else:
+            return abort(404,"Error deleting property from favorites")
+
+
+
+class PropertyFavorites(Resource):
+    def get(self):
+        userID = request.args.get('userID')
+        sessionID = request.args.get('sessionID')
+
+        check_session = util.checkSession(sessionID)
+        check_user = db.get_data('user','userID',userID)
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        if not check_user:
+            return abort(404,"User not found")
+        
+        property_favorites = db.getMyPropertyFavoriteIDs(userID)
+        favorites = []
+        for each in property_favorites:
+            favorites.append(each['favorite_propertyID'])
+      
+        
+      
+        if property_favorites:
+            return {"favorite_propertyIDs": favorites},200
+        else:
+            return {"message":"No property favorites found"}, 200
+
