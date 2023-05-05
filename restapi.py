@@ -70,19 +70,48 @@ class NextPay(Resource):
         print(fin_response)
         return fin_response, 201
 
-class Redirect(Resource):
+class Paymongo(Resource):
+    def post(self):
+        pass
     def get(self):
-        return render_template('payment-success.html'), 201
+        url = "https://api.paymongo.com/v1/payment_intents/pi_ahmH3UGCNTP2S7cUvA7pFBTE"
+        headers = {"accept": "application/json", "authorization": 'Basic c2tfdGVzdF9Sb2tNM0NkZ2pEYXEyclFtYWkzSERTSFA6'}
+        response = requests.get(url, headers=headers)
+        paymentIntent = response.json()
+        attributes = paymentIntent['data']['attributes']['next_action']['redirect']['url']
+        return paymentIntent, 201
+
 
 class Payment(Resource):
     def get(self):
         userID = request.args.get('userID')
-        paymentInfo = db.get_transactions('payment',userID)
+        paymentInfo = db.get_transactions(userID)
         if len(paymentInfo) != 0:
             payment_encoded = json.dumps(paymentInfo, default=str)
             return payment_encoded, 200
         else:
             return {'message': 'No transactions'}, 209
+    
+    def put(self):
+        paymentID = request.args.get('paymentID')
+
+        check_existing = db.check_existing_data(
+            'payment', 'paymentID', paymentID)
+
+        if check_existing:
+            update_user = db.update_data('payment', ['paymentID', 'pay_status'], [paymentID, 'paid'])
+
+            if update_user:
+                return {
+                    'message': f"Payment with paymentID: {paymentID} updated successfully"
+                }, 200
+            else:
+                return {
+                    'message': f"Error updating payment with paymentID:{paymentID}"
+                }, 400
+        else:
+            return {'message': f'Payment with paymentID: {paymentID} does not exist'}, 400
+        
 
 # =======================================================================================
 # REGISTER API CLASS

@@ -259,9 +259,15 @@ def get_leasing_contracts(table:str, fields, values):
         cur.close()
         return data
 
-def get_transactions(table:str, userID:str):
+def get_transactions(userID:str):
     cur = mysql.connection.cursor() 
-    cur.execute(f'SELECT * FROM {table} WHERE `pay_lessorID` = "{userID}" || `pay_lesseeID` = "{userID}"')
+    cur.execute(f'''
+        SELECT p.*, l.leasing_payment_frequency, pr.address 
+        FROM payment p
+        INNER JOIN leasing l ON p.leasingID = l.leasingID
+        INNER JOIN property pr on l.propertyID = pr.propertyID
+        WHERE `pay_lessorID` = "{userID}" || `pay_lesseeID` = "{userID}"
+    ''')
     data:dict = cur.fetchall()
     mysql.connection.commit()
     cur.close()

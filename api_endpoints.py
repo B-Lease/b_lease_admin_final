@@ -29,8 +29,8 @@ api.add_resource(restapi.propertyimages, '/propertyimages/<string:propertyID>/<s
 api.add_resource(restapi.NextPay, '/payLinks')
 
 # Payment management
-api.add_resource(restapi.Redirect, '/test')
 api.add_resource(restapi.Payment, '/pay')
+api.add_resource(restapi.Paymongo, '/paymentintent/get')
 
 # Notification management
 api.add_resource(restapi.notifications, '/notifications')
