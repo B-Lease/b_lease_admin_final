@@ -1804,15 +1804,17 @@ class Favorites(Resource):
             return abort(404, "User ID not found")
         
         property_favorites = db.getMyPropertyFavorites(userID)
-        for each in property_favorites:
-                        each['images'] = []
-                 
-                        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
-                            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                                # data['images'].append(str(filename))
 
-                                each['images'].append(filename)
         if property_favorites:
+            for each in property_favorites:
+                            each['images'] = []
+                    
+                            for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                                    # data['images'].append(str(filename))
+
+                                    each['images'].append(filename)
+        
             return jsonify(property_favorites)
         else:
             return {"message": "No property favorites"},200
