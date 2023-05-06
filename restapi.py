@@ -1556,8 +1556,38 @@ class property(Resource):
                 return {"message":"Property deleted successfully"},200
             else:
                 return abort(404,f"Property {propertyID} not deleted")
+
+class SearchProperty(Resource):
+    def get(self):
+        sessionID = request.args.get("sessionID")
+
+        query = request.args.get("query")
+        check_session = util.checkSession(sessionID)
+
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        data = db.getSearchProperties(query)
         
-      
+        # print(data)
+        if data:
+            for each in data:
+                each['images'] = []
+
+                for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                    if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                        # data['images'].append(str(filename))
+
+                        each['images'].append(filename)
+                # print(each)
+                each['rating'] = db.averagePropertyRating(each['propertyID'])['average_rating']
+                print("RATINGG : ", each['rating'])
+
+            response = jsonify(data)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+        else:
+            return {"message":"No search results"},200
             
             
 
