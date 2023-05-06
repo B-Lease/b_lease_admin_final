@@ -421,3 +421,15 @@ def getIndividualPropertyListing(propertyID):
     mysql.connection.commit()
     cur.close()
     return data
+
+
+def getSearchProperties(query:str):
+    cur = mysql.connection.cursor() 
+    cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open'")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+
+    
