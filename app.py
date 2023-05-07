@@ -1,3 +1,4 @@
+import hashlib
 from config import app, mysql, api
 from flask_socketio import SocketIO, send, emit
 from datetime import datetime, timedelta
@@ -61,6 +62,7 @@ def login_user():
         if okey is not None:
             session['sessionID'] = okey['adminID']  
             session['admin_firstname'] = okey['admin_fname']
+            session['admin_mname'] = okey['admin_mname']
             session['admin_lastname'] = okey['admin_lname']
             message = "Login Successfully"
             return redirect(url_for('dashboard'))
@@ -80,7 +82,9 @@ def dashboard():
 
     if 'sessionID' in session:
         firstname = session['admin_firstname']
-        return render_template('dashboard.html', okey=session['sessionID'], title=title, firstname=firstname)
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        return render_template('dashboard.html', okey=session['sessionID'], title=title, firstname=firstname,middlename=middlename,lastname=lastname)
     return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -102,25 +106,25 @@ def user_report():
     
     title = "B-Lease | User Report"
     logging = db.getLoggingReport()
+
+    
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
     # session = db.get_all_data('session')
     # logoutTime = request.args.get('logoutTime')
     # logout = db.get_specific_data('session','logoutTime',logoutTime)
 
    
-    for each in logging:
-        each['images'] = []
-        for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
-            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                # data['images'].append(str(filename))
-                each['images'].append(filename)
-                
-    return render_template(
-        "user_report.html",
-        title=title,
-        logging = logging,
-        logout=logout
-    )
+        for each in logging:
+            each['images'] = []
+            for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
+                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                    # data['images'].append(str(filename))
+                    each['images'].append(filename)
 
+        return render_template("user_report.html",title=title,logging_data=logging,firstname=firstname,middlename=middlename,lastname=lastname)
 @app.route("/view_user")
 def view_user():
     if 'sessionID' not in session:
@@ -137,7 +141,6 @@ def view_user():
     user['images'] = []
     for filename in os.listdir(f'static/users/{user["userID"]}/images/'):
         if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-            # data['images'].append(str(filename))
                 
             user['images'].append(filename)
                     
@@ -155,55 +158,71 @@ def admin_panel():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
-    title = "B-Lease | Admin Panel"   
-    admin = db.get_all_data('admin')
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        title = "B-Lease | Admin Panel"   
+        admin = db.get_all_data('admin')
 
-    return render_template(
-        "admin_panel.html",
-        title = title,
-        admin = admin,
-    )
+        return render_template(
+            "admin_panel.html",
+            title = title,
+            admin = admin,
+            firstname=firstname,
+            middlename=middlename,
+            lastname=lastname
+        )
 @app.route("/add_admin")
 def add_admin():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
     title = "B-Lease | Add Admin User"
-    
-    return render_template("add_admin.html", title=title)
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+
+    return render_template("add_admin.html", title=title,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/addAdmin",methods=['POST'])
 def addAdmin():
     if 'sessionID' not in session:
             return redirect(url_for('dashboard'))
 
-    error = request.args.get('error')
-    success = request.args.get('success')
-    adminID = request.form['adminID']
-    admin_fname = request.form['admin_fname'].upper()
-    admin_mname = request.form['admin_mname'].upper()
-    admin_lname = request.form['admin_lname'].upper()
-    admin_username = request.form['admin_username']
-    admin_password = request.form['admin_password']
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
 
-    existing_member = db.get_data('admin', 'adminID', adminID)
-    if existing_member is None:
-   
-        now = datetime.now()
+        error = request.args.get('error')
+        success = request.args.get('success')
+        adminID = request.form['adminID']
+        admin_fname = request.form['admin_fname'].upper()
+        admin_mname = request.form['admin_mname'].upper()
+        admin_lname = request.form['admin_lname'].upper()
+        admin_username = request.form['admin_username']
+        admin_password = request.form['admin_password']
 
-        md5_hash = hashlib.md5(admin_password.encode()).hexdigest()
+        existing_member = db.get_data('admin', 'adminID', adminID)
+        if existing_member is None:
 
-        fields = ['adminID','admin_fname', 'admin_mname', 'admin_lname', 'admin_username', 'admin_password_hashed','admin_password']
-        data = [adminID,admin_fname, admin_mname,admin_lname,admin_username,md5_hash,admin_password]
+            md5_hash = hashlib.md5(admin_password.encode()).hexdigest()
 
-        db.insert_data('admin', fields, data)
-        
-        message = f"Successfully added { admin_lname }, {admin_fname} {admin_mname} as admin"
-        return redirect(url_for('add_admin', message=message))
+            fields = ['adminID','admin_fname', 'admin_mname', 'admin_lname', 'admin_username', 'admin_password_hashed','admin_password']
+            data = [adminID,admin_fname, admin_mname,admin_lname,admin_username,md5_hash,admin_password]
 
-    elif adminID and admin_fname and admin_mname and admin_lname and admin_username and admin_password and  existing_member:
-        message = f"Member { admin_lname}, {admin_fname} {admin_mname} is already a member"
-        return redirect(url_for('add_admin',message=message,))
+            db.insert_data('admin', fields, data)
+            
+            message = f"Successfully added { admin_lname }, {admin_fname} {admin_mname} as admin"
+            message1 = 'ok'
+            return redirect(url_for('add_admin', message=message,firstname=firstname,middlename=middlename,lastname=lastname))
+
+        elif adminID and admin_fname and admin_mname and admin_lname and admin_username and admin_password and  existing_member:
+            message = f"Member { admin_lname}, {admin_fname} {admin_mname} is already a member"
+            message1 = 'not ok'
+            return redirect(url_for('add_admin',message=message,message1=message1,firstname=firstname,middlename=middlename,lastname=lastname))
 
 @app.route("/deleteaccount", methods=['GET'])
 def deleteaccount():
@@ -302,76 +321,87 @@ def property_listings():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
-    title = "B-Lease | Verify Property Listings"  
-    property = db.get_all_data('property')
-    user = db.get_all_data('user')
-    property_images = db.get_all_data('property_images')
-    
-    for each in property:
-        each['images'] = []
-        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
-            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                # data['images'].append(str(filename))
-                    
-                each['images'].append(filename)
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
 
-    
-    # im = Image.open(property_images)
-    return render_template("property_listings.html", title=title, property=property, user=user,property_images=property_images)
+        title = "B-Lease | Verify Property Listings"  
+        property = db.get_all_data('property')
+        user = db.get_all_data('user')
+        property_images = db.get_all_data('property_images')
+        
+        for each in property:
+            each['images'] = []
+            for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                        
+                    each['images'].append(filename)
+
+        return render_template("property_listings.html", title=title, property=property, user=user,property_images=property_images,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/approved_listings")
 def approved_listings():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
-    title = "B-Lease | Verify Property Listings"  
-    property = db.get_all_data('property')
-    user = db.get_all_data('user')
-    for each in property:
-        each['images'] = []
-        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
-            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                # data['images'].append(str(filename))
-                    
-                each['images'].append(filename)
-   
-    return render_template("approved_listings.html", title=title, property=property, user=user)
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        title = "B-Lease | Approved Property Listings"  
+        property = db.get_all_data('property')
+        user = db.get_all_data('user')
+        for each in property:
+            each['images'] = []
+            for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                        
+                    each['images'].append(filename)
+    
+        return render_template("approved_listings.html", title=title, property=property, user=user,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/pending_listings")
 def pending_listings():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
-    title = "B-Lease | Verify Property Listings"  
-    property = db.get_all_data('property')
-    user = db.get_all_data('user')
-    for each in property:
-        each['images'] = []
-        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
-            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                # data['images'].append(str(filename))
-                    
-                each['images'].append(filename)
-  
-    return render_template("pending_listings.html", title=title, property=property, user=user)
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        title = "B-Lease | Pending Property Listings"  
+        property = db.get_all_data('property')
+        user = db.get_all_data('user')
+        for each in property:
+            each['images'] = []
+            for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+
+                    each['images'].append(filename)
+    
+        return render_template("pending_listings.html", title=title, property=property, user=user,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/declined_listings")
 def declined_listings():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
-    title = "B-Lease | Verify Property Listings"  
-    property = db.get_all_data('property')
-    user = db.get_all_data('user')
-    for each in property:
-        each['images'] = []
-        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
-            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                # data['images'].append(str(filename))
-                    
-                each['images'].append(filename)
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        title = "B-Lease | Declined Property Listings"  
+        property = db.get_all_data('property')
+        user = db.get_all_data('user')
+        for each in property:
+            each['images'] = []
+            for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+            
+                    each['images'].append(filename)
 
-    return render_template("declined_listings.html", title=title, property=property, user=user)
+        return render_template("declined_listings.html", title=title, property=property, user=user,firstname=firstname,middlename=middlename,lastname=lastname)
 
 
 
@@ -380,28 +410,31 @@ def view_property():
     
      if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
-     propertyID = request.args.get('propertyID')
-     userID = request.args.get('userID')
-     user = db.get_all_data('user')
-     title = "B-Lease | View Property Listings"  
-     property = db.get_specific_data('property',['propertyID'],[propertyID])
-
-     property['images'] = []
      
-     for filename in os.listdir(f'static/property_listings/{property["propertyID"]}/images/'):
-        if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-            # data['images'].append(str(filename))
-                
-            property['images'].append(filename)
+     if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        propertyID = request.args.get('propertyID')
+        userID = request.args.get('userID')
+        user = db.get_all_data('user')
+        title = "B-Lease | View Property Listings"  
+        property = db.get_specific_data('property',['propertyID'],[propertyID])
 
-     property['documents'] = []
-     for filename in os.listdir(f'static/property_listings/{property["propertyID"]}/documents/'):
-        if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
-            # data['images'].append(str(filename))
+        property['images'] = []
+        
+        for filename in os.listdir(f'static/property_listings/{property["propertyID"]}/images/'):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+          
+                property['images'].append(filename)
 
-            property['documents'].append(filename)
+        property['documents'] = []
+        for filename in os.listdir(f'static/property_listings/{property["propertyID"]}/documents/'):
+            if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
 
-     return render_template("view_property.html", title=title, property=property,user=user)
+                property['documents'].append(filename)
+
+        return render_template("view_property.html", title=title, property=property,user=user,firstname=firstname,middlename=middlename,lastname=lastname)
 
     
 @app.route("/approveStatus", methods=['GET'])
@@ -428,7 +461,6 @@ def approveStatus():
         notification_categ = 'Property Listing Approval'
 
         read = "unread"
-        # /propertyimages/<string:propertyID>/<string:image>"
 
         image = util.getPropertyImageThumbnail(propertyInfo['propertyID'])
         
@@ -492,13 +524,10 @@ def declineStatus():
         notification_categ = 'Property Listing Approval'
 
         read = "unread"
-        # /propertyimages/<string:propertyID>/<string:image>"
-
         image = []
      
         for filename in os.listdir(f'static/property_listings/{propertyInfo["propertyID"]}/images/'):
             if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-            # data['images'].append(str(filename))
                 image.append(filename)
 
         image = image[0]
@@ -529,20 +558,25 @@ def contracts():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
-    title = "B-Lease | List of Contracts"  
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
 
-    leasing = db.get_all_data('leasing')
-    
-    user = db.get_all_data('user')
-    
-    # im = Image.open(property_images)
-    return render_template("contracts.html", title=title, property=property, user=user,leasing=leasing)
+        title = "B-Lease | List of Contracts"  
+
+        leasing = db.get_all_data('leasing')
+        
+        user = db.get_all_data('user')
+        
+        return render_template("contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/view_contract", methods=['GET'])
 def view_contract():
     
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
+    
     leasingID = request.args.get('leasingID')
     user = db.get_all_data('user')
     title = "B-Lease | View Contracts" 
@@ -555,10 +589,8 @@ def view_contract():
     leasing['documents'] = []
     for filename in os.listdir(f'static/contracts/{leasing["leasingID"]}'):
         if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
-            # data['images'].append(str(filename))
 
             leasing['documents'].append(filename)
-        # print(filename)
 
 
     return render_template("view_contract.html", title=title, leasing=leasing, user=user,payment=payment)
@@ -573,39 +605,9 @@ def markasresolve():
 
     return redirect(url_for('manage_complaint', success = message))
 
-# @app.route('/updatethread',methods=['POST'])
-# def updatethread():
-
-#     complaintID = request.args.get('complaintID')
-#     complaint_threadID = request.args.get('complaint_threadID')
-#     complaint_subject=request.args.get('complaint_subject')
-#     complaint_desc = request.args.get('complaint_desc')
-#     complainerID = request.args.get('complainerID')
-#     complaineeID = request.args.get('complaineeID')
-#     complaint_status = request.args.get('complaint_status')
-#     complaint_status = request.args.get('complaint_status')
-
-#     complaintID = util.generateUUID(str(complaint_threadID + datetime.now()))
-
-#     complaint_desc = request.form['complaint_desc'].upper()
-
-#     fields = ['complaintID', 'complaint_threadID','complaint_subject','complaint_desc','complainerID','complaineeID','complaint_status','created_at']
-
-#     current_date = datetime.date.today()
-
-#     data = [complaintID, complaint_threadID, complaint_subject, complaint_desc, complainerID, complaineeID, complaint_status, current_date ]
-#     sample = db.insert_data('complaint',fields,data)
-#     print(sample)
-#     message= "success"
-
-#     return redirect(url_for('view_complaint',success = message))
-
 @app.route('/updatethread',methods=['POST'])
 def updatethread():
- 
-
-    # Retrieve the existing values for the thread from the database
-    
+     
     complaintID = request.form['complaintID']
     thread_content = request.form['thread_content']
     created_at =str(datetime.now())
@@ -616,13 +618,10 @@ def updatethread():
         data = [complaintthreadID, complaintID, thread_content, created_at]
         insert_thread = db.insert_data('complaint_thread', fields, data)
         if insert_thread:
-    # fields = ['complaintID', 'complaint_threadID','complaint_subject','complaint_desc','complainerID','complaineeID','complaint_status','created_at']
-    # data = [complaintID, complaint_threadID, complaint_subject, complaint_desc, complainerID, complaineeID, complaint_status, current_date]
-    # db.insert_data('complaint',fields,data)
             message= "success"
         else:
             message = "error"
-    #nagbutang man ko ari ug kwaan complaintID basin ga undo ka, ayaw lang pag delete ari boss
+
     return redirect(url_for('view_complaint',message=message, complaintID=complaintID))
 
 @app.route("/approveContract")
@@ -635,16 +634,12 @@ def approveContract():
     pay_lesseeID = request.args.get('lesseeID')
     pay_fee = request.args.get('leasing_total_fee')
     
-    # define your leasing start and end dates
     leasing_start_str = request.args.get('leasing_start')
     leasing_end_str = request.args.get('leasing_end')
     leasing_start = datetime.strptime(leasing_start_str, '%Y-%m-%d').date()
     leasing_end = datetime.strptime(leasing_end_str, '%Y-%m-%d').date()
-    # day = datetime.strptime('leasing_start', '%Y-%m-%d').strftime('%d')
 
-    # print(str(day))
     if leasing_payment_frequency == "1":
-        # define your leasing start and end dates
         paymentID = util.generateUUID(str(leasingID+ str(datetime.now())))
         leasing_start = (leasing_start).strftime("%Y-%m-%d")
         fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
@@ -652,26 +647,21 @@ def approveContract():
         db.insert_data('payment',fields,data)
 
     elif leasing_payment_frequency == "2":
-        # define your leasing start and end dates
         val = None
         ctr = 0
         fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
-        # loop over the range of dates and insert records
         ctr_date = leasing_start
         while ctr_date <= leasing_end:
-            # check if the current date occurs within the leasing period
             if ctr_date < leasing_start or ctr_date >= leasing_end:
                 ctr_date += relativedelta(months=1)
                 continue
             
             ctr+=1
-            # increment the current date by one month
             ctr_date += relativedelta(months=1)
         
         pay_fee = float(pay_fee)/ctr + 1
         current_date = leasing_start
         while current_date <= leasing_end:
-            # check if the current date occurs within the leasing period
             if current_date < leasing_start or current_date >= leasing_end:
                 current_date += relativedelta(months=1)
                 continue
@@ -681,30 +671,24 @@ def approveContract():
             data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
             db.insert_data('payment',fields,data)
             
-            # increment the current date by one month
             current_date += relativedelta(months=1)
 
     elif leasing_payment_frequency == "3":
-        # define your leasing start and end dates
         val = None
         ctr = 0
         fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
-        # loop over the range of dates and insert records
         ctr_date = leasing_start
         while ctr_date <= leasing_end:
-            # check if the current date occurs within the leasing period
             if ctr_date < leasing_start or ctr_date >= leasing_end:
                 ctr_date += relativedelta(months=3)
                 continue
             
             ctr+=1
-            # increment the current date by one month
             ctr_date += relativedelta(months=3)
         
         pay_fee = float(pay_fee)/ctr + 1
         current_date = leasing_start
         while current_date <= leasing_end:
-            # check if the current date occurs within the leasing period
             if current_date < leasing_start or current_date >= leasing_end:
                 current_date += relativedelta(months=3)
                 continue
@@ -714,30 +698,24 @@ def approveContract():
             data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
             db.insert_data('payment',fields,data)
             
-            # increment the current date by one month
             current_date += relativedelta(months=3)
     
     elif leasing_payment_frequency == "4":
-        # define your leasing start and end dates
         val = None
         ctr = 0
         fields = ['paymentID', 'leasingID','pay_status','pay_lessorID','pay_lesseeID','pay_date','pay_fee']
-        # loop over the range of dates and insert records
         ctr_date = leasing_start
         while ctr_date <= leasing_end:
-            # check if the current date occurs within the leasing period
             if ctr_date < leasing_start or ctr_date >= leasing_end:
                 ctr_date += relativedelta(months=12)
                 continue
             
             ctr+=1
-            # increment the current date by one month
             ctr_date += relativedelta(months=12)
         
         pay_fee = float(pay_fee)/ctr + 1
         current_date = leasing_start
         while current_date <= leasing_end:
-            # check if the current date occurs within the leasing period
             if current_date < leasing_start or current_date >= leasing_end:
                 current_date += relativedelta(months=12)
                 continue
@@ -747,14 +725,11 @@ def approveContract():
             data = [paymentID, leasingID, 'pending', pay_lessorID, pay_lesseeID, val, pay_fee]
             db.insert_data('payment',fields,data)
             
-            # increment the current date by one month
             current_date += relativedelta(months=12)
 
-    # Get leasing information
     getLeasingInfo = db.getLeasingInfo(leasingID)
     getLeasingInfo['propertyImage'] = util.getPropertyImageThumbnail(getLeasingInfo['propertyID'])
 
-    # Lessor's Notification
     lessor_notif_userID = getLeasingInfo['lessorID']
     notif_lessee = db.get_data('user', 'userID', getLeasingInfo['lesseeID'])
     notification_categ = "Leasing Contract"
@@ -767,7 +742,6 @@ def approveContract():
     lessor_notification_data = [lessor_notificationID, lessor_notif_userID, notification_categ, lessor_notification_desc, notification_date, notif_read, notif_data]
     lessor_insert_notification = db.insert_data('notifications', lessor_notification_fields, lessor_notification_data)
 
-    # Lessee's Notification
     lessee_notif_userID = getLeasingInfo['lesseeID']
     lessee_notification_desc = f"Your contract has been approved and is now ongoing"
     lessee_notificationID = util.generateUUID(f"{lessee_notif_userID},{notification_categ},{lessee_notification_desc},{notification_date},{notif_read},{notif_data}")
@@ -795,50 +769,68 @@ def declineContract():
 def ongoing_contracts():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
-    
-    title = "B-Lease | List of Contracts"  
-    leasing = db.get_all_data('leasing')
-   
-    user = db.get_all_data('user')
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
 
-    # im = Image.open(property_images)
-    return render_template("ongoing_contracts.html", title=title, property=property, user=user,leasing=leasing)
+        title = "B-Lease | Ongoing List of Contracts"  
+        leasing = db.get_all_data('leasing')
+    
+        user = db.get_all_data('user')
+
+        return render_template("ongoing_contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/finished_contracts")
 def finished_contracts():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     
-    title = "B-Lease | List of Contracts"  
-    leasing = db.get_all_data('leasing')
-   
-    user = db.get_all_data('user')
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
 
-    # im = Image.open(property_images)
-    return render_template("finished_contracts.html", title=title, property=property, user=user,leasing=leasing)
+        title = "B-Lease | Finished List of Contracts"  
+        leasing = db.get_all_data('leasing')
+    
+        user = db.get_all_data('user')
+
+        return render_template("finished_contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/payment_reports")
 def payment_reports():
     if 'sessionID' not in session:
             return redirect(url_for('index'))
-    title = "B-Lease | Payment Reports"   
+    
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        title = "B-Lease | Payment Reports"   
 
-    payment = db.get_all_data('payment')
-    user = db.get_all_data('user')
+        payment = db.get_all_data('payment')
+        user = db.get_all_data('user')
 
-    return render_template("payment_reports.html", title=title, payment=payment,user=user)
+        
+        return render_template("payment_reports.html", title=title, payment=payment,user=user,firstname=firstname,middlename=middlename,lastname=lastname)
 
 
 @app.route("/manage_complaint")
 def manage_complaint():
     if 'sessionID' not in session:
             return redirect(url_for('index'))
-    title = "B-Lease | Manage Complaints"   
+    
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        title = "B-Lease | Manage Complaints"   
 
-    complaint = db.get_all_data('complaint')
-    user = db.get_all_data('user')
+        complaint = db.get_all_data('complaint')
+        user = db.get_all_data('user')
 
-    return render_template("manage_complaint.html", title=title, complaint=complaint,user=user)
+        return render_template("manage_complaint.html", title=title, complaint=complaint,user=user,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/view_complaint")
 def view_complaint():

@@ -62,3 +62,32 @@ $(document).ready(function() {
  
 
 }
+
+// Get the input field and table
+var input = document.getElementById("searchInput");
+var table = document.getElementById("userTable");
+
+// Add event listener to input field
+input.addEventListener("keyup", function() {
+  // Get the search query and convert to lowercase
+  var query = input.value.toLowerCase();
+
+  // Loop through all table rows
+  for (var i = 0; i < table.rows.length; i++) {
+    var row = table.rows[i];
+    
+    // Get the name cell and convert to lowercase
+    var nameCell = row.cells[1];
+    var name = nameCell.textContent.toLowerCase();
+
+    // Get the status cell
+    var statusCell = row.cells[3];
+    
+    // Show or hide the row based on the search query
+    if (name.indexOf(query) > -1 || statusCell.textContent.indexOf(query) > -1) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  }
+});

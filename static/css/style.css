@@ -82,7 +82,11 @@ footer p {
 .card-text {
     font-size:50px;
 }
-
+.navbar-brand{
+    text-align: center;
+    margin-left: 20px;
+    margin-top: 30px;
+}
 .navbar-profile img {
     margin-right: 0;
 }
@@ -94,6 +98,24 @@ footer p {
     margin-left: 300px;
     margin-top:35px ;
 }
+.fixed-bottom {
+    position: fixed;
+    bottom: 0;
+    background-color: none;
+    outline: none;
+    margin-left: 60px;
+    margin-bottom: 50px;
+  }
+  .fixed-bottom-name {
+    position: fixed;
+    bottom: 0;
+    background-color: none;
+    outline: none;
+    margin-left: 60px;
+    margin-bottom: 80px;
+    color: #000000;
+  }
+
 
 /* dropdown */
 .dropbtn {
@@ -140,7 +162,7 @@ footer p {
 /* Sidebar */
 .sidebar {
     position: fixed;
-    top: 59px;
+    top: 0px;
     bottom: 0;
     left: 0;
     padding: 10px 10px ; /* Height of navbar */
@@ -242,7 +264,7 @@ footer p {
 
 
 main {
-    margin-left: 250px;
+    margin-left: 270px;
 }
 
 /* property listings */

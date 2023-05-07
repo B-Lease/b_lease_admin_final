@@ -19,70 +19,47 @@
     
 </head>
 <body style="background-color: #e7e7e7;">
-    <!--Main Navigation-->
-
-  <!-- Sidebar -->
-  <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-    <div class="position-sticky">
-      <div class="list-group list-group-flush mx-7 mt-5">
-        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
-          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
-        </a>
-        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple ">
-          <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-        </a>
-        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple text-success active"><i
-            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-        <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-          <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
-        </a>
-        <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-        <a href="{{url_for('admin_panel')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-        
-      </div>
-    </div>
-  </nav>
-  <!-- Sidebar -->
-
-  <!-- Navbar -->
-  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-    <!-- Container wrapper -->
-    <div class="container-fluid">
-      <!-- Toggle button -->
-      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
-        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <!-- Brand -->
-      <a class="navbar-brand" href="#">
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <a class="navbar-brand" href="{{url_for('dashboard')}}">
         <img src="static/images/b-lease_main.png"
              height="30"
              alt="b-lease logo"
              loading="lazy" />
       </a>
-    
-
-      <!-- Right links -->
-      <ul class="navbar-nav ms-auto d-flex flex-row">
-
-        <!-- Avatar -->
-        <li class="nav-item dropdown">
-          <a href ="{{ url_for('logout') }}" class="link-success"><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>
-   
-        </li>
-      </ul>
-    </div>
-    <!-- Container wrapper -->
-  </nav>
-  <!-- Navbar -->
-</header>
+      <br>
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-7 mt-5">
+          
+          <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+          </a>
+          <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
+              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+          <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+          <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+          </a>
+          <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+            
+          <p style="margin-left: 15px;" class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+          <a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>          
+             
+        </div>
+      </div>
+    </nav>
+  
+  </header>
 <!--Main layout-->
-<main style="margin-top: 58px;">
+<main style="margin-top: -10px;">
     <div class="container pt-3 align-items-center">
         <!-- Dashboard -->
         <br>
@@ -99,15 +76,13 @@
           
 
           <div class="input-group">
-            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
-            <button type="button" class="btn btn-success">
-              <i class="fas fa-search"></i>
-            </button>
+            <input type="search" id="searchInput" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+            
           </div>
       </div>
         <!-- end search -->
      
-          <table class="table align-middle mb-0 bg-white">
+          <table id="propertyTable" class="table align-middle mb-0 bg-white">
 
             <tbody>
               <tr>
@@ -161,22 +136,49 @@
               
             </tbody>
           </table>
-     
+          <div id="message"></div>
       
         <!-- Modal for View -->
 
-    
+       
     </div>
 </main>
 <!--Main layout-->
 
+<script>
+var searchInput = document.getElementById("searchInput");
+var table = document.getElementById("propertyTable");
+var message = document.getElementById("message");
 
- 
-  
+searchInput.addEventListener("keyup", function() {
+  var filter = searchInput.value.toUpperCase();
+  var rows = table.getElementsByTagName("tr");
+  var visibleRows = 0;
 
-    <!-- footer -->
-    <footer class="text-center p-3  fixed-bottom">
-        <p>B-Lease © 2023</p>
-    </footer>
+  for (var i = 0; i < rows.length; i++) {
+    var cols = rows[i].getElementsByTagName("td");
+    var match = false;
+    for (var j = 0; j < cols.length; j++) {
+      var text = cols[j].innerText.toUpperCase();
+      if (text.indexOf(filter) > -1) {
+        match = true;
+        break;
+      }
+    }
+    rows[i].style.display = match ? "" : "none";
+    if (rows[i].style.display != "none") {
+      visibleRows++;
+    }
+  }
+
+  if (visibleRows == 0) {
+    message.innerText = "No data to show";
+  } else {
+    message.innerText = "";
+  }
+});
+
+</script>
+
 </body>
 </html>

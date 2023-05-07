@@ -4,7 +4,6 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
     <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
-    <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,56 +13,6 @@
 
 
 <body style="background-color: #e7e7e7;">
-  <!-- Navbar -->
-  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-    <!-- Container wrapper -->
-    <div class="container-fluid">
-      <!-- Toggle button -->
-      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
-        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <!-- Brand -->
-      <a class="navbar-brand" href="#">
-        <img src="static/images/b-lease_main.png"
-             height="30"
-             alt="b-lease logo"
-             loading="lazy" />
-      </a>
-    
-
-      <!-- Right links -->
-      <ul class="navbar-nav ms-auto d-flex flex-row">
-
-        <!-- Avatar -->
-        <li class="nav-item dropdown">
-          <a href ="{{ url_for('logout') }}" class="link-success"><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>
-          <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
-            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
-              height="22" alt="Avatar" loading="lazy" />
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-            <li>
-              <a class="dropdown-item" href="#">My profile</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">Settings</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">Logout</a>
-            </li>
-          </ul> -->
-        </li>
-      </ul>
-    </div>
-    <!-- Container wrapper -->
-  </nav>
-    
-</header>
-
-  <!-- form -->
   <section class="vh-100" style="background-color: #eee;">
     <div class="container h-100">
         
@@ -74,7 +23,7 @@
               <div class="row justify-content-center">
                 <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
                     <a href="{{url_for('admin_panel')}}" >
-                        Go back
+                      <i class="fa-solid fa-arrow-left"></i> Go back
                     </a>
                   <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4" style="color: #40a047">Add New Admin</p>
                   
@@ -82,13 +31,12 @@
                   <div class="alert alert-success">{{ message }}</div>
                    {% endif %}
                   <form class="mx-1 mx-md-4" method="POST" action="/addAdmin">
-                
-                    <!-- <div class="d-flex flex-row align-items-center mb-4">
-                      <div class="form-outline flex-fill mb-0">
-                        <input type="text" id="adminID" name="adminID" class="form-control" />
-                        <label class= "form-label" for="form3Example1c">Admin ID</label>
-                      </div>
-                    </div> -->
+
+                    {% if message1 == 'ok' %}
+                        <p class="text-success text-center p-2">Successfully Added as ADMIN</p>
+                    {& else &}
+                        <p class="text-danger text-center p-2">Error Adding Admin</p>
+                    {% endif %}
 
                     <div class="form-group">
                       <input type="text" class="form-control" id="adminID" name="adminID" aria-describedby="emailHelp" placeholder="Admin ID" required>
@@ -120,7 +68,7 @@
   
   
                     <div class="form-check d-flex justify-content-center mb-5">
-                      <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c" />
+                      <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c" required/>
                       <label class="form-check-label" for="form2Example3">
                         I agree all statements in <a href="#!" class="link-success">Terms of service</a>
                       </label>
@@ -147,16 +95,6 @@
     </div>
     
   </section>
-       
-
-
-
-
-
-  <!-- End of Body -->
-
-
-
   </div>
 </body>
 </html>

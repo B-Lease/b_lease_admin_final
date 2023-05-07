@@ -24,89 +24,52 @@
 </head>
 <body style="background-color: #e7e7e7;" class="body">
     <!--Main Navigation-->
-
-  <!-- Sidebar -->
-  <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-    <div class="position-sticky">
-      <div class="list-group list-group-flush mx-7 mt-5">
-        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
-          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+    <header>
+      <!-- Sidebar -->
+      <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+        <a class="navbar-brand" href="{{url_for('dashboard')}}">
+          <img src="static/images/b-lease_main.png"
+               height="30"
+               alt="b-lease logo"
+               loading="lazy" />
         </a>
-        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple ">
-          <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-        </a>
-        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple "><i
-            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-        <a href="{{url_for('contracts')}}" class="list-group-item list-group-item-action py-2 ripple text-success active" ><i
-            class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-          <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
-        </a>
-        <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-        <a href="{{url_for('admin_panel')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-        
-      </div>
-    </div>
-  </nav>
-  <!-- Sidebar -->
-
-  <!-- Navbar -->
-  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-    <!-- Container wrapper -->
-    <div class="container-fluid">
-      <!-- Toggle button -->
-      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
-        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <!-- Brand -->
-      <a class="navbar-brand" href="#">
-        <img src="static/images/b-lease_main.png"
-             height="30"
-             alt="b-lease logo"
-             loading="lazy" />
-      </a>
+        <br>
+        <p style="color:#40a047;margin-left: 15px;">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+        <div class="position-sticky">
+          <div class="list-group list-group-flush mx-7 mt-5">
+            
+            <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+              <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+            </a>
+            <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+                class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+            <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
+                class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+            <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+              <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+            </a>
+            <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+                class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+            <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+                class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
     
-
-      <!-- Right links -->
-      <ul class="navbar-nav ms-auto d-flex flex-row">
-
-        <!-- Avatar -->
-        <li class="nav-item dropdown">
-          <a href ="{{ url_for('logout') }}" class="link-success"><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>
-          <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
-            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
-              height="22" alt="Avatar" loading="lazy" />
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-            <li>
-              <a class="dropdown-item" href="#">My profile</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">Settings</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">Logout</a>
-            </li>
-          </ul> -->
-        </li>
-      </ul>
-    </div>
-    <!-- Container wrapper -->
-  </nav>
-  <!-- Navbar -->
-</header>
+            <a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>          
+               
+          </div>
+        </div>
+      </nav>
+    
+    </header>
 <!--Main layout-->
-<main style="margin-top: 58px;">
+<main style="margin-top: 5px;">
     <div class="container pt-3 align-items-center">
         <!-- Dashboard -->  
         
         {% if leasing.leasing_status == 'for review' %}
-        <a href="{{url_for('contracts')}}" >
+        <a href="{{url_for('contracts')}}" ><i class="fa-solid fa-arrow-left"></i>
           Go back
         </a>    
       <div class="row d-flex justify-content-center align-items-center h-100">
@@ -208,7 +171,8 @@
                     <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797" >Leasing Start: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_start}}</h6><br>
                     <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Leasing End: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_end}}</h6><br>
                     <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Payment Frequency:</h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_payment_frequency}}</h6><br>
-                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Total Fee: </h6><h6 style="display: inline-block;vertical-align: top; color:black;"><i class="fa-solid fa-peso-sign"></i> {{leasing.leasing_total_fee}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Total Fee: </h6><h6 style="display: inline-block;vertical-align: top; color:black;" id="leasing_total_fee"><i class="fa-solid fa-peso-sign" ></i></h6>
+
                     {% for each in leasing.documents %}
                     <br>
                     <h4 style="color:#40a047">Approved Contract</h4><hr style="width:30%;opacity: 0.1;">
@@ -232,7 +196,67 @@
           </div>
         </div>
         
-        {%else%}{%endif%}
+        {%else%}
+        <a href="{{url_for('finished_contracts')}}" >
+          <i class="fa-solid fa-arrow-left"></i> Go back
+        </a> 
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-lg-5 col-xl-8">
+              <div class="card text-black" style="border-radius: 25px;">
+                  <div class="card-body p-md-4">
+                    <h4 style="text-align: center; font-weight: 700; color:#40a047">Leasing ID : {{leasing.leasingID}}</h4>
+                      <hr>
+                      <div class="form-group" style="margin-top: 30px;display: flex;">
+                        <div class="co-body" style="width:50%;">
+                        <h5>Lessor Details</h5>
+                        <h6>Lessor ID: &nbsp;<input type="text" style="width:60%" placeholder="{{leasing.lessorID}}" disabled></h6>
+                        {% for user in user%}
+                        {% if leasing.lessorID == user.userID%}
+                       <h6>Fullname: &nbsp;<input type="text" style="width:60%" placeholder="{{user.user_lname}}, {{user.user_fname}} {{user.user_mname}}" disabled></h6>
+                        {% endif %}
+                        {% endfor %}
+                        </div>
+                        <div style="width:50%;">
+                        <h5>Lessee Details</h5>
+                        <h6>Lessee ID: &nbsp;<input type="text" style="width:60%" placeholder="{{leasing.lesseeID}}" disabled></h6>
+                        {% for user in user%}
+                        {% if leasing.lesseeID == user.userID%}
+                        <h6>Fullname: &nbsp;<input type="text" style="width:60%" placeholder="{{user.user_lname}}, {{user.user_fname}} {{user.user_mname}}" disabled></h6>
+                        {% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <br><br>
+                    <h4 style="color:#40a047;">Contract Details</h4><hr style="width:30%;opacity: 0.1;">
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Property ID: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.propertyID}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Status: </h6><span class="badge badge-warning rounded-pill d-inline" style="display: inline-block;vertical-align: top;">{{leasing.leasing_status}}</span><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797" >Leasing Start: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_start}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Leasing End: </h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_end}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Payment Frequency:</h6><h6 style="display: inline-block;vertical-align: top; color:black;">{{leasing.leasing_payment_frequency}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797">Total Fee: </h6><h6 style="display: inline-block;vertical-align: top; color:black;" id="leasing_total_fee"><i class="fa-solid fa-peso-sign" ></i></h6>
+                    {% for each in leasing.documents %}
+                    <br>
+                    <h4 style="color:#40a047">Approved Contract</h4><hr style="width:30%;opacity: 0.1;">
+                    
+                    <i class="fa-solid fa-file-pdf" style="color: #787878;"></i>
+                    <a href="static/contracts/{{leasing.leasingID}}/{{each}}" target="_blank">{{each}}</a>
+                    {% endfor %} 
+                    <br><br>
+                    <h4 style="color:#40a047;">Payment Details</h4><hr style="width:30%;opacity: 0.1;">
+                    {% for payment in payment %}
+                    {% if payment.pay_status == 'paid' %}
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Payment ID: </h6><h6 style="display: inline-block;vertical-align: top;">{{payment.paymentID}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Date Paid: </h6><h6 style="display: inline-block;vertical-align: top;">{{payment.pay_date}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Paid Fee: </h6><h6 style="display: inline-block;vertical-align: top;">{{payment.pay_fee}}</h6><br>
+                    <h6 style="width:190px;display: inline-block;vertical-align: top; color:#979797;">Status: </h6><span class="badge badge-success rounded-pill d-inline" style="display: inline-block;vertical-align: top;">{{payment.pay_status}}</span><br>
+                    <hr style="width:60%;margin-left: 80px;">
+                    {% endif %}
+                    {% endfor%}
+                  </div>
+              </div>
+          </div>
+        </div>
+        {%endif%}
   
           
         
@@ -240,6 +264,13 @@
   
 </main>
 <!--Main layout-->
+<script>
+const totalFeeElement = document.getElementById("leasing_total_fee");
+const totalFee = parseInt("{{leasing.leasing_total_fee}}");
+
+totalFeeElement.innerText = totalFee.toLocaleString();
+
+</script>
 
 </body>
 </html>

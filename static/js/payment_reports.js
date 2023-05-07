@@ -40,3 +40,8 @@ function setViewModalPayment(paymentID, leasingID, pay_status, pay_lessorID, pay
   document.getElementById("pay_fee").value = pay_fee;
 
 }
+
+const paymentElement = document.getElementById("payment");
+const payment = parseInt("{{payment.pay_fee}}");
+
+paymentElement.innerText = payment.toLocaleString();

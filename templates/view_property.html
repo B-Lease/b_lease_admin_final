@@ -23,87 +23,50 @@
 </head>
 <body style="background-color: #e7e7e7;" class="body">
     <!--Main Navigation-->
-
-  <!-- Sidebar -->
-  <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-    <div class="position-sticky">
-      <div class="list-group list-group-flush mx-7 mt-5">
-        <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2  c ripple " aria-current="true">
-          <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+    <header>
+      <!-- Sidebar -->
+      <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+        <a class="navbar-brand" href="{{url_for('dashboard')}}">
+          <img src="static/images/b-lease_main.png"
+               height="30"
+               alt="b-lease logo"
+               loading="lazy" />
         </a>
-        <a href="{{url_for('user_report')}}" class="list-group-item list-group-item-action py-2 ripple ">
-          <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-        </a>
-        <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple text-success active"><i
-            class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-        <a href="{{url_for('contracts')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-        <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-          <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Manage Complaints</span>
-        </a>
-        <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-        <a href="{{url_for('admin_panel')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-            class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-        
-      </div>
-    </div>
-  </nav>
-  <!-- Sidebar -->
+        <br>
+        <div class="position-sticky">
+          <div class="list-group list-group-flush mx-7 mt-5">
+            
+            <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+              <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+            </a>
+            <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
+                class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+            <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+                class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+            <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+              <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+            </a>
+            <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+                class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+            <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+                class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
 
-  <!-- Navbar -->
-  <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-    <!-- Container wrapper -->
-    <div class="container-fluid">
-      <!-- Toggle button -->
-      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu"
-        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <!-- Brand -->
-      <a class="navbar-brand" href="#">
-        <img src="static/images/b-lease_main.png"
-             height="30"
-             alt="b-lease logo"
-             loading="lazy" />
-      </a>
+            <p style="margin-left: 15px;" class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+            <a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>          
+               
+          </div>
+        </div>
+      </nav>
     
-
-      <!-- Right links -->
-      <ul class="navbar-nav ms-auto d-flex flex-row">
-
-        <!-- Avatar -->
-        <li class="nav-item dropdown">
-          <a href ="{{ url_for('logout') }}" class="link-success"><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>
-          <!-- <a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#"
-            id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle"
-              height="22" alt="Avatar" loading="lazy" />
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-            <li>
-              <a class="dropdown-item" href="#">My profile</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">Settings</a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">Logout</a>
-            </li>
-          </ul> -->
-        </li>
-      </ul>
-    </div>
-    <!-- Container wrapper -->
-  </nav>
-  <!-- Navbar -->
-</header>
+    </header>
 <!--Main layout-->
  
 
 
-<main style="margin-top: 58px;">
+<main style="margin-top: 5px;">
 
 
     <div class="container pt-3 align-items-center">
@@ -153,7 +116,7 @@
                   <div class="mx-1 mx-md-4" >
                     <div class="price">
                       <h1>
-                        <i class="fa-solid fa-peso-sign"></i>{{property.price}}
+                        <i class="fa-solid fa-peso-sign" id="price"></i>
                       </h1>
                       <i class="fa-solid fa-location-dot"></i><span class="ml-1">&nbsp; {{property.address}}</span>
                       <br>  
@@ -184,13 +147,13 @@
                       <hr>
                       <label class="price" for="property_description">About This Property:</label>
                       <p>{{property.property_description}}</p>
-
+                      <br>
                       {% for each in property.documents %}
                       <i class="fa-solid fa-file-pdf" style="color: #40a047;"></i>
                       <a href="/propertydocuments/{{property.propertyID}}/{{each}}" target="_blank">{{each}}</a><br>
                       {% endfor %}     
                       <br>
-                                    
+                         <br>           
                       {% if property.property_status == 'pending' %}
                       <br>
                       <div class="approveOrDecline">
@@ -224,6 +187,14 @@
              
     </div>    
 </main>
+<script>
+const priceElement = document.getElementById("price");
+const price = parseInt("{{property.price}}");
+
+priceElement.innerText = price.toLocaleString();
+
+
+</script>
 <!--Main layout-->
 
 </body>
