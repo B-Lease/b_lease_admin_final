@@ -10,6 +10,8 @@ import contract
 
 import api_endpoints
 
+from notifications import generate_notifications
+
 
 
 
@@ -102,6 +104,8 @@ def user_report():
     
     title = "B-Lease | User Report"
     logging = db.getLoggingReport()
+
+    
     # session = db.get_all_data('session')
     # logoutTime = request.args.get('logoutTime')
     # logout = db.get_specific_data('session','logoutTime',logoutTime)
@@ -113,13 +117,8 @@ def user_report():
             if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
                 # data['images'].append(str(filename))
                 each['images'].append(filename)
-                
-    return render_template(
-        "user_report.html",
-        title=title,
-        logging = logging,
-        logout=logout
-    )
+
+    return render_template("user_report.html",title=title,logging_data=logging)
 
 @app.route("/view_user")
 def view_user():
@@ -462,7 +461,6 @@ def declinePropertyListing():
      
      propertyID = request.args.get('propertyID')
 
-
    
      title = "B-Lease | Decline Property Listings"  
    
@@ -619,6 +617,37 @@ def updatethread():
     # fields = ['complaintID', 'complaint_threadID','complaint_subject','complaint_desc','complainerID','complaineeID','complaint_status','created_at']
     # data = [complaintID, complaint_threadID, complaint_subject, complaint_desc, complainerID, complaineeID, complaint_status, current_date]
     # db.insert_data('complaint',fields,data)
+
+            complaintInfo = db.get_data('complaint','complaintID', complaintID)
+
+
+            # Complainer Notification
+            
+            complainer_notification_desc = f"We have an update on your complaint"
+
+            complainer_notification_data = {
+                "userID":complaintInfo['complainerID'],
+                "notification_categ":"Complaints",
+                "notification_desc":complainer_notification_desc,
+                "notification_data":complaintID
+            }
+
+            insert_complainer_notification = generate_notifications(complainer_notification_data)
+
+            # Complainee Notification
+            
+            complainee_notification_desc = f"We have an update on the complaint filed against you"
+            
+
+            complainee_notification_data = {
+                "userID":complaintInfo['complaineeID'],
+                "notification_categ":"Complaints",
+                "notification_desc":complainee_notification_desc,
+                "notification_data":complaintID
+            }
+
+            insert_complainee_notification = generate_notifications(complainee_notification_data)
+
             message= "success"
         else:
             message = "error"
