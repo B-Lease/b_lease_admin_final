@@ -80,12 +80,33 @@
               </div>
               <div class="col-md-8">
                 <div class="card-body">
-                  <h5 class="card-title">254</h5>
+                  <h5 class="card-title">{% if total_finished_contracts is not none and total_finished_contracts is defined %}{{total_finished_contracts}}{% endif %}</h5>
                   <p class="card-text1">
-                    Concluded Contract
+                    Total Finished Contracts
                   </p>
                   <p class="card-text1">
-                    <small class="text-muted">updated 3 mins ago</small>
+                    <small class="text-muted"></small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="space">
+
+          </div>
+          <div class="card mb-8" style="height:200px;width:330px">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <p class="card-text text-bg-success"><i class="fas fa-file-contract fa-fw me-3 text-white"></i></p>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{% if total_ongoing_contracts is not none and total_ongoing_contracts is defined %}{{total_ongoing_contracts}}{% endif %}</h5>
+                  <p class="card-text1">
+                    Total Ongoing Contract
+                  </p>
+                  <p class="card-text1">
+                    <small class="text-muted"></small>
                   </p>
                 </div>
               </div>
@@ -101,12 +122,33 @@
               </div>
               <div class="col-md-8">
                 <div class="card-body">
-                  <h5 class="card-title">652</h5>
+                  <h5 class="card-title">{% if total_open_properties is not none and total_open_properties is defined %}{{total_open_properties}}{% endif %}</h5>
                   <p class="card-text1">
-                    Total Listings
+                    Total Open Listings
                   </p>
                   <p class="card-text1">
-                    <small class="text-muted">updated 9 mins ago</small>
+                    <small class="text-muted"></small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="space">
+
+          </div>
+          <div class="card mb-8" style="height:200px;width:330px">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <p class="card-text text-bg-success"><i class="fas fa-circle-exclamation fa-fw me-3 text-white"></i></p>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{% if total_filed_complaints is not none and total_filed_complaints is defined %}{{total_filed_complaints}}{% endif %}</h5>
+                  <p class="card-text1">
+                    Total Filed Complaints
+                  </p>
+                  <p class="card-text1">
+                    <small class="text-muted"></small>
                   </p>
                 </div>
               </div>
@@ -123,12 +165,12 @@
               </div>
               <div class="col-md-8">
                 <div class="card-body">
-                  <h5 class="card-title">172</h5>
+                  <h5 class="card-title">{% if total_resolved_complaints is not none and total_resolved_complaints is defined %}{{total_resolved_complaints}}{% endif %}</h5>
                   <p class="card-text1">
-                    Total Complaints
+                    Total Resolved Complaints
                   </p>
                   <p class="card-text1">
-                    <small class="text-muted">updated 2 mins ago</small>
+                    <small class="text-muted"></small>
                   </p>
                 </div>
               </div>
