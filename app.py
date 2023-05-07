@@ -83,12 +83,22 @@ def dashboard():
     if 'sessionID' not in session:
             return redirect(url_for('index'))
     title = "B-Lease | Dashboard" 
-
+    total_finished_contracts = db.countTotalFinishedContracts()
+    total_ongoing_contracts = db.countTotalOngoingContracts()
+    total_open_properties = db.countTotalOpenProperties()
+    total_filed_complaints = db.countTotalFiledComplaints()
+    total_resolved_complaints = db.countTotalResolvedComplaints()
     if 'sessionID' in session:
         firstname = session['admin_firstname']
         middlename = session['admin_mname']
         lastname = session['admin_lastname']
-        return render_template('dashboard.html', okey=session['sessionID'], title=title, firstname=firstname,middlename=middlename,lastname=lastname)
+        return render_template('dashboard.html', okey=session['sessionID'], 
+                               title=title, firstname=firstname,middlename=middlename,
+                               lastname=lastname, total_finished_contracts =total_finished_contracts,
+                                total_ongoing_contracts = total_ongoing_contracts,
+                                 total_open_properties=total_open_properties,
+                                  total_filed_complaints=total_filed_complaints,
+                                   total_resolved_complaints=total_resolved_complaints )
     return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -120,12 +130,12 @@ def user_report():
     # logoutTime = request.args.get('logoutTime')
     # logout = db.get_specific_data('session','logoutTime',logoutTime)
 
-        for each in logging:
-            each['images'] = []
-            for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
-                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                    # data['images'].append(str(filename))
-                    each['images'].append(filename)
+        # for each in logging:
+        #     each['images'] = []
+        #     for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
+        #         if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+        #             # data['images'].append(str(filename))
+        #             each['images'].append(filename)
 
         return render_template("user_report.html",title=title,logging_data=logging,firstname=firstname,middlename=middlename,lastname=lastname)
 

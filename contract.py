@@ -161,6 +161,49 @@ def setContract(leasingInfo, contractInfo):
     # os.remove(docx_path)
     return True
 
+def signContract(contractInfo):
+    leasingID = contractInfo['leasingID']
+    signature = contractInfo['signature']
+
+    doc_path = f"static\\contracts\\{leasingID}\\"
+
+    # Get a list of all files in the folder
+    files = os.listdir(doc_path)
+
+    # Get the first file in the folder
+    first_file = files[0]
+
+    # Print the filename
+    # Open the Word document
+    doc = docx.Document(doc_path + first_file)
+
+
+    # Get the last paragraph in the document
+    last_paragraph = doc.paragraphs[-1]
+
+    # Add a new paragraph to the end of the document
+    new_paragraph = doc.add_paragraph()
+
+    # Add your text to the new paragraph
+    image_data = BytesIO(base64.b64decode(signature))
+    new_paragraph.add_run().add_picture(image_data, width=Inches(3))
+
+    
+    doc.save(doc_path + first_file)
+
+    pdf_path = f"static\\contracts\\{leasingID}\\{util.generateUUID(str(datetime.now()))}_ongoing.pdf"
+    # Initialize COM
+    pythoncom.CoInitialize()
+
+    # Convert to PDF
+    docx2pdf.convert(doc_path + first_file, pdf_path)
+
+    # Uninitialize COM
+    pythoncom.CoUninitialize()
+
+    os.remove(doc_path + first_file)
+    return contractInfo
+
 def ordinal_suffix(day):
     if day in [11, 12, 13]:
         suffix = "th"
