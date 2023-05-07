@@ -149,13 +149,13 @@
                       <p>{{property.property_description}}</p>
                       <br>
                       {% for each in property.documents %}
+                      <br><br><br><br>
                       <i class="fa-solid fa-file-pdf" style="color: #40a047;"></i>
                       <a href="/propertydocuments/{{property.propertyID}}/{{each}}" target="_blank">{{each}}</a><br>
                       {% endfor %}     
-                      <br>
-                         <br>           
+                             
                       {% if property.property_status == 'pending' %}
-                      <br>
+                  
                       <div class="approveOrDecline">
                         
                         <a  href="{{url_for('declinePropertyListing', propertyID = property.propertyID)}}" style="border: 10px solid #dc4c64; border-radius: 4px;"class="link-light bg-danger">Decline</a>  
