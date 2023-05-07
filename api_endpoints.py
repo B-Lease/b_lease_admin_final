@@ -59,5 +59,5 @@ api.add_resource(restapi.PropertyFavorites, '/propertyFavorites')
 
 #Search Property
 api.add_resource(restapi.SearchProperty,'/searchProperty')
-
+api.add_resource(restapi.searchPropertySuggestions,'/searchPropertySuggestions')
 
