@@ -52,8 +52,8 @@
             class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
 
         
-        <a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>          
-        <p style="margin-left: 15px;" class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  
+        <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
+        <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>
       </div>
     </div>
   </nav>
@@ -82,6 +82,7 @@
                 <div class="card-body">
                   <h5 class="card-title">{% if total_finished_contracts is not none and total_finished_contracts is defined %}{{total_finished_contracts}}{% endif %}</h5>
                   <p class="card-text1">
+
                     Total Finished Contracts
                   </p>
                   <p class="card-text1">

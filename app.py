@@ -1,3 +1,4 @@
+
 import hashlib
 from config import app, mysql, api
 from flask_socketio import SocketIO, send, emit
@@ -5,6 +6,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
 import os
 from dateutil.relativedelta import relativedelta
+from restapi import Leasing_Documents
 import util
 import db
 import contract
@@ -582,6 +584,61 @@ def contracts():
         
         return render_template("contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname)
 
+@app.route("/decline", methods=['POST'])
+def decline():
+
+    leasingID = request.form['leasingID']
+    leasing_remarks = request.form['leasing_remarks']
+    leasing_status = "declined"
+    lessorID = None
+    lesseeID = None
+    propertyAddress = None
+    message = None
+    now = None
+    read = None
+    notificationID = None
+    
+    
+    # notification_desc = ''
+    # leasingInfo = db.get_data('leasing','leasingID',leasingID)
+    # if leasingInfo:
+    #     lessorID = leasingInfo['lessorID']
+    #     lesseeID = leasingInfo['lesseeID']
+    #     # propertyAddress = leasingInfo['address']
+    #     # notification_desc = f'Your contract at {propertyAddress} has been declined.'
+    #     now = str(datetime.now())
+    #     notification_categ = 'Contract Declined'
+
+    #     read = "unread"
+    #     image = []
+     
+    #     for filename in os.listdir(f'static/contracts/{leasingInfo["propertyID"]}/images/'):
+    #         if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+    #             image.append(filename)
+
+    #     image = image[0]
+        
+    #     data = {
+    #         "leasingID":leasingInfo['leasingID'],
+    #         "image":f"{image}",
+    #     }
+
+    #     status = "rejected"
+
+    #     data = f"{leasingInfo['propertyID']},{image},{status}"
+    #     if lessorID and propertyAddress and notification_desc and now and read:
+    #         notificationID = util.generateUUID(f"{lessorID},{propertyAddress},{notification_categ},{notification_desc},{now},{read}")
+        
+    # if notificationID:
+    #     make_notif = db.insert_data('notifications',
+    #                    ['notificationID','lessorID','notification_categ','notification_desc','notification_date','read','data'],
+    #                    [notificationID,lessorID,notification_categ, notification_desc,now,read,data])
+  
+
+    db.update_data('leasing', ['leasingID', 'leasing_status', 'leasing_remarks'],[leasingID, leasing_status,leasing_remarks])
+    message = "Failed to approve the contract."
+    return redirect(url_for('contracts', success = message))
+
 @app.route("/view_contract", methods=['GET'])
 def view_contract():
     
@@ -800,15 +857,18 @@ def approveContract():
     message = "You have successfully approve the contract."
     return redirect(url_for('contracts', success = message))
 
-@app.route("/declineContract")
-def declineContract():
+@app.route("/declinecontracts")
+def declinecontracts():
+     
+     if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+     
+     leasingID = request.args.get('leasingID')
 
-    leasingID = request.args.get('leasingID')
-    leasing_status = "for review"
-
-    db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, leasing_status])
-    message = "Failed to approve the contract."
-    return redirect(url_for('contracts', success = message))
+   
+     title = "B-Lease | Decline Contract"  
+   
+     return render_template("declinecontracts.html", title=title, leasingID=leasingID)
 
 
 @app.route("/ongoing_contracts")

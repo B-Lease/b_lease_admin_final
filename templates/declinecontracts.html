@@ -70,7 +70,7 @@
 
     <div class="container pt-3 align-items-center">
         <!-- Dashboard -->  
-        <a href="{{url_for('view_property',propertyID=propertyID)}}" >
+        <a href="{{url_for('view_contract',leasingID=leasingID)}}" >
                     Go back
         </a>
       <div class="row d-flex justify-content-center align-items-center h-250">
@@ -89,14 +89,14 @@
                   <div class="mx-1 mx-md-4" >
                     <div class="price">
                       <h1>
-                        Decline Property Listing
+                        Decline Contract
                       </h1>
                      
                       <br>
-                     <form action="/declineStatus" method="POST"> 
-                      <p>Fill in the remarks below of the property listing</p>
-                      <input type="text" name="propertyID" value="{{propertyID}}" readonly hidden>
-                      <textarea name="remarks" id="remarks" cols="60" rows="10" required></textarea>
+                     <form action="/decline" method="POST"> 
+                      <p>Fill in the remarks below of the Contracts</p>
+                      <input type="text" name="leasingID" value="{{leasingID}}" readonly hidden>
+                      <textarea name="leasing_remarks" id="leasing_remarks" cols="60" rows="10" required></textarea>
                                     
                       <div class="approveOrDecline">
                         
