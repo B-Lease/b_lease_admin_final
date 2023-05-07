@@ -51,8 +51,8 @@
             <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
                 class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
                 
-            <p style="margin-left: 15px;" class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
-            <a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>          
+                <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
+                <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>         
                
           </div>
         </div>

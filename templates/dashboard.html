@@ -52,8 +52,8 @@
             class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
 
         
-        <a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>          
-        <p style="margin-left: 15px;" class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  
+        <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
+        <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>
       </div>
     </div>
   </nav>
@@ -82,7 +82,28 @@
                 <div class="card-body">
                   <h5 class="card-title">254</h5>
                   <p class="card-text1">
-                    Concluded Contract
+                    Total Finished Contract
+                  </p>
+                  <p class="card-text1">
+                    <small class="text-muted">updated 3 mins ago</small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="space">
+
+          </div>
+          <div class="card mb-8" style="height:200px;width:330px">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <p class="card-text text-bg-success"><i class="fas fa-file-contract fa-fw me-3 text-white"></i></p>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">254</h5>
+                  <p class="card-text1">
+                    Total Ongoing Contract
                   </p>
                   <p class="card-text1">
                     <small class="text-muted">updated 3 mins ago</small>
@@ -101,9 +122,30 @@
               </div>
               <div class="col-md-8">
                 <div class="card-body">
+                  <h5 class="card-title">254</h5>
+                  <p class="card-text1">
+                    Total Open Listings
+                  </p>
+                  <p class="card-text1">
+                    <small class="text-muted">updated 3 mins ago</small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="space">
+
+          </div>
+          <div class="card mb-8" style="height:200px;width:330px">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <p class="card-text text-bg-success"><i class="fas fa-circle-exclamation fa-fw me-3 text-white"></i></p>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
                   <h5 class="card-title">652</h5>
                   <p class="card-text1">
-                    Total Listings
+                    Total Filed Complaints
                   </p>
                   <p class="card-text1">
                     <small class="text-muted">updated 9 mins ago</small>
@@ -125,7 +167,7 @@
                 <div class="card-body">
                   <h5 class="card-title">172</h5>
                   <p class="card-text1">
-                    Total Complaints
+                    Total Resolve Complaints
                   </p>
                   <p class="card-text1">
                     <small class="text-muted">updated 2 mins ago</small>
