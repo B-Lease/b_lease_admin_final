@@ -851,7 +851,7 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('_pending.docx'):
+                if filename.endswith('_ongoing.pdf'):
                     print(str(filename))
                     pdfs.append(filename)        
             if pdfs:
@@ -869,8 +869,18 @@ class Leasing_Status(Resource):
     def put(self):
         leasingID = request.json['leasingID']
         leasingID = request.args.get('leasingID')
-        leasing_status = 'for review' if request.args.get('leasing_status') == '1' else 'declined'
-
+        
+        if request.args.get('leasing_status') == '1':
+            leasing_status = 'for review'
+        elif request.args.get('leasing_status') == '2':
+            leasing_status = 'declined'
+        elif request.args.get('leasing_status') == '3':
+            leasing_status = 'lessee_finished'
+        elif request.args.get('leasing_status') == '4':
+            leasing_status = 'lessor_finished'
+        elif request.args.get('leasing_status') == '5':
+            leasing_status = 'finished'
+        
         check_existing = db.check_existing_data(
             'leasing', 'leasingID', leasingID)
         
@@ -879,6 +889,11 @@ class Leasing_Status(Resource):
         if check_existing:
             update_data_bool = db.update_data('leasing', fields, data)
             if update_data_bool:
+                #SIGN PDF
+                if leasing_status == 'for review':
+                    contractInfo = request.json
+                    contract.signContract(contractInfo)
+
                 #Lessor's Notification
                 getLeasingInfo = db.getLeasingInfo(leasingID)
                 getLeasingInfo['propertyImage'] = util.getPropertyImageThumbnail(getLeasingInfo['propertyID'])
