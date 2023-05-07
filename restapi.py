@@ -337,7 +337,9 @@ class user(Resource):
             return {'message': f'User with userID: {userID} already exist'}, 409
         else:
             insert_data_bool = db.insert_data('user', fields, data)
+
             if insert_data_bool:
+
                 return {'message': 'Success user creation'}, 201
             else:
                 return {'message': 'Error user creation'}, 400
@@ -478,17 +480,24 @@ class delete_user(Resource):
                 check_existing = db.check_existing_data(
                     'user', 'userID', userJson['userID'])
                 if check_existing:
-                    delete_user = db.delete_data(
-                        'user', 'userID', userJson['userID'])
-
-                    if delete_user:
+                    check_leasing = db.checkOngoingLeasing(userJson['userID'])
+                    if check_leasing:
                         return {
-                            'message': f"deleted"
-                        }, 200
+                                'message': f"there is ongoing leasing"
+                            }, 200
                     else:
-                        return {
-                            'message': f"error deleting"
-                        }, 200
+                        delete_user = db.delete_data(
+                            'user', 'userID', userJson['userID'])
+                        
+
+                        if delete_user:
+                            return {
+                                'message': f"deleted"
+                            }, 200
+                        else:
+                            return {
+                                'message': f"error deleting"
+                            }, 200  
                 else:
                     return {
                         'message': f"user not found"
@@ -1229,7 +1238,32 @@ class notifications(Resource):
         else:
             return abort(404,"Error updating notification")
     def delete(self):
-        pass
+        userID = request.args.get('userID')
+        sessionID = request.args.get('sessionID')
+        notificationID = request.args.get('notificationID')
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])
+        check_user = db.get_data('user','userID', userID)
+        check_notification = db.get_data('notifications','notificationID', notificationID)
+
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        if not check_user:
+            return abort(404,"Missing User ID not found")
+        
+        if not check_notification:
+            return abort(404,"Notification not found")
+        
+        if check_notification:
+            delete_notification = db.delete_data('notifications','notificationID', notificationID)
+
+            if delete_notification:
+                return {"message":"Notification deleted"},200
+            else:
+                return {"message":"Notification not deleted"},200
+        
+
+
 
     def patch(self):
         userID = request.args.get('userID')

@@ -450,6 +450,55 @@ def getNotifications(field:str, value:str)->dict:
     return data
 
 
-
-
+def countTotalFinishedContracts():
+    cur = mysql.connection.cursor() 
     
+    cur.execute(f'SELECT IFNULL(COUNT(*),0) as totalFinishedContracts FROM b_lease.leasing WHERE `leasing_status` = "finished"')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data['totalFinishedContracts']
+
+def countTotalOngoingContracts():
+    cur = mysql.connection.cursor() 
+    
+    cur.execute(f'SELECT IFNULL(COUNT(*),0) as totalOngoingContracts FROM b_lease.leasing WHERE `leasing_status` = "ongoing"')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data['totalOngoingContracts']
+
+def countTotalOpenProperties():
+    cur = mysql.connection.cursor() 
+    
+    cur.execute(f'SELECT IFNULL(COUNT(*),0) as totalOpenProperties FROM b_lease.property WHERE `property_status` = "open"')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data['totalOpenProperties']
+
+def countTotalFiledComplaints():
+    cur = mysql.connection.cursor() 
+    
+    cur.execute(f'SELECT IFNULL(COUNT(*),0) as totalFiledComplaints FROM b_lease.complaint')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data['totalFiledComplaints']
+
+def countTotalResolvedComplaints():
+    cur = mysql.connection.cursor() 
+    
+    cur.execute(f'SELECT IFNULL(COUNT(*),0) as totalResolvedComplaints FROM b_lease.complaint WHERE `complaint_status` = "resolved" ')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data['totalResolvedComplaints']
+
+def checkOngoingLeasing(userID):
+    cur = mysql.connection.cursor() 
+    cur.execute(f"SELECT * FROM b_lease.leasing WHERE `leasing_status` = 'ongoing' AND lesseeID = '{userID}' OR lessorID = '{userID}'")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
