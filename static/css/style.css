@@ -105,6 +105,7 @@ footer p {
     outline: none;
     margin-left: 60px;
     margin-bottom: 50px;
+    width:100px;
   }
   .fixed-bottom-name {
     position: fixed;
