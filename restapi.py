@@ -16,6 +16,7 @@ import time
 import json
 import util
 from http.client import HTTPResponse
+from notifications import generate_notifications
 
 
 
@@ -84,8 +85,13 @@ class Paymongo(Resource):
 
 class Payment(Resource):
     def get(self):
-        userID = request.args.get('userID')
-        paymentInfo = db.get_transactions(userID)
+        if request.args.get('pay_lesseeID'):
+            pay_lesseeID = request.args.get('pay_lesseeID')
+            paymentInfo = db.get_transactions('pay_lesseeID', pay_lesseeID)
+        else:
+            pay_lessorID = request.args.get('pay_lessorID')
+            paymentInfo = db.get_transactions('pay_lessorID', pay_lessorID)
+        
         if len(paymentInfo) != 0:
             payment_encoded = json.dumps(paymentInfo, default=str)
             return payment_encoded, 200
@@ -97,8 +103,42 @@ class Payment(Resource):
 
         check_existing = db.check_existing_data(
             'payment', 'paymentID', paymentID)
-
+        
         if check_existing:
+            paymentInfo = db.get_data('payment','paymentID', paymentID)
+            sender = db.get_data('user','userID',paymentInfo['pay_lesseeID'])
+            receiver = db.get_data('user','userID', paymentInfo['pay_lessorID'])
+            leasingInfo = db.get_data('leasing','leasingID',paymentInfo['leasingID'])
+            propertyInfo = db.get_data('property', 'propertyID', leasingInfo['propertyID'])
+
+
+            # Sender notification payment
+            # ---------------------------------------------------------
+            sender_notification_desc = f"You have successfully paid your due rental for the property {propertyInfo['address']}"
+
+            sender_notification_data = {
+                "userID":sender['userID'],
+                "notification_categ":"Payments",
+                "notification_desc":sender_notification_desc,
+                "notification_data":""
+            }
+
+            insert_sender_notification = generate_notifications(sender_notification_data)
+            # ---------------------------------------------------------
+            # Receiver notification payment
+            # ---------------------------------------------------------
+            receiver_notification_desc = f"Your lessee {sender['user_fname']} {sender['user_lname']} has successfully paid the rental from your property {propertyInfo['address']}"
+
+            receiver_notification_data = {
+                "userID":receiver['userID'],
+                "notification_categ":"Payments",
+                "notification_desc":receiver_notification_desc,
+                "notification_data":""
+            }
+
+            insert_receiver_notification = generate_notifications(sender_notification_data)
+            # ---------------------------------------------------------
+
             update_user = db.update_data('payment', ['paymentID', 'pay_status'], [paymentID, 'paid'])
 
             if update_user:
@@ -564,6 +604,20 @@ class Leasing(Resource):
             else:
                 return {'message': 'No pending/ongoing leasing records'}, 209
         
+        elif check_existing == 'set':
+            propertyID = request.args.get('propertyID')
+
+            leasingInfo = db.get_items('leasing', 'propertyID', propertyID)
+            print(leasingInfo)
+            #remove dictionaries in the list if it is equal to finished
+            leasingInfoFiltered = [item for item in leasingInfo if item['leasing_status'] == 'pending' or item['leasing_status'] == 'for review' or item['leasing_status'] == 'ongoing']
+
+            if len(leasingInfoFiltered) != 0:
+                leasing_encoded = json.dumps(leasingInfoFiltered, default=str)
+                return leasing_encoded, 200
+            else:
+                return {'message': 'No pending/ongoing leasing records'}, 209
+            
         else:
             #USING LEASE RECORDS FOR LIST OF MESSAGES
             userID = request.args.get('userID')
@@ -1128,7 +1182,9 @@ class session(Resource):
 
 # =======================================================================================
 # NOTIFICATION API CLASS | CRU
-
+notification_args_put = reqparse.RequestParser()
+notification_args_put.add_argument('notificationID', type=str,
+                          help='Missing notification ID', required=True)
 class notifications(Resource):
     def get(self):
         userID = request.args.get('userID')
@@ -1136,7 +1192,7 @@ class notifications(Resource):
         check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])
 
         if check_session:
-            notifications = db.get_items('notifications','userID',userID)
+            notifications = db.getNotifications('userID',userID)
             if notifications:
                 notificationJson = json.dumps(notifications, default=str)
                 
@@ -1149,7 +1205,29 @@ class notifications(Resource):
     def post(self):
         pass
     def put(self):
-        pass
+        notificationInfo = notification_args_put.parse_args()
+
+        notificationJson = request.json
+        userID = request.args.get("userID")
+        sessionID = request.args.get("sessionID")
+        notificationID = notificationJson['notificationID']
+        check_session = db.get_specific_data('session', ['sessionID','userID','status'], [sessionID,userID,'valid'])
+        check_user = db.get_data('user','userID', userID)
+        check_notification = db.get_data('notifications', 'notificationID', notificationID)
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        if not check_user:
+            return abort(404,"Missing User ID")
+        
+        if not check_notification:
+            return abort(404, "Notification not found")
+        
+        update_notification = db.update_data('notifications', ['notificationID', 'read'],[notificationID,'read'])
+
+        if update_notification:
+            return {"message":"Notification read"},200
+        else:
+            return abort(404,"Error updating notification")
     def delete(self):
         pass
 
@@ -1267,8 +1345,45 @@ class complaint(Resource):
             insert_data_bool = db.insert_data('complaint', fields, data)
 
             if insert_data_bool:
+                complainerID = complaintInfo['complainerID']
+                complaineeID = complaintInfo['complaineeID']
+                complainer = db.get_data('user','userID', complainerID)
+                complainee = db.get_data('user','userID', complaineeID)
+
+                # Complainer Notification
                 
-                return {'message': 'Successfully filed a complaint'}, 204
+                complainer_notification_desc = f"Your complaint against {complainee['user_fname']} {complainee['user_lname']} has been filed. We're doing our best in reviewing it and will keep you updated."
+
+                complainer_notification_data = {
+                    "userID":complainerID,
+                    "notification_categ":"Complaints",
+                    "notification_desc":complainer_notification_desc,
+                    "notification_data":data[0]
+                }
+
+                insert_complainer_notification = generate_notifications(complainer_notification_data)
+
+                # Complainee Notification
+                
+                complainee_notification_desc = f"{complainer['user_fname']} {complainer['user_lname']} filed a complaint against you about {complaintInfo['complaint_subject']}. We're doing our best in reviewing it and will keep you updated."
+                
+
+                complainee_notification_data = {
+                    "userID":complaineeID,
+                    "notification_categ":"Complaints",
+                    "notification_desc":complainee_notification_desc,
+                    "notification_data":data[0]
+                }
+
+                insert_complainee_notification = generate_notifications(complainee_notification_data)
+
+
+                if insert_complainee_notification and insert_complainer_notification:
+                    return {'message': 'Successfully filed a complaint',
+                            'notification_status':'generated'}, 204
+                else:
+                    return {'message': 'Successfully filed a complaint'}, 204
+
 
             else:
                 return {'message': 'Unable to file'}, 400
@@ -1556,10 +1671,57 @@ class property(Resource):
                 return {"message":"Property deleted successfully"},200
             else:
                 return abort(404,f"Property {propertyID} not deleted")
+
+class SearchProperty(Resource):
+    def get(self):
+        sessionID = request.args.get("sessionID")
+
+        query = request.args.get("query")
+        check_session = util.checkSession(sessionID)
+
+
+        if not check_session:
+            return abort(404,"Session unauthorized")
+        data = db.getSearchProperties(query)
         
-      
+        # print(data)
+        if data:
+            for each in data:
+                each['images'] = []
+
+                for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                    if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                        # data['images'].append(str(filename))
+
+                        each['images'].append(filename)
+                # print(each)
+                each['rating'] = db.averagePropertyRating(each['propertyID'])['average_rating']
+                print("RATINGG : ", each['rating'])
+
+            response = jsonify(data)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+        else:
+            return {"message":"No search results"},200
             
-            
+class searchPropertySuggestions(Resource):
+    def get(self):
+    
+        query = request.args.get("query")
+        data = db.getSearchPropertySuggestions(query)
+        
+        if len(query)>0:
+            # print(data)
+            final_data = []
+            if data:
+                for each in data:
+                    final_data.append(each['address'])
+                return {"message":"Results found",
+                        "data":final_data
+                        },200
+                
+            else:
+                return {"message":"No search results"},200
 
 class propertyimages(Resource):
     def get(self, propertyID, image):
@@ -1804,15 +1966,17 @@ class Favorites(Resource):
             return abort(404, "User ID not found")
         
         property_favorites = db.getMyPropertyFavorites(userID)
-        for each in property_favorites:
-                        each['images'] = []
-                 
-                        for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
-                            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                                # data['images'].append(str(filename))
 
-                                each['images'].append(filename)
         if property_favorites:
+            for each in property_favorites:
+                            each['images'] = []
+                    
+                            for filename in os.listdir(f'static/property_listings/{each["propertyID"]}/images/'):
+                                if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                                    # data['images'].append(str(filename))
+
+                                    each['images'].append(filename)
+        
             return jsonify(property_favorites)
         else:
             return {"message": "No property favorites"},200

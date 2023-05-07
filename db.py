@@ -259,15 +259,16 @@ def get_leasing_contracts(table:str, fields, values):
         cur.close()
         return data
 
-def get_transactions(userID:str):
+def get_transactions(usertype:str, userID:str):
     cur = mysql.connection.cursor() 
     cur.execute(f'''
         SELECT p.*, l.leasing_payment_frequency, pr.address 
         FROM payment p
         INNER JOIN leasing l ON p.leasingID = l.leasingID
         INNER JOIN property pr on l.propertyID = pr.propertyID
-        WHERE `pay_lessorID` = "{userID}" || `pay_lesseeID` = "{userID}"
+        WHERE `{usertype}` = "{userID}"
     ''')
+
     data:dict = cur.fetchall()
     mysql.connection.commit()
     cur.close()
@@ -351,7 +352,7 @@ def getLoggingReport():
         ORDER BY lastLogin DESC
     """
     cur.execute(query)
-    result = cur.fetchall()
+    result:dict = cur.fetchall()
     mysql.connection.commit()
     cur.close()
     return result
@@ -421,3 +422,34 @@ def getIndividualPropertyListing(propertyID):
     mysql.connection.commit()
     cur.close()
     return data
+
+
+def getSearchProperties(query:str):
+    cur = mysql.connection.cursor() 
+    cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open'")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def getSearchPropertySuggestions(query:str):
+    cur = mysql.connection.cursor() 
+    cur.execute(f"SELECT `address` FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' ORDER BY `address` DESC LIMIT 7")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+def getNotifications(field:str, value:str)->dict:
+    cur = mysql.connection.cursor() 
+    
+    cur.execute(f'SELECT * FROM `notifications` WHERE `{field}` = "{value}" ORDER BY `notification_date` DESC')
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+
+
+
+    

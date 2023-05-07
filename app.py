@@ -11,6 +11,8 @@ import contract
 
 import api_endpoints
 
+from notifications import generate_notifications
+
 
 
 
@@ -107,16 +109,15 @@ def user_report():
     title = "B-Lease | User Report"
     logging = db.getLoggingReport()
 
-    
     if 'sessionID' in session:
         firstname = session['admin_firstname']
         middlename = session['admin_mname']
         lastname = session['admin_lastname']
+
     # session = db.get_all_data('session')
     # logoutTime = request.args.get('logoutTime')
     # logout = db.get_specific_data('session','logoutTime',logoutTime)
 
-   
         for each in logging:
             each['images'] = []
             for filename in os.listdir(f'static/users/{each["userID"]}/images/'):
@@ -125,6 +126,7 @@ def user_report():
                     each['images'].append(filename)
 
         return render_template("user_report.html",title=title,logging_data=logging,firstname=firstname,middlename=middlename,lastname=lastname)
+
 @app.route("/view_user")
 def view_user():
     if 'sessionID' not in session:
@@ -494,7 +496,6 @@ def declinePropertyListing():
      
      propertyID = request.args.get('propertyID')
 
-
    
      title = "B-Lease | Decline Property Listings"  
    
@@ -618,6 +619,41 @@ def updatethread():
         data = [complaintthreadID, complaintID, thread_content, created_at]
         insert_thread = db.insert_data('complaint_thread', fields, data)
         if insert_thread:
+
+    # fields = ['complaintID', 'complaint_threadID','complaint_subject','complaint_desc','complainerID','complaineeID','complaint_status','created_at']
+    # data = [complaintID, complaint_threadID, complaint_subject, complaint_desc, complainerID, complaineeID, complaint_status, current_date]
+    # db.insert_data('complaint',fields,data)
+
+            complaintInfo = db.get_data('complaint','complaintID', complaintID)
+
+
+            # Complainer Notification
+            
+            complainer_notification_desc = f"We have an update on your complaint"
+
+            complainer_notification_data = {
+                "userID":complaintInfo['complainerID'],
+                "notification_categ":"Complaints",
+                "notification_desc":complainer_notification_desc,
+                "notification_data":complaintID
+            }
+
+            insert_complainer_notification = generate_notifications(complainer_notification_data)
+
+            # Complainee Notification
+            
+            complainee_notification_desc = f"We have an update on the complaint filed against you"
+            
+
+            complainee_notification_data = {
+                "userID":complaintInfo['complaineeID'],
+                "notification_categ":"Complaints",
+                "notification_desc":complainee_notification_desc,
+                "notification_data":complaintID
+            }
+
+            insert_complainee_notification = generate_notifications(complainee_notification_data)
+
             message= "success"
         else:
             message = "error"
