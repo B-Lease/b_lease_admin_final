@@ -860,7 +860,7 @@ class Leasing_Documents(Resource):
         if contract:
             pdfs=[]
             for filename in os.listdir(f'static/contracts/{leasingID}/'):
-                if filename.endswith('_ongoing.pdf'):
+                if filename.endswith('_ongoing.pdf') or filename.endswith('.docx'):
                     print(str(filename))
                     pdfs.append(filename)        
             if pdfs:
