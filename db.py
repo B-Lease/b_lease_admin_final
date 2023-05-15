@@ -253,7 +253,29 @@ def get_leasing_contracts(table:str, fields, values):
                 flds.append(f'''`{fields[i]}` = {values[i]}''')
             
         flds_final = " OR ".join(flds)
-        cur.execute(f'''SELECT * FROM {table} WHERE {flds_final}''')
+        #cur.execute(f'''SELECT {table}.*, USER.FNAME, USER.MNAME, USER.LNAME FROM {table} INNER JOIN USER ON {flds_final}''')
+        
+        cur.execute(f'''SELECT 
+            l.*,
+            p.land_description,
+            u1.userID as lessorID,
+            u1.user_fname as lessor_fname,
+            u1.user_mname as lessor_mname,
+            u1.user_lname as lessor_lname,
+            u2.userID as lesseeID,
+            u2.user_fname as lessee_fname,
+            u2.user_mname as lessee_mname,
+            u2.user_lname as lessee_lname
+        FROM 
+            leasing l
+        JOIN 
+            property p on l.propertyID = p.propertyID
+        JOIN 
+            user u1 ON l.lessorID  = u1.userID
+        JOIN 
+            user u2 ON l.lesseeID  = u2.userID
+        WHERE {flds_final}''')
+        
         data:dict = cur.fetchall()
         mysql.connection.commit()
         cur.close()
