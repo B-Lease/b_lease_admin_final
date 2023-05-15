@@ -31,6 +31,11 @@ function samePassword() {
 
 }
 $(document).ready(function() {
+  // Get the checkboxes
+
+
+
+
   $('.view-btn').click(function() {
     var id = $(this).data('id');
     $('#view-modal').show();
@@ -71,3 +76,5 @@ function declineListing(propertyID){
   window.location.href = "/declineStatus?propertyID="+propertyID;
 
 }
+
+

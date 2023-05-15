@@ -57,6 +57,9 @@ api.add_resource(restapi.Favorites, '/favorites')
 #Get Property Favorite IDs
 api.add_resource(restapi.PropertyFavorites, '/propertyFavorites')
 
+#Get Property Coordinates
+api.add_resource(restapi.PropertyCoordinates,'/propertyCoordinates')
+
 #Search Property
 api.add_resource(restapi.SearchProperty,'/searchProperty')
 api.add_resource(restapi.searchPropertySuggestions,'/searchPropertySuggestions')

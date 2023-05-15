@@ -1727,13 +1727,42 @@ class SearchProperty(Resource):
     def get(self):
         sessionID = request.args.get("sessionID")
 
-        query = request.args.get("query")
+        
         check_session = util.checkSession(sessionID)
+
+        # Search and filter variables
+        query = request.args.get("query")
+        min_price = request.args.get("min_price")
+        max_price = request.args.get("max_price")
+        min_property = request.args.get("min_property")
+        max_property = request.args.get("max_property")
+        property_type = request.args.get("property_type")
+
+        if min_price is None or min_price == '':
+            min_price = 0
+        
+        if min_property is None or min_property == '':
+            min_property = 0
+        
+        if max_price is None or max_price == '':
+            max_price = 0
+        
+        if max_property is None or max_property == '':
+            max_property = 0
+
+        min_price = float(min_price)
+        min_property = float(min_property)
+        max_price = float(max_price)
+        max_property = float(max_property)
+
+        if property_type is None:
+            property_type = 'any'
+        
 
 
         if not check_session:
             return abort(404,"Session unauthorized")
-        data = db.getSearchProperties(query)
+        data = db.getFilterSearchProperties(query, min_price, max_price, min_property, max_property,property_type)
         
         # print(data)
         if data:
@@ -2084,4 +2113,15 @@ class PropertyFavorites(Resource):
             return {"favorite_propertyIDs": favorites},200
         else:
             return {"message":"No property favorites found"}, 200
+        
+class PropertyCoordinates(Resource):
+    def get(self):
+
+
+        property_coordinates = db.getPropertyCoordinates()
+
+        if property_coordinates:
+            return jsonify(property_coordinates)
+        else:
+            return {"message":"No property coordinates"},200
 

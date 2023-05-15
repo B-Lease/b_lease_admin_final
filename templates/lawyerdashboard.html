@@ -31,32 +31,17 @@
       <div class="position-sticky">
         <div class="list-group list-group-flush mx-7 mt-5">
 
-          <a href="{{url_for('dashboard')}}"
+          <a href="{{url_for('lawyerdashboard')}}"
             class="list-group-item list-group-item-action py-2 text-success c ripple active" aria-current="true">
             <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
           </a>
-          <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple ">
-            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-          </a>
-          <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
           <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
               class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-          <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
-          </a>
-          <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-
-          <a href="{{ url_for('lawyer_panel') }}" class="list-group-item list-group-item-action py-2 ">
-            <i class="fa-solid fa-gavel me-3"></i><span>Lawyer Panel</span></a>
-
+         
           <center><a href="{{url_for('logout')}}" class="link-success fixed-bottom"><i
                 class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a> </center>
           <center>
-            <p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+            <p class="fixed-bottom-name" style="white-space:break-spaces">{{firstname}} {{middlename | first}}. {{lastname}}</p>
           </center>
         </div>
       </div>
@@ -107,10 +92,10 @@
             </div>
             <div class="col-md-8">
               <div class="card-body">
-                <h5 class="card-title">{% if total_ongoing_contracts is not none and total_ongoing_contracts is defined
-                  %}{{total_ongoing_contracts}}{% endif %}</h5>
+                <h5 class="card-title">{% if total_approved_contracts is not none and total_approved_contracts is defined
+                  %}{{total_approved_contracts}}{% endif %}</h5>
                 <p class="card-text1">
-                  Total Ongoing Contract
+                  Total Approved Contract
                 </p>
                 <p class="card-text1">
                   <small class="text-muted"></small>
@@ -125,14 +110,14 @@
         <div class="card mb-8" style="height:200px;width:330px">
           <div class="row g-0">
             <div class="col-md-4">
-              <p class="card-text text-bg-success"><i class="fas fa-list-ul fa-fw me-3 text-white"></i></p>
+              <p class="card-text text-bg-success"><i class="fas fa-file-contract fa-fw me-3 text-white"></i></p>
             </div>
             <div class="col-md-8">
               <div class="card-body">
-                <h5 class="card-title">{% if total_open_properties is not none and total_open_properties is defined
-                  %}{{total_open_properties}}{% endif %}</h5>
+                <h5 class="card-title">{% if total_declined_contracts is not none and total_declined_contracts is defined
+                  %}{{total_declined_contracts}}{% endif %}</h5>
                 <p class="card-text1">
-                  Total Open Listings
+                  Total Declined Contract
                 </p>
                 <p class="card-text1">
                   <small class="text-muted"></small>
@@ -141,51 +126,9 @@
             </div>
           </div>
         </div>
-        <div class="space">
+ 
 
-        </div>
-        <div class="card mb-8" style="height:200px;width:330px">
-          <div class="row g-0">
-            <div class="col-md-4">
-              <p class="card-text text-bg-success"><i class="fas fa-circle-exclamation fa-fw me-3 text-white"></i></p>
-            </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">{% if total_filed_complaints is not none and total_filed_complaints is defined
-                  %}{{total_filed_complaints}}{% endif %}</h5>
-                <p class="card-text1">
-                  Total Filed Complaints
-                </p>
-                <p class="card-text1">
-                  <small class="text-muted"></small>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div class="space">
-
-        </div>
-        <div class="card mb-8" style="height:200px;width:330px">
-          <div class="row g-0">
-            <div class="col-md-4">
-              <p class="card-text text-bg-success"><i class="fas fa-circle-exclamation fa-fw me-3 text-white"></i></p>
-            </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">{% if total_resolved_complaints is not none and total_resolved_complaints is
-                  defined %}{{total_resolved_complaints}}{% endif %}</h5>
-                <p class="card-text1">
-                  Total Resolved Complaints
-                </p>
-                <p class="card-text1">
-                  <small class="text-muted"></small>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 

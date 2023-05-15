@@ -1,75 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
-    <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}" />
+  <!-- MDB -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='/js/payment_reports.js')}}"></script>
-    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>{{title}}</title>
-    
+  <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+  <script src="{{url_for('static', filename='/js/payment_reports.js')}}"></script>
+  <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>{{title}}</title>
+
 </head>
-<body style="background-color: #e7e7e7;">
-    <!--Main Navigation-->
-    <header>
-      <!-- Sidebar -->
-      <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-        <a class="navbar-brand" href="{{url_for('dashboard')}}">
-          <img src="static/images/b-lease_main.png"
-               height="30"
-               alt="b-lease logo"
-               loading="lazy" />
-        </a>
-        <br>
-        <div class="position-sticky">
-          <div class="list-group list-group-flush mx-7 mt-5">
-            
-            <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
-              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-            </a>
-            <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-            <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-            <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
-            </a>
-            <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
-                class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-            <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-    
-                <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
-                <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>                  
-               
-          </div>
-        </div>
-      </nav>
-    
-    </header>
-<!--Main Navigation-->
 
-<!--Main layout-->
-<main style="margin-top: -10px;">
-  <div class="container pt-3 align-items-center">
-        <!-- Dashboard -->
-        <br>
-        <br>
-         <!-- search -->
-         <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
-            <!-- <div class="input-group" style="outline-color: black;">
+<body style="background-color: #e7e7e7;">
+  <!--Main Navigation-->
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <a class="navbar-brand" href="{{url_for('dashboard')}}">
+        <img src="static/images/b-lease_main.png" height="30" alt="b-lease logo" loading="lazy" />
+      </a>
+      <br>
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-7 mt-5">
+
+          <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple"
+            aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+          </a>
+          <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+          <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+          <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+          </a>
+          <a href="{{url_for('payment_reports')}}"
+            class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
+              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+
+          <a href="{{ url_for('lawyer_panel') }}" class="list-group-item list-group-item-action py-2 ">
+            <i class="fa-solid fa-gavel me-3"></i><span>Lawyer Panel</span></a>
+
+
+          <center><a href="{{url_for('logout')}}" class="link-success fixed-bottom"><i
+                class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a> </center>
+          <center>
+            <p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+          </center>
+
+        </div>
+      </div>
+    </nav>
+
+  </header>
+  <!--Main Navigation-->
+
+  <!--Main layout-->
+  <main style="margin-top: -10px;">
+    <div class="container pt-3 align-items-center">
+      <!-- Dashboard -->
+      <br>
+      <br>
+      <!-- search -->
+      <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
+        <!-- <div class="input-group" style="outline-color: black;">
               <div class="form-outline" >
                 <input type="search" id="searcg" class="form-control" />
                 <label class="form-label" for="search">Search</label>
@@ -78,102 +87,104 @@
                 <i class="fas fa-search"></i>
               </button>
             </div> -->
-            <div class="input-group">
-              <input type="search"  id="searchInput"  name="q" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
-              
-            </div>
-        </div>
-        <!-- Table -->
-        <table  id="propertyTable" class="table align-middle mb-0 bg-white">
-            <thead class="bg-light text-success">
-              <tr>
-                <th>Payment ID</th>
-                <th>Lessor</th>
-                <!-- <th>User Type</th> -->
-                <th>Date</th>
-                <th>Monthly Payment</th>
-                <th>Payment Status</th>
- 
-              </tr>
-            </thead>
-            <tbody>
+        <div class="input-group">
+          <input type="search" id="searchInput" name="q" class="form-control rounded" placeholder="Search"
+            aria-label="Search" aria-describedby="search-addon" />
 
-              <tr>
-                {% for payment in payment%}
-                <td>
-                    {{payment.paymentID}}
-                </td>
-                {% for user in user %}
-                {% if user.userID == payment.pay_lessorID %}
-                <td>{{user.user_lname}}, {{user.user_fname}} {{user.user_mname | first}}.</td>
-                {% endif %}
-                {% endfor %}
-                <td>{{payment.pay_date}} </td>
-                <td><i class="fa-solid fa-peso-sign"></i>{{payment.pay_fee}}</td>
-
-                <td>
-                  {% if payment.pay_status == 'pending' %}
-                  <span class="badge badge-warning rounded-pill d-inline" >{{payment.pay_status}}</span>
-                  {% elif payment.pay_status == 'paid' %}
-                  <span class="badge badge-success rounded-pill d-inline" >{{payment.pay_status}}</span>
-                  {% else %}
-                  <span class="badge badge-danger rounded-pill d-inline" >{{payment.pay_status}}</span>
-                  {% endif %}
-                </td>
-                <!-- <td>
-                    <span class="badge badge-success rounded-pill d-inline">{{user.user_status}}</span>
-                </td> -->
-                
-              </tr>
-              {% endfor %}
-        </table>
-              <div id="message"></div>
-          </div>
-  
         </div>
       </div>
+      <!-- Table -->
+      <table id="propertyTable" class="table align-middle mb-0 bg-white">
+        <thead class="bg-light text-success">
+          <tr>
+            <!-- <th>Payment ID</th> -->
+            <th>Lessor</th>
+            <!-- <th>User Type</th> -->
+            <th>Date</th>
+            <th>Monthly Payment</th>
+            <th>Payment Status</th>
+
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            {% for payment in payment%}
+            <!-- <td>
+                    {{payment.paymentID}}
+                </td> -->
+            {% for user in user %}
+            {% if user.userID == payment.pay_lessorID %}
+            <td>{{user.user_lname}}, {{user.user_fname}} {{user.user_mname | first}}.</td>
+            {% endif %}
+            {% endfor %}
+            <td>{{payment.pay_date}} </td>
+            <td><i class="fa-solid fa-peso-sign"></i>{{payment.pay_fee}}</td>
+
+            <td>
+              {% if payment.pay_status == 'pending' %}
+              <span class="badge badge-warning rounded-pill d-inline">{{payment.pay_status}}</span>
+              {% elif payment.pay_status == 'paid' %}
+              <span class="badge badge-success rounded-pill d-inline">{{payment.pay_status}}</span>
+              {% else %}
+              <span class="badge badge-danger rounded-pill d-inline">{{payment.pay_status}}</span>
+              {% endif %}
+            </td>
+            <!-- <td>
+                    <span class="badge badge-success rounded-pill d-inline">{{user.user_status}}</span>
+                </td> -->
+
+          </tr>
+          {% endfor %}
+      </table>
+      <div id="message"></div>
     </div>
-  </div>
-</div>
-</div>
-  </div>
-</main>
-<script>
+
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+  </main>
+  <script>
 
 
-  var searchInput = document.getElementById("searchInput");
-  var table = document.getElementById("propertyTable");
-  var message = document.getElementById("message");
-  
-  searchInput.addEventListener("keyup", function() {
-    var filter = searchInput.value.toUpperCase();
-    var rows = table.getElementsByTagName("tr");
-    var visibleRows = 0;
-  
-    for (var i = 0; i < rows.length; i++) {
-      var cols = rows[i].getElementsByTagName("td");
-      var match = false;
-      for (var j = 0; j < cols.length; j++) {
-        var text = cols[j].innerText.toUpperCase();
-        if (text.indexOf(filter) > -1) {
-          match = true;
-          break;
+    var searchInput = document.getElementById("searchInput");
+    var table = document.getElementById("propertyTable");
+    var message = document.getElementById("message");
+
+    searchInput.addEventListener("keyup", function () {
+      var filter = searchInput.value.toUpperCase();
+      var rows = table.getElementsByTagName("tr");
+      var visibleRows = 0;
+
+      for (var i = 0; i < rows.length; i++) {
+        var cols = rows[i].getElementsByTagName("td");
+        var match = false;
+        for (var j = 0; j < cols.length; j++) {
+          var text = cols[j].innerText.toUpperCase();
+          if (text.indexOf(filter) > -1) {
+            match = true;
+            break;
+          }
+        }
+        rows[i].style.display = match ? "" : "none";
+        if (rows[i].style.display != "none") {
+          visibleRows++;
         }
       }
-      rows[i].style.display = match ? "" : "none";
-      if (rows[i].style.display != "none") {
-        visibleRows++;
-      }
-    }
-  
-    if (visibleRows == 0) {
-      message.innerText = "No data to show";
-    } else {
-      message.innerText = "";
-    }
-  });
 
-</script>
+      if (visibleRows == 0) {
+        message.innerText = "No data to show";
+      } else {
+        message.innerText = "";
+      }
+    });
+
+  </script>
 
 </body>
+
 </html>

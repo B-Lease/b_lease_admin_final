@@ -1,180 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
-    <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}" />
+  <!-- MDB -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='/js/contracts.js')}}"></script>
-    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>{{title}}</title>
-    
+  <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+  <script src="{{url_for('static', filename='/js/contracts.js')}}"></script>
+  <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>{{title}}</title>
+
 </head>
+
 <body style="background-color: #e7e7e7;">
-    <!--Main Navigation-->
-    <header>
-      <!-- Sidebar -->
-      <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-        <a class="navbar-brand" href="{{url_for('dashboard')}}">
-          <img src="static/images/b-lease_main.png"
-               height="30"
-               alt="b-lease logo"
-               loading="lazy" />
-        </a>
-        <br>
-        <div class="position-sticky">
-          <div class="list-group list-group-flush mx-7 mt-5">
-            
-            <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
-              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-            </a>
-            <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-            <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
-                class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-            <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
-            </a>
-            <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-            <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-                
-                <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
-                <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>         
-               
-          </div>
-        </div>
-      </nav>
-    
-    </header>
-<!--Main layout-->
-<main style="margin-top: -10px;">
-    <div class="container pt-3 align-items-center">
-        <!-- Dashboard -->
-        <br>
-        <h3>Contracts</h3>
-        <div id="myBtnContainer">
-          <a class="btn btn-success active" href="{{url_for('contracts')}}"> For review</a>
-          
-          <a class="btn btn-outline-success" href="{{url_for('ongoing_contracts')}}"> Ongoing</a>
-          <a class="btn btn-outline-success" href="{{url_for('finished_contracts')}}"> Finished</a>
+  <!--Main Navigation-->
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <a class="navbar-brand" href="{{url_for('dashboard')}}">
+        <img src="static/images/b-lease_main.png" height="30" alt="b-lease logo" loading="lazy" />
+      </a>
+      <br>
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-7 mt-5">
+
+          {% if user_type == 'admin' %}
+          <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple"
+            aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+          </a>
+          <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+          <a href="{{ url_for('contracts') }}"
+            class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+          <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+          </a>
+          <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+
+          <a href="{{ url_for('lawyer_panel') }}" class="list-group-item list-group-item-action py-2 ">
+            <i class="fa-solid fa-gavel me-3"></i><span>Lawyer Panel</span></a>
+            {% else %}
+            <a href="{{url_for('lawyerdashboard')}}"
+            class="list-group-item list-group-item-action py-2" aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+         
+            {% endif %}
+          <center><a href="{{url_for('logout')}}" class="link-success fixed-bottom"><i
+                class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a> </center>
+          <center>
+            <p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+          </center>
 
         </div>
-         <!-- search -->
-         <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
-          
-
-          <div class="input-group">
-            <input id="searchInput type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
-          </div>
       </div>
-        <!-- end search -->
-     
-          <table id="contractsTable" class="table align-middle mb-0 bg-white">
-            <!-- <thead class="bg-light text-success">
+    </nav>
+
+  </header>
+  <!--Main layout-->
+  <main style="margin-top: -10px;">
+    <div class="container pt-3 align-items-center">
+      <!-- Dashboard -->
+      <br>
+      <h3>Contracts</h3>
+      <div id="myBtnContainer">
+        <a class="btn btn-success active" href="{{url_for('contracts')}}"> For review</a>
+
+        <a class="btn btn-outline-success" href="{{url_for('ongoing_contracts')}}"> Ongoing</a>
+        <a class="btn btn-outline-success" href="{{url_for('finished_contracts')}}"> Finished</a>
+
+      </div>
+      <!-- search -->
+      <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
+
+
+        <div class="input-group">
+          <input id="searchInput type=" search" class="form-control rounded" placeholder="Search" aria-label="Search"
+            aria-describedby="search-addon" />
+        </div>
+      </div>
+      <!-- end search -->
+
+      <table id="contractsTable" class="table align-middle mb-0 bg-white">
+        <!-- <thead class="bg-light text-success">
               <tr>
                 <th>Name</th>            
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead> -->
-            <tbody>
-              <tr>
-                {% for leasing in leasing%}
-                {% if leasing.leasing_status == 'for review'%}
-                <td>
-                  <h4 class="text-success fw-bold mb-1">{{leasing.leasingID}}</h4>
-                </td>
-                <td>
+        <tbody>
+          <tr>
+            {% for leasing in leasing%}
+            {% if leasing.leasing_status == 'for review'%}
+            <!-- <td>
+              <h4 class="text-success fw-bold mb-1">{{leasing.leasingID}}</h4>
+            </td> -->
+            <td>
 
-                  <div class="d-flex align-items-center">
-                    
-                  
-                    <div class="ms-3">
-                      {% for user in user%}
-                      {% if user.userID == leasing.lessorID%}  
-                      <h4 class="text-success fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {{user.user_mname |first}}</h4>
-                      
-                      <h5 class="text-muted mb-0">
-                        {{user.user_email}}  
-                      </h5>   
-                      {% endif %}
-                      {% endfor %}
-                      
-                  </div>
-                </td>
-                <td>
-                  
-                  <span class="badge badge-warning rounded-pill d-inline" >{{leasing.leasing_status}}</span>
-                  
-                </td>
-                <td>
-                  
-                  <a href="{{url_for('view_contract',leasingID=leasing.leasingID,userID=user.userID)}}" class="view-btn"  data-id="456">
-                      <i class="fa-solid fa-eye"></i>
-                  </a>
+              <div class="d-flex align-items-center">
 
-                  <!-- <a onclick="setViewModalUser('{{leasing.leasing_status}}')"class="view-btn btn-primary" data-mdb-toggle="modal" href="#exampleModalToggle1" role="button">Open first modal</a> -->
-                  
-                </td>
-                
-              </tr>
-              
-              {% endif %}
-              {% endfor %}
-              
-            </tbody>
-          </table>
-   <div id="message"></div>
+
+                <div class="ms-3">
+                  {% for user in user%}
+                  {% if user.userID == leasing.lessorID%}
+                  <h4 class="text-success fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {{user.user_mname
+                    |first}}</h4>
+
+                  <h5 class="text-muted mb-0">
+                    {{user.user_email}}
+                  </h5>
+                  {% endif %}
+                  {% endfor %}
+
+                </div>
+            </td>
+            <td>
+
+              <span class="badge badge-warning rounded-pill d-inline">{{leasing.leasing_status}}</span>
+
+            </td>
+            <td>
+
+              <a href="{{url_for('view_contract',leasingID=leasing.leasingID,userID=user.userID)}}" class="view-btn"
+                data-id="456">
+                <i class="fa-solid fa-eye"></i>
+              </a>
+
+              <!-- <a onclick="setViewModalUser('{{leasing.leasing_status}}')"class="view-btn btn-primary" data-mdb-toggle="modal" href="#exampleModalToggle1" role="button">Open first modal</a> -->
+
+            </td>
+
+          </tr>
+
+          {% endif %}
+          {% endfor %}
+
+        </tbody>
+      </table>
+      <div id="message"></div>
     </div>
-</main>
-<!--Main layout-->
-<script>
-  var searchInput = document.getElementById("searchInput");
-  var table = document.getElementById("contractsTable");
-  var message = document.getElementById("message");
-  
-  searchInput.addEventListener("keyup", function() {
-    var filter = searchInput.value.toUpperCase();
-    var rows = table.getElementsByTagName("tr");
-    var visibleRows = 0;
-  
-    for (var i = 0; i < rows.length; i++) {
-      var cols = rows[i].getElementsByTagName("td");
-      var match = false;
-      for (var j = 0; j < cols.length; j++) {
-        var text = cols[j].innerText.toUpperCase();
-        if (text.indexOf(filter) > -1) {
-          match = true;
-          break;
+  </main>
+  <!--Main layout-->
+  <script>
+    var searchInput = document.getElementById("searchInput");
+    var table = document.getElementById("contractsTable");
+    var message = document.getElementById("message");
+
+    searchInput.addEventListener("keyup", function () {
+      var filter = searchInput.value.toUpperCase();
+      var rows = table.getElementsByTagName("tr");
+      var visibleRows = 0;
+
+      for (var i = 0; i < rows.length; i++) {
+        var cols = rows[i].getElementsByTagName("td");
+        var match = false;
+        for (var j = 0; j < cols.length; j++) {
+          var text = cols[j].innerText.toUpperCase();
+          if (text.indexOf(filter) > -1) {
+            match = true;
+            break;
+          }
+        }
+        rows[i].style.display = match ? "" : "none";
+        if (rows[i].style.display != "none") {
+          visibleRows++;
         }
       }
-      rows[i].style.display = match ? "" : "none";
-      if (rows[i].style.display != "none") {
-        visibleRows++;
+
+      if (visibleRows == 0) {
+        message.innerText = "No data to show";
+      } else {
+        message.innerText = "";
       }
-    }
-  
-    if (visibleRows == 0) {
-      message.innerText = "No data to show";
-    } else {
-      message.innerText = "";
-    }
-  });
-  
+    });
+
   </script>
 
 </body>
+
 </html>
