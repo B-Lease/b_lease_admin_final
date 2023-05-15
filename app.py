@@ -856,12 +856,13 @@ def view_contract():
 
     leasing['documents'] = []
     for filename in os.listdir(f'static/contracts/{leasing["leasingID"]}'):
-        if filename.endswith('.pdf') or filename.endswith('.doc') or filename.endswith('.docx'):
-
+        if filename.endswith('for_review.pdf') or filename.endswith('for_review.doc') or filename.endswith('for_review.docx'):
             leasing['documents'].append(filename)
 
 
+
     return render_template("view_contract.html", title=title, leasing=leasing, user=user,payment=payment, user_type=user_type, firstname = firstname , middlename = middlename , lastname = lastname)
+
 
 @app.route("/markasresolve")
 def markasresolve():
@@ -1055,7 +1056,15 @@ def approveContract():
 
 
     db.update_data('leasing', ['leasingID', 'leasing_status'],[leasingID, 'ongoing'])
-    message = "You have successfully approve the contract."
+
+    for filename in os.listdir(f'static/contracts/{leasingID}'):
+        if filename.endswith('for_review.pdf') or filename.endswith('for_review.doc') or filename.endswith('for_review.docx'):
+            # Specify the current and new file paths
+            current_file_path = f'static/contracts/{leasingID}/{filename}'
+            new_file_path = f'static/contracts/{leasingID}/{util.generateUUID(str(datetime.now()))}_ongoing.pdf' 
+            os.rename(current_file_path, new_file_path)
+
+    message = "You have successfully approved the contract."
     return redirect(url_for('contracts', success = message))
 
 @app.route("/declinecontracts")

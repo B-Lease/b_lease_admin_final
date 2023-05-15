@@ -575,6 +575,7 @@ leasing_args_put.add_argument('leasing_status', type=str, help='Missing Leasing 
 leasing_args_put.add_argument('leasing_start', type=str, help='Missing Leasing Start', required=True)
 leasing_args_put.add_argument('leasing_end', type=str, help='Missing Leasing End', required=True)
 leasing_args_put.add_argument('leasing_payment_frequency', type=str, help='Missing Payment Frequency', required=True)
+leasing_args_put.add_argument('leasing_payment_type', type=str, help='Missing Leasing Payment Type', required=True)
 leasing_args_put.add_argument('leasing_total_fee', type=str, help='Missing Total Fee', required=True)
 #leasing_args_put.add_argument('leasing_remarks', type=str, help='Missing Leasing Remarks', required=False)
 
@@ -660,9 +661,6 @@ class Leasing(Resource):
 
         fields = ['leasingID', 'lessorID', 'lesseeID', 'propertyID', 'leasing_status']        
         data = [leasingID, lessorID, lesseeID, propertyID, leasing_status]
-
-
-
      
         # notificationID = None
         # userID = None
@@ -715,7 +713,6 @@ class Leasing(Resource):
         for k, v in leasingInfo.items():
             fields.append(k)
             data.append(v)
-         
 
         check_existing = db.check_existing_data('leasing', 'leasingID', data[0])
 
@@ -734,9 +731,6 @@ class Leasing(Resource):
                 # insert_docs = db.insert_data('leasing_documents', ['leasing_docID', 'leasingID', 'leasing_doc_name'], [
                 #                              leasing_docID, leasingID, leasing_doc_name])
                 if insert_docs:
-              
-                   
-
                     getLeasingInfo = db.getLeasingInfo(data[0])
 
                     notif_lessee = db.get_data('user','userID', getLeasingInfo['lesseeID'])
@@ -902,6 +896,14 @@ class Leasing_Status(Resource):
                 if leasing_status == 'for review':
                     contractInfo = request.json
                     contract.signContract(contractInfo)
+                
+                if leasing_status == 'finished':
+                    for filename in os.listdir(f'static/contracts/{leasingID}'):
+                        if filename.endswith('ongoing.pdf') or filename.endswith('ongoing.doc') or filename.endswith('ongoing.docx'):
+                            # Specify the current and new file paths
+                            current_file_path = f'static/contracts/{leasingID}/{filename}'
+                            new_file_path = f'static/contracts/{leasingID}/{util.generateUUID(str(datetime.now()))}_finished.pdf' 
+                            os.rename(current_file_path, new_file_path)
 
                 #Lessor's Notification
                 getLeasingInfo = db.getLeasingInfo(leasingID)
