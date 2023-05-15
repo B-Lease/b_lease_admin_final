@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+</head>
+
+  
+
+<body>
+    <!-- b-lease logo -->
+    <div class="logo">
+        <img src="static/images/b-lease_main.png" alt="b-lease">
+            <p>Welcome! Lawyer</p>
+    </div>
+
+    <!-- login form -->
+    <form action="{{ url_for('login_lawyer')}}" method="POST">
+        <div class="flx">
+            <div class="content">
+                <div class="flx">
+                    <input type="text" class="form-control" id="lawyer_username" placeholder="Username" name="lawyer_username">
+                </div>
+                <br>
+                <div class="flx">
+                    <input type="password" class="form-control" id="lawyer_password" placeholder="Password" name="lawyer_password">
+                </div>
+                <!-- invalid dialog -->
+                {% if message == "Wrong credentials" %}
+                <p class="text-danger text-center p-2">Invalid login</p>
+
+                {% endif %}
+
+                <!-- end of invalid login  -->
+                <div class="loginbtn">
+                    <button type="submit" class="btn btn-success" name="login">Login</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- b-lease background image  -->
+    <div class="bgpos">
+        <img class="bg" src="static/images/b-lease-icon-main.png" alt="b-lease icon">
+    </div>
+
+
+  <!-- footer -->
+
+</body>
+</html>

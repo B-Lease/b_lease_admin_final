@@ -1,150 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
-    <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}" />
+  <!-- MDB -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='/js/user_report.js')}}"></script>
-    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>{{title}}</title>
-    
+  <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+  <script src="{{url_for('static', filename='/js/user_report.js')}}"></script>
+  <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>{{title}}</title>
+
 </head>
+
 <body style="background-color: #e7e7e7;">
-    <!--Main Navigation-->
-    <header>
-      <!-- Sidebar -->
-      <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-        <a class="navbar-brand" href="{{url_for('dashboard')}}">
-          <img src="static/images/b-lease_main.png"
-               height="30"
-               alt="b-lease logo"
-               loading="lazy" />
-        </a>
-        <br>
-        <p style="color:#40a047;margin-left: 15px;">{{firstname}} {{middlename | first}}. {{lastname}}</p>
-        <div class="position-sticky">
-          <div class="list-group list-group-flush mx-7 mt-5">
-            
-            <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
-              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-            </a>
-            <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-            <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-            <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 text-success c ripple active">
-              <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
-            </a>
-            <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-            <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-    
-            <a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>          
-               
-          </div>
+  <!--Main Navigation-->
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <a class="navbar-brand" href="{{url_for('dashboard')}}">
+        <img src="static/images/b-lease_main.png" height="30" alt="b-lease logo" loading="lazy" />
+      </a>
+      <br>
+      <p style="color:#40a047;margin-left: 15px;">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-7 mt-5">
+
+          <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple"
+            aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+          </a>
+          <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+          <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+          <a href="{{url_for('manage_complaint')}}"
+            class="list-group-item list-group-item-action py-2 text-success c ripple active">
+            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+          </a>
+          <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+
+
+          <a href="{{ url_for('lawyer_panel') }}" class="list-group-item list-group-item-action py-2 ">
+            <i class="fa-solid fa-gavel me-3"></i><span>Lawyer Panel</span></a>
+
+
+          <a href="{{url_for('logout')}}" class="link-success fixed-bottom"><i class="fa-solid fa-right-from-bracket"
+              style="color: #40a047;"></i> Logout</a>
+
         </div>
-      </nav>
-    
-    </header>
-<!--Main Navigation-->
+      </div>
+    </nav>
 
-<!--Main layout-->
-<main style="margin-top: 5px;">
-  <div class="container pt-3 align-items-center">
-      
-        <a href="{{url_for('manage_complaint')}}" style="float:left" >
-          <i class="fa-solid fa-arrow-left"></i> Go back
-        </a>
-        
-        <br><br>
-        
-        <div class="row d-flex justify-content-center align-items-center h-100">
-          <div class="col-lg-5 col-xl-8">
-              <div class="card text-black" style="border-radius: 25px;">
-                  <div class="card-body p-md-4">
-                  
-                         
-               
-                      
-                    
-                      <h1 style="margin-left: 0px; padding:5px 5px; color:#40a047;">Complaint ID: {{complaint.complaintID}}</h1>
-                      
-                    
-                     
-                      <h6 style="margin-left: 0px; padding:5px 5px; color:#40a047;">Category:&nbsp;{{complaint.complaint_subject}}</h6>
-                      <h6 style="margin-left: 0px; padding:5px 5px; color:#979797">Complainer ID: &nbsp; {{complaint.complainerID}}</h6>
-                      <h6 style="margin-left: 0px; padding:5px 5px; color:#979797">Complainee ID:&nbsp; {{complaint.complaineeID}}</h6>
-                      <hr>
-                      <h3>Thread</h3>
-                      <div class="scroll-container">
-                        <div class="scroll-content">
-                          
-                        <textarea name="complaint" id="" cols="80" rows="4" readonly>{{complaint.complaint_desc}}</textarea>
-                        <h6 style="opacity: 0.4;">{{complaint.created_at}}</h6>
+  </header>
+  <!--Main Navigation-->
 
-                        {% if complaint_thread is defined and complaint_thread is not none%}
-                        {% for each in complaint_thread %}
-                        
+  <!--Main layout-->
+  <main style="margin-top: 5px;">
+    <div class="container pt-3 align-items-center">
 
-                        <textarea name="complaint" id="" cols="80" rows="4" readonly>{{each.thread_content}}</textarea>
-                        <h6 style="opacity: 0.4;">{{each.created_at}}</h6>
-                        
-                        {% endfor %}
-                        {% endif %}
-                        
-                        <br><br>
+      <a href="{{url_for('manage_complaint')}}" style="float:left">
+        <i class="fa-solid fa-arrow-left"></i> Go back
+      </a>
 
-                        </div>
-                      </div>
-                      <br><br>
-                      {% if complaint.complaint_status == 'pending' %}
-                          <form action="/updatethread" method="post">
-                              
-                            <textarea id="thread_content" name="thread_content"></textarea><br><br>
-                            <input type="hidden"  id="complaintID" name="complaintID" value="{{ complaint.complaintID }}">
-                            <input type="submit" value="Update Thread" class="link-light bg-success shadow-sm">
+      <br><br>
 
-                            {% if message is defined and message == "success"%}
-                            <p style="color:green;">{{message}}</p>
-                            {% endif %}
-                            {% if message is defined and message == "error"%}
-                            <p style="color:red;">{{message}}</p>
-                            {% endif %}
-                          </form>
-                          <br>
-                          <a href="{{url_for('markasresolve',complaintID=complaint.complaintID)}}" style="border: 10px solid #e4a11b; border-radius: 4px;" class="link-light bg-warning shadow-sm">Mark as Resolved</a><br><br>
-                      {% endif %}
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-lg-5 col-xl-8">
+          <div class="card text-black" style="border-radius: 25px;">
+            <div class="card-body p-md-4">
 
-               
 
-                  </div>
+
+
+
+              <h1 style="margin-left: 0px; padding:5px 5px; color:#40a047;">Complaint ID: {{complaint.complaintID}}</h1>
+
+
+
+              <h6 style="margin-left: 0px; padding:5px 5px; color:#40a047;">
+                Category:&nbsp;{{complaint.complaint_subject}}</h6>
+              <h6 style="margin-left: 0px; padding:5px 5px; color:#979797">Complainer ID: &nbsp;
+                {{complaint.complainerID}}</h6>
+              <h6 style="margin-left: 0px; padding:5px 5px; color:#979797">Complainee ID:&nbsp;
+                {{complaint.complaineeID}}</h6>
+              <hr>
+              <h3>Thread</h3>
+              <div class="scroll-container">
+                <div class="scroll-content">
+
+                  <textarea name="complaint" id="" cols="80" rows="4" readonly>{{complaint.complaint_desc}}</textarea>
+                  <h6 style="opacity: 0.4;">{{complaint.created_at}}</h6>
+
+                  {% if complaint_thread is defined and complaint_thread is not none%}
+                  {% for each in complaint_thread %}
+
+
+                  <textarea name="complaint" id="" cols="80" rows="4" readonly>{{each.thread_content}}</textarea>
+                  <h6 style="opacity: 0.4;">{{each.created_at}}</h6>
+
+                  {% endfor %}
+                  {% endif %}
+
+                  <br><br>
+
                 </div>
-    
+              </div>
+              <br><br>
+              {% if complaint.complaint_status == 'pending' %}
+              <form action="/updatethread" method="post">
+
+                <textarea id="thread_content" name="thread_content"></textarea><br><br>
+                <input type="hidden" id="complaintID" name="complaintID" value="{{ complaint.complaintID }}">
+                <input type="submit" value="Update Thread" class="link-light bg-success shadow-sm">
+
+                {% if message is defined and message == "success"%}
+                <p style="color:green;">{{message}}</p>
+                {% endif %}
+                {% if message is defined and message == "error"%}
+                <p style="color:red;">{{message}}</p>
+                {% endif %}
+              </form>
+              <br>
+              <a href="{{url_for('markasresolve',complaintID=complaint.complaintID)}}"
+                style="border: 10px solid #e4a11b; border-radius: 4px;" class="link-light bg-warning shadow-sm">Mark as
+                Resolved</a><br><br>
+              {% endif %}
+
+
+
             </div>
           </div>
-      
 
-        
-        
-       
-            
-  </div>
-</main>
-<!--Main layout-->
+        </div>
+      </div>
+
+
+
+
+
+
+    </div>
+  </main>
+  <!--Main layout-->
 
 
 </body>
+
 </html>

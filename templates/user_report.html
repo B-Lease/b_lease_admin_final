@@ -1,76 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
-    <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}" />
+  <!-- MDB -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='/js/user_report.js')}}"></script>
-    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>{{title}}</title>
-    
+  <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+  <script src="{{url_for('static', filename='/js/user_report.js')}}"></script>
+  <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>{{title}}</title>
+
 </head>
-<body style="background-color: #e7e7e7;">
-    <!--Main Navigation-->
-    <header>
-      <!-- Sidebar -->
-      <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-        <a class="navbar-brand" href="{{url_for('dashboard')}}">
-          <img src="static/images/b-lease_main.png"
-               height="30"
-               alt="b-lease logo"
-               loading="lazy" />
-        </a>
-        <br>
-        
-        <div class="position-sticky">
-          <div class="list-group list-group-flush mx-7 mt-5">
-            
-            <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
-              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 text-success c ripple active ">
-              <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-            </a>
-            <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-            <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-            <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
-            </a>
-            <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-            <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
-              
-                <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
-                <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>          
-               
-          </div>
-        </div>
-      </nav>
-    
-    </header>
-<!--Main Navigation-->
 
-<!--Main layout-->
-<main  style="margin-top: -10px;">
-  <div class="container pt-3 align-items-center">
-        <!-- Dashboard -->
-        <br>
-        <h3>Accounts</h3>
-         <!-- search -->
-         <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
-            <!-- <div class="input-group" style="outline-color: black;">
+<body style="background-color: #e7e7e7;">
+  <!--Main Navigation-->
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <a class="navbar-brand" href="{{url_for('dashboard')}}">
+        <img src="static/images/b-lease_main.png" height="30" alt="b-lease logo" loading="lazy" />
+      </a>
+      <br>
+
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-7 mt-5">
+
+          <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple"
+            aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('user_report') }}"
+            class="list-group-item list-group-item-action py-2 text-success c ripple active ">
+            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+          </a>
+          <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+          <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+          <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+          </a>
+          <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+
+
+          <a href="{{ url_for('lawyer_panel') }}" class="list-group-item list-group-item-action py-2 ">
+            <i class="fa-solid fa-gavel me-3"></i><span>Lawyer Panel</span></a>
+            
+          <center><a href="{{url_for('logout')}}" class="link-success fixed-bottom"><i
+                class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a> </center>
+          <center>
+            <p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+          </center>
+
+        </div>
+      </div>
+    </nav>
+
+  </header>
+  <!--Main Navigation-->
+
+  <!--Main layout-->
+  <main style="margin-top: -10px;">
+    <div class="container pt-3 align-items-center">
+      <!-- Dashboard -->
+      <br>
+      <h3>Accounts</h3>
+      <!-- search -->
+      <div class="searchbox" style="width:40%;padding:1%;float:right;margin-top: -60px;">
+        <!-- <div class="input-group" style="outline-color: black;">
               <div class="form-outline" >
                 <input type="search" id="searcg" class="form-control" />
                 <label class="form-label" for="search">Search</label>
@@ -79,148 +88,143 @@
                 <i class="fas fa-search"></i>
               </button>
             </div> -->
-            <div class="input-group">
-              <input type="search"  id="searchInput" name="q" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
-            </div>
+        <div class="input-group">
+          <input type="search" id="searchInput" name="q" class="form-control rounded" placeholder="Search"
+            aria-label="Search" aria-describedby="search-addon" />
         </div>
-        <!-- Table -->       
-          <table id="userTable"  class="table align-middle mb-0 bg-white">
-            <thead class="bg-light text-success">
-              <tr>
-             
-                <th>ID</th>
-                <th>Name</th>
-                <!-- <th>User Type</th> -->
-                <!-- <th>Last Login</th> -->
-                <th>Last Login</th>
-                <th>Status</th>
-                
-                <th>Actions</th>
-              </tr>
-            </thead>
+      </div>
+      <!-- Table -->
+      <table id="userTable" class="table align-middle mb-0 bg-white">
+        <thead class="bg-light text-success">
+          <tr>
 
-            <tbody>     
+            <!-- <th>ID</th> -->
+            <th>Name</th>
+            <!-- <th>User Type</th> -->
+            <!-- <th>Last Login</th> -->
+            <th>Last Login</th>
+            <th>Status</th>
 
-                {% for user in logging_data %}
-                <tr>
-                <td>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for user in logging_data %}
+          <tr>
+            <!-- <td>
                     {{user.userID}}
-                </td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    
-                  <img
-                  src="{{url_for('static',filename='images/user.svg')}}"
-                    alt=""
-                    style="width: 50px; height: 50px; border-radius: 10px;"
-                    class="rounded-circle"
-                    />
-                
-                    <div class="ms-3">
-                 
-                      <p class="fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {% if user.user_mname is defined and user.user_mname is not none %}{{user.user_mname | first}}. {% endif %}</p>
-                      <p class="text-muted mb-0">{{user.user_email}}</p>
-                      
-                    </div>
-                    </div>
-                  </td>   
-                  <td>
-                    {{user.lastLogin}}
-                  </td>
-                  <td>
-                    {% if user.status == 'valid'%}
-                    <span class="badge badge-success rounded-pill d-inline">{{user.status}}</span>
-                    {% else %}
-                    <span class="badge badge-danger rounded-pill d-inline">{{user.status}}</span>
-                    {% endif %}
-                  </td>
-                
-                <td>
-                  <a href="{{url_for('view_user',userID=user.userID)}}" class="view-btn"  data-id="456">
-                    <i class="fa-solid fa-eye"></i>
-                  </a>
-                  &nbsp;
-                  <a onclick="setDeleteModalUser('{{user.userID}}')" class="delete-btn" data-id="123">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </a>
-                </td>
-              </tr>
+                </td> -->
+            <td>
+              <div class="d-flex align-items-center">
 
-              {% endfor %}  
+                <img src="{{url_for('static',filename='images/user.svg')}}" alt=""
+                  style="width: 50px; height: 50px; border-radius: 10px;" class="rounded-circle" />
 
-        </table>
-        <div id="message"></div>
-<script>
-var searchInput = document.getElementById("searchInput");
-var table = document.getElementById("userTable");
-var message = document.getElementById("message");
+                <div class="ms-3">
 
-searchInput.addEventListener("keyup", function() {
-  var filter = searchInput.value.toUpperCase();
-  var rows = table.getElementsByTagName("tr");
-  var visibleRows = 0;
+                  <p class="fw-bold mb-1">{{user.user_lname}}, {{user.user_fname}} {% if user.user_mname is defined and
+                    user.user_mname is not none %}{{user.user_mname | first}}. {% endif %}</p>
+                  <p class="text-muted mb-0">{{user.user_email}}</p>
 
-  for (var i = 0; i < rows.length; i++) {
-    var cols = rows[i].getElementsByTagName("td");
-    var match = false;
-    for (var j = 0; j < cols.length; j++) {
-      var text = cols[j].innerText.toUpperCase();
-      if (text.indexOf(filter) > -1) {
-        match = true;
-        break;
-      }
-    }
-    rows[i].style.display = match ? "" : "none";
-    if (rows[i].style.display != "none") {
-      visibleRows++;
-    }
-  }
-
-  if (visibleRows == 0) {
-    message.innerText = "No data to show";
-  } else {
-    message.innerText = "";
-  }
-});
-
-</script>
-              <!-- delete -->
-              <div
-              class="modal"
-              id="delete-modal"
-              data-mdb-backdrop="static"
-              data-mdb-keyboard="false"
-              tabindex="-1"
-              aria-labelledby="staticBackdropLabel"
-              aria-hidden="true"
-              >
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="staticBackdropLabel">Delete User?</h5>
-                      <button type="button" class="delete-cancel-btn btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">Are you sure you want to delete this user? This process can't be undone.<input type="text" id="deleteuserID" hidden></div>
-                    <div class="modal-footer">
-                      <button onclick="deleteButtonUser()" type="button" class="btn btn-danger delete-confirm-btn">Confirm Delete</button>
-                      <button type="button" class="btn btn-success delete-cancel-btn">Cancel</button>
-                    </div>
-                  </div>
                 </div>
               </div>
-              
-            
-  </div>
-</main>
-<!--Main layout-->
+            </td>
+            <td>
+              {{user.lastLogin}}
+            </td>
+            <td>
+              {% if user.status == 'valid'%}
+              <span class="badge badge-success rounded-pill d-inline">{{user.status}}</span>
+              {% else %}
+              <span class="badge badge-danger rounded-pill d-inline">{{user.status}}</span>
+              {% endif %}
+            </td>
+
+            <td>
+              <a href="{{url_for('view_user',userID=user.userID)}}" class="view-btn" data-id="456">
+                <i class="fa-solid fa-eye"></i>
+              </a>
+              &nbsp;
+              <a onclick="setDeleteModalUser('{{user.userID}}')" class="delete-btn" data-id="123">
+                <i class="fa-solid fa-trash-can"></i>
+              </a>
+            </td>
+          </tr>
+
+          {% endfor %}
+
+      </table>
+      <div id="message"></div>
+      <script>
+        var searchInput = document.getElementById("searchInput");
+        var table = document.getElementById("userTable");
+        var message = document.getElementById("message");
+
+        searchInput.addEventListener("keyup", function () {
+          var filter = searchInput.value.toUpperCase();
+          var rows = table.getElementsByTagName("tr");
+          var visibleRows = 0;
+
+          for (var i = 0; i < rows.length; i++) {
+            var cols = rows[i].getElementsByTagName("td");
+            var match = false;
+            for (var j = 0; j < cols.length; j++) {
+              var text = cols[j].innerText.toUpperCase();
+              if (text.indexOf(filter) > -1) {
+                match = true;
+                break;
+              }
+            }
+            rows[i].style.display = match ? "" : "none";
+            if (rows[i].style.display != "none") {
+              visibleRows++;
+            }
+          }
+
+          if (visibleRows == 0) {
+            message.innerText = "No data to show";
+          } else {
+            message.innerText = "";
+          }
+        });
+
+      </script>
+      <!-- delete -->
+      <div class="modal" id="delete-modal" data-mdb-backdrop="static" data-mdb-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Delete User?</h5>
+              <button type="button" class="delete-cancel-btn btn-close" data-mdb-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body">Are you sure you want to delete this user? This process can't be undone.<input
+                type="text" id="deleteuserID" hidden></div>
+            <div class="modal-footer">
+              <button onclick="deleteButtonUser()" type="button" class="btn btn-danger delete-confirm-btn">Confirm
+                Delete</button>
+              <button type="button" class="btn btn-success delete-cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
- 
-  
+    </div>
+  </main>
+  <!--Main layout-->
 
-    <!-- footer
+
+
+
+
+  <!-- footer
     <footer class="text-center p-3  fixed-bottom">
         <p>B-Lease © 2023</p>
     </footer> -->
 </body>
+
 </html>

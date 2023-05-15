@@ -22,42 +22,42 @@
             <div class="card-body p-md-5">
               <div class="row justify-content-center">
                 <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-                    <a href="{{url_for('admin_panel')}}" >
+                    <a href="{{url_for('lawyer_panel')}}" >
                       <i class="fa-solid fa-arrow-left"></i> Go back
                     </a>
-                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4" style="color: #40a047">Add New Admin</p>
+                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4" style="color: #40a047">Add New Lawyer</p>
                   
                   {% if message %}
                   <div class="alert alert-success">{{ message }}</div>
                    {% endif %}
-                  <form class="mx-1 mx-md-4" method="POST" action="/addAdmin">
+                  <form class="mx-1 mx-md-4" method="POST" action="/addLawyer">
 
                     {% if message1 == 'ok' %}
-                        <p class="text-success text-center p-2">Successfully Added as ADMIN</p>
+                        <p class="text-success text-center p-2">Successfully Added as LAWYER</p>
                     {& else &}
-                        <p class="text-danger text-center p-2">Error Adding Admin</p>
+                        <p class="text-danger text-center p-2">Error Adding Lawyer</p>
                     {% endif %}
 
-          
+                  
                     <br>
                     <div class="form-group">
-                      <input type="text" class="form-control" id="admin_fname" name="admin_fname" aria-describedby="emailHelp" placeholder="First Name" required>
+                      <input type="text" class="form-control" id="lawyer_fname" name="lawyer_fname" aria-describedby="emailHelp" placeholder="First Name" required>
                     </div>
                     <br>
                     <div class="form-group">
-                      <input type="text" class="form-control" id="admin_mname" name="admin_mname" aria-describedby="emailHelp" placeholder="Middle Name" required>
+                      <input type="text" class="form-control" id="lawyer_mname" name="lawyer_mname" aria-describedby="emailHelp" placeholder="Middle Name" required>
                     </div>
                     <br>
                     <div class="form-group">
-                      <input type="text" class="form-control" id="admin_lname" name="admin_lname" aria-describedby="emailHelp" placeholder="Last Name" required>
+                      <input type="text" class="form-control" id="lawyer_lname" name="lawyer_lname" aria-describedby="emailHelp" placeholder="Last Name" required>
                     </div>
                     <br>
                     <div class="form-group">
-                      <input type="text" class="form-control" id="admin_username" name="admin_username" aria-describedby="emailHelp" placeholder="Username" required>
+                      <input type="text" class="form-control" id="lawyer_username" name="lawyer_username" aria-describedby="emailHelp" placeholder="Username" required>
                     </div>
                     <br>
                     <div class="form-group">
-                      <input type="text" class="form-control" id="admin_password" name="admin_password" aria-describedby="emailHelp" placeholder="Password" required>
+                      <input type="text" class="form-control" id="lawyer_password" name="lawyer_password" aria-describedby="emailHelp" placeholder="Password" required>
                     </div>
                     <br>
 

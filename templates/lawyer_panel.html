@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename='/js/lawyer_panel.js')}}"></script>
+    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"
+></script>
+    <title>{{title}}</title>
+</head>
+<body style="background-color: #e7e7e7;">
+  <!--Main Navigation-->
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <a class="navbar-brand" href="{{url_for('dashboard')}}">
+        <img src="static/images/b-lease_main.png"
+             height="30"
+             alt="b-lease logo"
+             loading="lazy" />
+      </a>
+      <br>
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-7 mt-5">
+          
+          <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+          </a>
+          <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+          <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+          <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+          </a>
+          <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+
+          <a href="{{ url_for('lawyer_panel') }}" class="list-group-item list-group-item-action py-2 text-success c ripple active">
+            <i class="fa-solid fa-gavel me-3"></i><span>Lawyer Panel</span></a>
+  
+              <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
+              <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>       
+             
+        </div>
+      </div>
+    </nav>
+  
+  </header>
+<!--Main Navigation-->
+
+<!--Main layout-->
+<main style="margin-top: 58px;">
+  <div class="container pt-3 align-items-center">
+        <!-- Table -->
+        <div class="add">
+          <a href="{{url_for('add_lawyer')}}" class="btn btn-success">
+            <i class="fa-sharp fa-solid fa-plus me-3"></i>Add new lawyer
+          </a>
+        </div>
+        <table class="table align-middle mb-0 bg-white">
+            <thead class="bg-light text-success">
+              <tr>
+                <!-- <th>ID</th> -->
+                <th>Name</th>
+                <th>User Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for lawyer in lawyers %}
+              <tr>   
+                <!-- <td>
+                    {{lawyer.lawyerID}}
+                </td> -->
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <div class="ms-0">
+                      <p class="fw-bold mb-1">{{lawyer.lawyer_lname}}, {{lawyer.lawyer_fname}} {{lawyer.lawyer_mname |first}}</p>
+                      <p class="text-muted mb-0">{{lawyer.lawyer_email}}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>Lawyer</td>
+        
+                <td>
+                    <span class="badge badge-success rounded-pill d-inline">Active</span>
+                </td>
+                <td>
+                 
+                
+                  <a onclick="setViewModalLawyer('{{lawyer.lawyerID}}','{{lawyer.lawyer_fname}}', '{{lawyer.lawyer_mname}}','{{lawyer.lawyer_lname}}','{{lawyer.lawyer_username}}','{{lawyer.lawyer_password}}' )" class="view-btn"  data-id="456">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                  &nbsp;
+                  <a onclick="setDeleteModal('{{lawyer.lawyerID}}')" class="delete-btn" data-id="123">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </a>
+                  
+                </td> 
+                
+              </tr>
+             
+              {% endfor %}
+             
+              <div
+                class="modal"
+                id="delete-modal"
+                tabindex="-1"
+                aria-labelledby="staticBackdropLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdropLabel">Delete Lawyer?</h5>
+                      <button type="button" class="delete-cancel-btn btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">Are you sure you want to delete this lawyer? This process can't be undone.<input type="text" id="deletelawyerID" hidden></div>
+                    <div class="modal-footer">
+                      <button onclick="deleteButton()" type="button" class="btn btn-danger delete-confirm-btn">Confirm Delete</button>
+                      <button type="button" class="btn btn-success delete-cancel-btn">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- View Profile Modal -->
+            
+                 <!-- view user modal -->
+              <div class="col-md-4">
+                <div class="modal" id="view-modal" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-form" role="document">
+                    <div class="modal-content">
+                      <div class="modal-body p-0">
+                        <div class="card card-plain">
+                          <div class="card-header">
+                            <h5 class="float-left" id="staticBackdropLabel">Lawyer<span style="margin-right:350px;"></span><button type="button" class="view-cancel-btn btn-close align-self-right" data-mdb-dismiss="modal" aria-label="Close"></button></h5>
+                            
+                            <p class="mb-0"></p>
+                          </div>
+                          <div class="card-body">
+                           
+                            <form role="form text-left" method="POST" action="/updatelawyer">
+                            
+                                <button type="button" id="edit_profile" style="border:none; outline:none; background-color:transparent;" onclick="editProfile()">
+                                  <i class=" fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip"
+                                      data-bs-placement="top" title="Edit Profile"></i>
+                                </button>
+                                <button type="button" id="cancel_edit_profile" style="border:none; outline:none; background-color:transparent;"  onclick="cancelEdit()" hidden>
+                                  <i class="fa-solid fa-xmark text-danger text-sm" data-bs-toggle="tooltip"
+                                      data-bs-placement="top" title="Cancel Edit Profile"></i>
+                              </button>
+                              <button type="submit" onclick="return emptyEdit()" href="javascript:;" id="confirm_edit_profile" style="border:none; outline:none; background-color:transparent;" hidden>
+                                        
+                                <i class="fa-solid fa-check text-success text-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Confirm Edit Profile"></i>
+                              </button>
+                             
+                         
+                            <input type="text" id="lawyerID" name="lawyerID" hidden>
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Lawyer ID</label>
+                                <input type="text" class="form-control"  name="lawyerIDlabel" id="lawyerIDlabel" disabled>
+                              </div>
+
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Firstname</label>
+                                <input type="text" class="form-control" name="lawyer_fname" id="lawyer_fname" disabled>
+                              </div>
+
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Middle Name</label>
+                                <input type="text" class="form-control"  name="lawyer_mname" id="lawyer_mname"   disabled>
+                              </div>
+
+                              <div class="input-group input-group-static mb-4" style="color:#40A047;">
+                                <label class="label">Lastname</label>
+                                <input type="text" class="form-control"  name="lawyer_lname" id="lawyer_lname"  disabled>
+                              </div>
+                             
+                              <div class="input-group input-group-static my-3" style="color:#40A047;">
+                                <label class="label">Username</label>
+                                <input type="text" class="form-control" name="lawyer_username" id="lawyer_username"  disabled>
+                              </div>
+              
+                              <div class="input-group input-group-static my-3"style="color:#40A047;">
+                                <label class="label">Password</label>
+                                <input type="text" class="form-control" name="lawyer_password" id="lawyer_password"  disabled>
+                              </div>
+
+                             
+                            </form>
+                          </div>
+                          
+                 
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </tbody>
+          </table>
+          
+  </div>
+</main>
+<!--Main layout-->
+
+</body>
+</html>

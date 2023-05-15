@@ -50,6 +50,16 @@ def index():
     
     return render_template('index.html', title=title)   
    
+@app.route('/lawyer')
+def lawyerindex():  
+    if 'sessionID' in session:
+            return redirect(url_for('dashboard'))
+    
+
+    title = "B-Lease | Lawyer Login" 
+    
+    return render_template('lawyerindex.html', title=title)   
+   
     
 @app.route("/login_user", methods=['POST'])
 def login_user():
@@ -68,11 +78,37 @@ def login_user():
             session['admin_firstname'] = okey['admin_fname']
             session['admin_mname'] = okey['admin_mname']
             session['admin_lastname'] = okey['admin_lname']
+            session['user_type'] = 'admin'
             message = "Login Successfully"
             return redirect(url_for('dashboard'))
         else:
             message = "Wrong credentials"  
             return render_template('index.html', message=message)
+         
+   
+@app.route("/login_lawyer", methods=['POST'])
+def login_lawyer():
+    if 'sessionID' in session:
+            return redirect(url_for('lawyerdashboard'))
+
+    if request.method == 'POST' and 'lawyer_username' in request.form and 'lawyer_password' in request.form: 
+        lawyer_username = request.form['lawyer_username']
+        lawyer_password = request.form['lawyer_password']
+        fields = ['lawyer_username','lawyer_password']
+        data = [lawyer_username,lawyer_password]
+        
+        okey = db.get_specific_data('lawyer',fields,data)
+        if okey is not None:
+            session['sessionID'] = okey['lawyerID']  
+            session['lawyer_firstname'] = okey['lawyer_fname']
+            session['lawyer_mname'] = okey['lawyer_mname']
+            session['lawyer_lastname'] = okey['lawyer_lname']
+            session['user_type'] = 'lawyer'
+            message = "Login Successfully"
+            return redirect(url_for('lawyerdashboard'))
+        else:
+            message = "Invalid credentials"  
+            return render_template('lawyerindex.html', message=message)
          
    
      
@@ -100,12 +136,39 @@ def dashboard():
                                   total_filed_complaints=total_filed_complaints,
                                    total_resolved_complaints=total_resolved_complaints )
     return redirect(url_for('index'))
+@app.route("/lawyerdashboard")
+def lawyerdashboard():
+    if 'sessionID' not in session:
+            return redirect(url_for('lawyerindex'))
+    title = "B-Lease | Lawyer Dashboard" 
+
+    total_approved_contracts = db.countTotalOngoingContracts()
+    total_finished_contracts = db.countTotalFinishedContracts()
+    total_declined_contracts = db.countTotalDeclinedContracts()
+
+    if 'sessionID' in session:
+        firstname = session['lawyer_firstname']
+        middlename = session['lawyer_mname']
+        lastname = session['lawyer_lastname']
+        return render_template('lawyerdashboard.html', okey=session['sessionID'], 
+                               title=title, firstname=firstname,middlename=middlename,
+                               lastname=lastname, total_approved_contracts = total_approved_contracts,
+                               total_finished_contracts = total_finished_contracts, total_declined_contracts = total_declined_contracts
+                               
+                               )
+    return redirect(url_for('lawyerindex'))
 
 @app.route('/logout')
 def logout():
+   user_type = session['user_type']
    session.clear()
-   return redirect(url_for('index'))
 
+   if user_type == 'admin':
+        return redirect(url_for('index'))
+       
+   if user_type == 'lawyer':
+        return redirect(url_for('lawyerindex'))
+    
 
 @app.after_request
 def after_request(response):
@@ -187,6 +250,27 @@ def admin_panel():
             middlename=middlename,
             lastname=lastname
         )
+    
+@app.route("/lawyer_panel")
+def lawyer_panel():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        title = "B-Lease | Admin Panel"   
+        lawyers = db.get_all_data('lawyer')
+
+        return render_template(
+            "lawyer_panel.html",
+            title = title,
+            lawyers = lawyers,
+            firstname=firstname,
+            middlename=middlename,
+            lastname=lastname
+        )
 @app.route("/add_admin")
 def add_admin():
     if 'sessionID' not in session:
@@ -199,6 +283,18 @@ def add_admin():
         lastname = session['admin_lastname']
 
     return render_template("add_admin.html", title=title,firstname=firstname,middlename=middlename,lastname=lastname)
+@app.route("/add_lawyer")
+def add_lawyer():
+    if 'sessionID' not in session:
+        return redirect(url_for('dashboard'))
+    
+    title = "B-Lease | Add Lawyer User"
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+
+    return render_template("add_lawyer.html", title=title,firstname=firstname,middlename=middlename,lastname=lastname)
 
 @app.route("/addAdmin",methods=['POST'])
 def addAdmin():
@@ -212,12 +308,13 @@ def addAdmin():
 
         error = request.args.get('error')
         success = request.args.get('success')
-        adminID = request.form['adminID']
         admin_fname = request.form['admin_fname'].upper()
         admin_mname = request.form['admin_mname'].upper()
         admin_lname = request.form['admin_lname'].upper()
         admin_username = request.form['admin_username']
         admin_password = request.form['admin_password']
+
+        adminID = util.generateUUID(f"{admin_fname},{admin_mname},{admin_lname},{admin_username},{admin_password}")
 
         existing_member = db.get_data('admin', 'adminID', adminID)
         if existing_member is None:
@@ -231,12 +328,51 @@ def addAdmin():
             
             message = f"Successfully added { admin_lname }, {admin_fname} {admin_mname} as admin"
             message1 = 'ok'
-            return redirect(url_for('add_admin', message=message,firstname=firstname,middlename=middlename,lastname=lastname))
+            return redirect(url_for('admin_panel', message=message,firstname=firstname,middlename=middlename,lastname=lastname))
 
         elif adminID and admin_fname and admin_mname and admin_lname and admin_username and admin_password and  existing_member:
             message = f"Member { admin_lname}, {admin_fname} {admin_mname} is already a member"
             message1 = 'not ok'
             return redirect(url_for('add_admin',message=message,message1=message1,firstname=firstname,middlename=middlename,lastname=lastname))
+
+@app.route("/addLawyer",methods=['POST'])
+def addLawyer():
+    if 'sessionID' not in session:
+            return redirect(url_for('dashboard'))
+
+    if 'sessionID' in session:
+        firstname = session['admin_firstname']
+        middlename = session['admin_mname']
+        lastname = session['admin_lastname']
+        
+        error = request.args.get('error')
+        success = request.args.get('success')
+        lawyer_fname = request.form['lawyer_fname'].upper()
+        lawyer_mname = request.form['lawyer_mname'].upper()
+        lawyer_lname = request.form['lawyer_lname'].upper()
+        lawyer_username = request.form['lawyer_username']
+        lawyer_password = request.form['lawyer_password']
+
+        lawyerID = util.generateUUID(f"{lawyer_fname},{lawyer_mname},{lawyer_lname},{lawyer_username},{lawyer_password}")
+
+        existing_member = db.get_data('lawyer', 'lawyerID', lawyerID)
+        if existing_member is None:
+
+            md5_hash = hashlib.md5(lawyer_password.encode()).hexdigest()
+
+            fields = ['lawyerID','lawyer_fname', 'lawyer_mname', 'lawyer_lname', 'lawyer_username', 'lawyer_password_hashed','lawyer_password']
+            data = [lawyerID,lawyer_fname, lawyer_mname,lawyer_lname,lawyer_username,md5_hash,lawyer_password]
+
+            db.insert_data('lawyer', fields, data)
+            
+            message = f"Successfully added { lawyer_lname }, {lawyer_fname} {lawyer_mname} as lawyer"
+            message1 = 'ok'
+            return redirect(url_for('lawyer_panel', message=message,firstname=firstname,middlename=middlename,lastname=lastname))
+
+        elif lawyerID and lawyer_fname and lawyer_mname and lawyer_lname and lawyer_username and lawyer_password and  existing_member:
+            message = f"Member { lawyer_lname}, {lawyer_fname} {lawyer_mname} is already a member"
+            message1 = 'not ok'
+            return redirect(url_for('add_lawyer',message=message,message1=message1,firstname=firstname,middlename=middlename,lastname=lastname))
 
 @app.route("/deleteaccount", methods=['GET'])
 def deleteaccount():
@@ -256,6 +392,26 @@ def deleteaccount():
     else:
         print('Account not found')
         return redirect(url_for('admin_panel'))
+    
+@app.route("/deletelawyeraccount", methods=['GET'])
+def deletelawyeraccount():
+    
+    lawyerID = request.args.get('lawyerID')
+    
+    lawyer = db.get_specific_data('lawyer', ['lawyerID'], [lawyerID])
+    
+    if lawyer:
+        okey = db.delete_data('lawyer', 'lawyerID', lawyerID)
+        if okey:
+            print ('Lawyer Successfully Deleted')
+            return redirect(url_for('lawyer_panel'))
+        else:
+            print('Lawyer was not deleted')
+            return redirect(url_for('lawyer_panel'))
+    else:
+        print('Account not found')
+        return redirect(url_for('lawyer_panel'))
+    
 
 @app.route("/deleteuseraccount", methods=['GET'])
 def deleteuseraccount():
@@ -329,6 +485,31 @@ def updateadmin():
     else:
         message = "Error updating profile info"
         return redirect(url_for('admin_panel', error=message))
+    
+@app.route("/updatelawyer", methods=['POST'])
+def updatelawyer():
+    
+    lawyerID = request.form['lawyerID']
+    lawyer_fname = request.form['lawyer_fname']
+    lawyer_mname = request.form['lawyer_mname']
+    lawyer_lname = request.form['lawyer_lname']
+    lawyer_username = request.form['lawyer_username']
+    lawyer_password = request.form['lawyer_password']
+
+    print(lawyerID)
+    print(lawyer_fname)
+    print(lawyer_mname)
+    print(lawyer_lname)
+    print(lawyer_username)
+    print(lawyer_password)
+    
+    if lawyerID and lawyer_fname and lawyer_mname and lawyer_lname and lawyer_username and lawyer_password:
+        db.update_data('lawyer', ['lawyerID', 'lawyer_fname', 'lawyer_mname', 'lawyer_lname', 'lawyer_username', 'lawyer_password'], [lawyerID,lawyer_fname.upper(),lawyer_mname.upper(),lawyer_lname.upper(),lawyer_username,lawyer_password])
+        message = "Profile Info updated successfully"
+        return redirect(url_for('lawyer_panel', success=message))
+    else:
+        message = "Error updating profile info"
+        return redirect(url_for('lawyer_panel', error=message))
 
 @app.route("/property_listings")
 def property_listings():
@@ -569,12 +750,19 @@ def declineStatus():
 @app.route("/contracts")
 def contracts():
     if 'sessionID' not in session:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('lawyerindex'))
     
     if 'sessionID' in session:
-        firstname = session['admin_firstname']
-        middlename = session['admin_mname']
-        lastname = session['admin_lastname']
+        user_type = session['user_type']
+
+        if user_type == 'admin':
+            firstname = session['admin_firstname']
+            middlename = session['admin_mname']
+            lastname = session['admin_lastname']
+        if user_type == 'lawyer':
+            firstname = session['lawyer_firstname']
+            middlename = session['lawyer_mname']
+            lastname = session['lawyer_lastname']
 
         title = "B-Lease | List of Contracts"  
 
@@ -582,7 +770,7 @@ def contracts():
         
         user = db.get_all_data('user')
         
-        return render_template("contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname)
+        return render_template("contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname,user_type=user_type)
 
 @app.route("/decline", methods=['POST'])
 def decline():
@@ -641,10 +829,21 @@ def decline():
 
 @app.route("/view_contract", methods=['GET'])
 def view_contract():
-    
     if 'sessionID' not in session:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('lawyerindex'))
     
+    if 'sessionID' in session:
+        user_type = session['user_type']
+
+        if user_type == 'admin':
+            firstname = session['admin_firstname']
+            middlename = session['admin_mname']
+            lastname = session['admin_lastname']
+        if user_type == 'lawyer':
+            firstname = session['lawyer_firstname']
+            middlename = session['lawyer_mname']
+            lastname = session['lawyer_lastname']
+
     leasingID = request.args.get('leasingID')
     user = db.get_all_data('user')
     title = "B-Lease | View Contracts" 
@@ -652,7 +851,8 @@ def view_contract():
     payment = db.get_all_data('payment')
 
     leasing = db.get_specific_data('leasing',['leasingID'],[leasingID])
-     
+    
+    
 
     leasing['documents'] = []
     for filename in os.listdir(f'static/contracts/{leasing["leasingID"]}'):
@@ -661,7 +861,7 @@ def view_contract():
             leasing['documents'].append(filename)
 
 
-    return render_template("view_contract.html", title=title, leasing=leasing, user=user,payment=payment)
+    return render_template("view_contract.html", title=title, leasing=leasing, user=user,payment=payment, user_type=user_type, firstname = firstname , middlename = middlename , lastname = lastname)
 
 @app.route("/markasresolve")
 def markasresolve():
@@ -672,6 +872,7 @@ def markasresolve():
     message = "Approve"
 
     return redirect(url_for('manage_complaint', success = message))
+
 
 @app.route('/updatethread',methods=['POST'])
 def updatethread():
@@ -867,6 +1068,8 @@ def declinecontracts():
 
    
      title = "B-Lease | Decline Contract"  
+
+
    
      return render_template("declinecontracts.html", title=title, leasingID=leasingID)
 
@@ -876,16 +1079,24 @@ def ongoing_contracts():
     if 'sessionID' not in session:
         return redirect(url_for('dashboard'))
     if 'sessionID' in session:
-        firstname = session['admin_firstname']
-        middlename = session['admin_mname']
-        lastname = session['admin_lastname']
+
+        user_type = session['user_type']
+
+        if user_type == 'admin':
+            firstname = session['admin_firstname']
+            middlename = session['admin_mname']
+            lastname = session['admin_lastname']
+        if user_type == 'lawyer':
+            firstname = session['lawyer_firstname']
+            middlename = session['lawyer_mname']
+            lastname = session['lawyer_lastname']
 
         title = "B-Lease | Ongoing List of Contracts"  
         leasing = db.get_all_data('leasing')
     
         user = db.get_all_data('user')
 
-        return render_template("ongoing_contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname)
+        return render_template("ongoing_contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname, user_type=user_type)
 
 @app.route("/finished_contracts")
 def finished_contracts():
@@ -893,16 +1104,23 @@ def finished_contracts():
         return redirect(url_for('dashboard'))
     
     if 'sessionID' in session:
-        firstname = session['admin_firstname']
-        middlename = session['admin_mname']
-        lastname = session['admin_lastname']
+        user_type = session['user_type']
+
+        if user_type == 'admin':
+            firstname = session['admin_firstname']
+            middlename = session['admin_mname']
+            lastname = session['admin_lastname']
+        if user_type == 'lawyer':
+            firstname = session['lawyer_firstname']
+            middlename = session['lawyer_mname']
+            lastname = session['lawyer_lastname']
 
         title = "B-Lease | Finished List of Contracts"  
         leasing = db.get_all_data('leasing')
     
         user = db.get_all_data('user')
 
-        return render_template("finished_contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname)
+        return render_template("finished_contracts.html", title=title, property=property, user=user,leasing=leasing,firstname=firstname,middlename=middlename,lastname=lastname, user_type=user_type)
 
 @app.route("/payment_reports")
 def payment_reports():

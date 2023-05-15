@@ -1,224 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}"/>
-    <!-- bootstrap icon -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"> 
-    <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/b-lease-icon-main.png')}}" />
+  <!-- bootstrap icon -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  <!-- MDB -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='js/view_property.js')}}"></script>
-    <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{title}}</title>
-    
+  <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+  <script src="{{url_for('static', filename='js/view_property.js')}}"></script>
+  <script src="{{url_for('static', filename='/js/jquery.min.js')}}"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+
 </head>
+<script>
+  $(document).ready(function() {
+
+  // Get the checkboxes
+  var proofOwnershipCheckbox = $('#proof_ownership_checkbox');
+  var ownershipExistsCheckbox = $('#ownership_exists_checkbox');
+  var priceCheckbox = $('#price_checkbox');
+
+  // Get the approve button
+  var approveButton = $('#approve_button');
+
+  // Attach a change event listener to the checkboxes
+  proofOwnershipCheckbox.add(ownershipExistsCheckbox).add(priceCheckbox).on('change', function() {
+
+    // Check if all checkboxes are checked
+    if (proofOwnershipCheckbox.prop('checked') && ownershipExistsCheckbox.prop('checked') && priceCheckbox.prop('checked')) {
+      // Enable the approve button
+      approveButton.prop('disabled', false);
+    } else {
+      // Disable the approve button
+      approveButton.prop('disabled', true);
+    }
+
+  });
+
+});
+</script>
 <body style="background-color: #e7e7e7;" class="body">
-    <!--Main Navigation-->
-    <header>
-      <!-- Sidebar -->
-      <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
-        <a class="navbar-brand" href="{{url_for('dashboard')}}">
-          <img src="static/images/b-lease_main.png"
-               height="30"
-               alt="b-lease logo"
-               loading="lazy" />
-        </a>
-        <br>
-        <div class="position-sticky">
-          <div class="list-group list-group-flush mx-7 mt-5">
-            
-            <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
-              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
-            </a>
-            <a href="{{url_for('property_listings')}}" class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
-                class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
-            <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
-            <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
-              <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
-            </a>
-            <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
-            <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
-                class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+  <!--Main Navigation-->
+  <header>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+      <a class="navbar-brand" href="{{url_for('dashboard')}}">
+        <img src="static/images/b-lease_main.png" height="30" alt="b-lease logo" loading="lazy" />
+      </a>
+      <br>
+      <div class="position-sticky">
+        <div class="list-group list-group-flush mx-7 mt-5">
 
-                <center><a  href="{{url_for('logout')}}" class="link-success fixed-bottom" ><i class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a>  </center>       
-                <center><p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>  </center>         
-               
-          </div>
+          <a href="{{url_for('dashboard')}}" class="list-group-item list-group-item-action py-2 ripple"
+            aria-current="true">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
+          </a>
+          <a href="{{ url_for('user_report') }}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-users fa-fw me-3"></i><span>User Report</span>
+          </a>
+          <a href="{{url_for('property_listings')}}"
+            class="list-group-item list-group-item-action py-2 text-success c ripple active"><i
+              class="fas fa-list-ul fa-fw me-3"></i><span>Review Listings</span></a>
+          <a href="{{ url_for('contracts') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-file-contract fa-fw me-3"></i><span>List of Contracts</span></a>
+          <a href="{{url_for('manage_complaint')}}" class="list-group-item list-group-item-action py-2 ripple">
+            <i class="fas fa-circle-exclamation fa-fw me-3"></i><span>Complaints</span>
+          </a>
+          <a href="{{url_for('payment_reports')}}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-chart-line fa-fw me-3"></i><span>Payment Reports</span></a>
+          <a href="{{ url_for('admin_panel') }}" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-user-shield fa-fw me-3"></i><span>Admin Panel</span></a>
+
+
+          <a href="{{ url_for('lawyer_panel') }}" class="list-group-item list-group-item-action py-2 ">
+            <i class="fa-solid fa-gavel me-3"></i><span>Lawyer Panel</span></a>
+
+          <center><a href="{{url_for('logout')}}" class="link-success fixed-bottom"><i
+                class="fa-solid fa-right-from-bracket" style="color: #40a047;"></i> Logout</a> </center>
+          <center>
+            <p class="fixed-bottom-name">{{firstname}} {{middlename | first}}. {{lastname}}</p>
+          </center>
+
         </div>
-      </nav>
-    
-    </header>
-<!--Main layout-->
- 
+      </div>
+    </nav>
+
+  </header>
+  <!--Main layout-->
 
 
-<main style="margin-top: 5px;">
+
+  <main style="margin-top: 5px;">
 
 
     <div class="container pt-3 align-items-center">
-        <!-- Dashboard -->  
-        <a href="{{url_for('property_listings')}}" >
-          <i class="fa-solid fa-arrow-left"></i> Go back
-        </a>
+      <!-- Dashboard -->
+      <a href="{{url_for('property_listings')}}">
+        <i class="fa-solid fa-arrow-left"></i> Go back
+      </a>
       <div class="row d-flex justify-content-center align-items-center h-250">
         <div class="col-lg-10 col-xl-11">
           <div class="card text-black" style="border-radius: 25px;">
             <div class="card-body p-md-4">
               <div class="row justify-content-center">
                 <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1 ">
-                  
-                  <div id="gallerywrapper" >       
-                  <div id="gallery" >
-                    {% for img in property.images %}
-                    <div id="pic1">
-                      <img src="{{url_for('static',filename='property_listings/{}/images/{}'.format(property.propertyID,property.images[0]))}}" height="350" width="500" alt="Image 1">
-                      <a class="previous" href="#pic5"><i class="bi bi-caret-left-square-fill"></i></a>
-                      <a class="next" href="#pic2"><i class="bi bi-caret-right-square-fill"></i></a>
-                      <p>{{property.propertyID}}</p>
-                      <!-- <p>About this Property : <br>{{property.property_description}}</p> -->
+
+                  <div id="gallerywrapper">
+                    <div id="gallery">
+                      {% for img in property.images %}
+                      <div id="pic1">
+                        <img
+                          src="{{url_for('static',filename='property_listings/{}/images/{}'.format(property.propertyID,property.images[0]))}}"
+                          height="350" width="500" alt="Image 1">
+                        <a class="previous" href="#pic5"><i class="bi bi-caret-left-square-fill"></i></a>
+                        <a class="next" href="#pic2"><i class="bi bi-caret-right-square-fill"></i></a>
+                        <p>{{property.propertyID}}</p>
+                        <!-- <p>About this Property : <br>{{property.property_description}}</p> -->
+                      </div>
+                      <div id="pic2">
+                        <img
+                          src="{{url_for('static',filename='property_listings/{}/images/{}'.format(property.propertyID,property.images[1]))}}"
+                          height="350" width="500" alt="Image 2">
+                        <a class="previous" href="#pic1"><i class="bi bi-caret-left-square-fill"></i></a>
+                        <a class="next" href="#pic3"><i class="bi bi-caret-right-square-fill"></i></a>
+                        <h3>{{property.propertyID}}</h3>
+                        <p>Text of image 2.</p>
+                      </div>
+                      <div id="pic3">
+                        <img
+                          src="{{url_for('static',filename='property_listings/{}/images/{}'.format(property.propertyID,property.images[2]))}}"
+                          height="350" width="500" alt="Image 3">
+                        <a class="previous" href="#pic2"><i class="bi bi-caret-left-square-fill"></i></a>
+                        <a class="next" href="#pic4"><i class="bi bi-caret-right-square-fill"></i></a>
+                        <h3>{{property.propertyID}}</h3>
+                        <p>Text of image 3.</p>
+                      </div>
+
+                      {% endfor %}
+
                     </div>
-                    <div id="pic2">
-                      <img src="{{url_for('static',filename='property_listings/{}/images/{}'.format(property.propertyID,property.images[1]))}}" height="350" width="500" alt="Image 2">
-                      <a class="previous" href="#pic1"><i class="bi bi-caret-left-square-fill"></i></a>
-                      <a class="next" href="#pic3"><i class="bi bi-caret-right-square-fill"></i></a>
-                      <h3>{{property.propertyID}}</h3>
-                      <p>Text of image 2.</p>
-                    </div>
-                    <div id="pic3">
-                      <img src="{{url_for('static',filename='property_listings/{}/images/{}'.format(property.propertyID,property.images[2]))}}" height="350" width="500" alt="Image 3">
-                      <a class="previous" href="#pic2"><i class="bi bi-caret-left-square-fill"></i></a>
-                      <a class="next" href="#pic4"><i class="bi bi-caret-right-square-fill"></i></a>
-                      <h3>{{property.propertyID}}</h3>
-                      <p>Text of image 3.</p>
-                    </div>
-                    
-                    {% endfor %}
-                    
-                  </div>  
 
                   </div>
                   <div class="descript">
                     <label class="price" for="property_description">About This Property:</label>
                     <p>{{property.property_description}}</p>
                   </div>
-                 
+
                   <div class="descript">
                     {% for each in property.documents %}
-                    <i  class="fa-solid fa-file-pdf" style="color: #40a047;"></i>
-                  <a href="/propertydocuments/{{property.propertyID}}/{{each}}" target="_blank">{{each}}</a><br>
-                  {% endfor %}  
+                    <i class="fa-solid fa-file-pdf" style="color: #40a047;"></i>
+                    <a href="/propertydocuments/{{property.propertyID}}/{{each}}" target="_blank">{{each}}</a><br>
+                    {% endfor %}
                   </div>
-                  
+
                 </div>
-                
+
                 <div class="desc col-md-10 col-lg-6 col-xl-7 d-flex  order-1 order-lg-2">
-                  <div class="mx-1 mx-md-4" >
+                  <div class="mx-1 mx-md-4">
                     <div class="price">
                       <h1>
                         <i class="fa-solid fa-peso-sign" id="price"></i>
                       </h1>
                       <i class="fa-solid fa-location-dot"></i><span class="ml-1">&nbsp; {{property.address}}</span>
-                      <br>  
-                        
-                        
-                        {% if property.property_status == 'pending' %}
-                        <label for="property_status">Property Status:</label>
-                        <span class="badge badge-warning rounded-pill d-inline" >{{property.property_status}}</span>
-                        {% elif property.property_status == 'open' %}
-                        <label for="property_status">Property Status:</label>
-                        <span class="badge badge-success rounded-pill d-inline" >{{property.property_status}}</span>
-                        {% else %}
-                        <label for="property_status">Property Status:</label>
-                        <span class="badge badge-danger rounded-pill d-inline" >{{property.property_status}}</span>
-                        {% endif %}
-                    </div>     
                       <br>
-                      {% for user in user%}
-                      {% if user.userID == property.userID%}
-                      <i class="fa-solid fa-user"></i><span class="ml-1">&nbsp; {{property.userID}} | {{user.user_lname}} , {{user.user_fname}} {{user.user_mname|first}}.</span>
-                      <br>
-                      {% endif %}
-                      {% endfor %}
-                  
-                      <i class="bi bi-bounding-box-circles"></i><span class="ml-1">&nbsp; {{property.size}} {{property.unit_type}}</span>
-                      <br>
-                      <i class="bi bi-house-door-fill"></i><span class="ml-1">&nbsp; {{property.property_type}}</span>
-                      <hr>
-                      
-                      <br>
-                         
-                             
+
+
                       {% if property.property_status == 'pending' %}
-                    
+                      <label for="property_status">Property Status:</label>
+                      <span class="badge badge-warning rounded-pill d-inline">{{property.property_status}}</span>
+                      {% elif property.property_status == 'open' %}
+                      <label for="property_status">Property Status:</label>
+                      <span class="badge badge-success rounded-pill d-inline">{{property.property_status}}</span>
+                      {% else %}
+                      <label for="property_status">Property Status:</label>
+                      <span class="badge badge-danger rounded-pill d-inline">{{property.property_status}}</span>
+                      {% endif %}
+                    </div>
+                    <br>
+                    {% for user in user%}
+                    {% if user.userID == property.userID%}
+                    <i class="fa-solid fa-user"></i><span class="ml-1">&nbsp; {{property.userID}} | {{user.user_lname}}
+                      , {{user.user_fname}} {{user.user_mname|first}}.</span>
+                    <br>
+                    {% endif %}
+                    {% endfor %}
 
-                      <label class="checkbox-container">Proof of ownership is valid
-                        <input type="checkbox">
-                        <span class="checkmark"></span>
-                      </label>
-                      <label class="checkbox-container">Ownership exists in the Registry of Deeds
-                        <input type="checkbox">
-                        <span class="checkmark"></span>
-                      </label>
-                      <label class="checkbox-container">Set property price is at least PHP
-                        <input type="checkbox">
-                        <span class="checkmark"></span>
-                      </label>
-                      <br>
+                    <i class="bi bi-bounding-box-circles"></i><span class="ml-1">&nbsp; {{property.size}}
+                      {{property.unit_type}}</span>
+                    <br>
+                    <i class="bi bi-house-door-fill"></i><span class="ml-1">&nbsp; {{property.property_type}}</span>
+                    <hr>
 
-                      <div class="approveOrDecline">
+                    <br>
+
+
+                    {% if property.property_status == 'pending' %}
+
+
+                    <label class="checkbox-container">Proof of ownership is valid
+                      <input type="checkbox" id="proof_ownership_checkbox">
+                      <span class="checkmark">
                         
-                        <a  href="{{url_for('declinePropertyListing', propertyID = property.propertyID)}}" style="border: 10px solid #dc4c64; border-radius: 4px;"class="link-light bg-danger">Decline</a>  
-                     
-                        <button onclick="approveListing('{{property.propertyID}}')" style="border: 10px solid #14a44d; border-radius: 4px;" class="link-light bg-success">Approve</button>
+                      </span>
+                    </label>
+                    <label class="checkbox-container">Ownership exists in the Registry of Deeds
+                      <input type="checkbox" id="ownership_exists_checkbox">
+                      <span class="checkmark">
+
+                      </span>
+                    </label>
+                    <label class="checkbox-container">Set property price is at least PHP
+                      <input type="checkbox" id="price_checkbox">
+                      <span class="checkmark">
+
+                      </span>
+                    </label>
+                    <br>
+
+                    <div class="approveOrDecline">
+
+                      <a href="{{url_for('declinePropertyListing', propertyID = property.propertyID)}}"
+                        style="border: 10px solid #dc4c64; border-radius: 4px;" class="link-light bg-danger">Decline</a>
+
+                      <button id="approve_button" onclick="approveListing('{{property.propertyID}}')" disabled
                        
-                      </div>
-                      <br>
+                        >Approve</button>
+
+                    </div>
+                    <br>
                     {% else %}
-   
+
                     {% endif %}
                   </div>
-                 
-                   
-         
-               
-                    
+
+
+
+
+
                 </div>
-               
-                </div> 
-                      
+
               </div>
+
             </div>
           </div>
         </div>
       </div>
-
-      
-             
-    </div>    
-</main>
-<script>
-const priceElement = document.getElementById("price");
-const price = parseInt("{{property.price}}");
-
-priceElement.innerText = price.toLocaleString();
+    </div>
 
 
-</script>
-<!--Main layout-->
+
+    </div>
+  </main>
+  <script>
+    const priceElement = document.getElementById("price");
+    const price = parseInt("{{property.price}}");
+
+    priceElement.innerText = price.toLocaleString();
+
+
+  </script>
+  <!--Main layout-->
 
 </body>
+
 </html>

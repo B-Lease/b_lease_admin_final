@@ -432,6 +432,39 @@ def getSearchProperties(query:str):
     cur.close()
     return data
 
+def getFilterSearchProperties(query:str, minimum_price:float, maximum_price:float, minimum_property_size:float, maximum_property_size:float,property_type:str):
+    cur = mysql.connection.cursor()
+    if property_type == 'any':
+        if maximum_price is not None and maximum_price > 0:
+            
+            if maximum_property_size is not None and maximum_property_size > 0:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size} AND CAST(size as FLOAT)< {maximum_property_size} AND CAST(price as FLOAT) > {minimum_price} AND CAST(price as FLOAT)< {maximum_price} ")
+            else:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size} AND CAST(price as FLOAT) > {minimum_price} AND CAST(price as FLOAT)< {maximum_price} ")
+        else:
+            if maximum_property_size is not None and maximum_property_size > 0:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size} AND CAST(size as FLOAT)< {maximum_property_size} AND CAST(price as FLOAT) > {minimum_price} ")
+            else:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size}  AND CAST(price as FLOAT) > {minimum_price}  ")
+    else:
+        if maximum_price is not None and maximum_price > 0:
+            
+            if maximum_property_size is not None and maximum_property_size > 0:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size} AND CAST(size as FLOAT)< {maximum_property_size} AND CAST(price as FLOAT) > {minimum_price} AND CAST(price as FLOAT)< {maximum_price} AND property_type = '{property_type}' ")
+            else:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size} AND CAST(price as FLOAT) > {minimum_price} AND CAST(price as FLOAT)< {maximum_price} AND property_type = '{property_type}' ")
+        else:
+            if maximum_property_size is not None and maximum_property_size > 0:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size} AND CAST(size as FLOAT)< {maximum_property_size} AND CAST(price as FLOAT) > {minimum_price} AND property_type = '{property_type}' ")
+            else:
+                cur.execute(f"SELECT * FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' AND CAST(size as FLOAT) > {minimum_property_size}  AND CAST(price as FLOAT) > {minimum_price} AND property_type = '{property_type}' ")
+
+        
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
 def getSearchPropertySuggestions(query:str):
     cur = mysql.connection.cursor() 
     cur.execute(f"SELECT `address` FROM property WHERE `address` LIKE '%{query}%' AND `property_status` = 'open' ORDER BY `address` DESC LIMIT 7")
@@ -468,6 +501,15 @@ def countTotalOngoingContracts():
     cur.close()
     return data['totalOngoingContracts']
 
+def countTotalDeclinedContracts():
+    cur = mysql.connection.cursor() 
+    
+    cur.execute(f'SELECT IFNULL(COUNT(*),0) as totalDeclinedContracts FROM b_lease.leasing WHERE `leasing_status` = "declined"')
+    data:dict = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return data['totalDeclinedContracts']
+
 def countTotalOpenProperties():
     cur = mysql.connection.cursor() 
     
@@ -498,6 +540,15 @@ def countTotalResolvedComplaints():
 def checkOngoingLeasing(userID):
     cur = mysql.connection.cursor() 
     cur.execute(f"SELECT * FROM b_lease.leasing WHERE `leasing_status` = 'ongoing' AND lesseeID = '{userID}' OR lessorID = '{userID}'")
+    data:dict = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    return data
+
+
+def getPropertyCoordinates():
+    cur = mysql.connection.cursor()
+    cur.execute(f"SELECT p.latitude, p.longitude,p.address, p.property_type, u.user_fname, u.user_lname  FROM property p, user u WHERE u.userID = p.userID")
     data:dict = cur.fetchall()
     mysql.connection.commit()
     cur.close()
